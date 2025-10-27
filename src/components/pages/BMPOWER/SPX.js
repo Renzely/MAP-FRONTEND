@@ -22,7 +22,22 @@ export default function BmpowerHO() {
   const [openEditModal, setOpenEditModal] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [selectedRemarks, setSelectedRemarks] = React.useState("");
+  const [filteredAccounts, setFilteredAccounts] = React.useState([]);
 
+  const handleRemarksChange = (event) => {
+    const value = event.target.value;
+    setSelectedRemarks(value);
+
+    if (value === "" || value === "UNFILTERED") {
+      setFilteredAccounts(accounts); // show all if unfiltered
+    } else {
+      const filtered = accounts.filter(
+        (acc) => acc.remarks?.toLowerCase() === value.toLowerCase() // case-insensitive match
+      );
+      setFilteredAccounts(filtered);
+    }
+  };
   const handleEdit = (employee) => {
     setSelectedEmployee(employee);
     setOpenEditModal(true);
@@ -57,14 +72,15 @@ export default function BmpowerHO() {
         );
 
         // Filter only MARABOU company AND clientAssigned = "LONG TABLE GROUP INC.- MASAJIRO"
-        const marabouAccounts = response.data.filter(
+        const bmpowerAccounts = response.data.filter(
           (acc) =>
             acc.company?.toUpperCase() ===
               "BMPOWER HUMAN RESOURCES CORPORATION" &&
             acc.clientAssigned?.toUpperCase() === "SPX EXPRESS"
         );
 
-        setAccounts(marabouAccounts);
+        setAccounts(bmpowerAccounts);
+        setFilteredAccounts(bmpowerAccounts);
       } catch (error) {
         console.error("Error fetching accounts:", error);
       }
@@ -150,12 +166,11 @@ export default function BmpowerHO() {
   ];
 
   // Assign a unique ID for DataGrid
-  const rows = accounts.map((acc, index) => ({
+  const rows = filteredAccounts.map((acc, index) => ({
     id: acc._id || index,
     count: index + 1,
     ...acc,
   }));
-
   return (
     <div className="accountPage">
       <Topbar />
@@ -173,6 +188,27 @@ export default function BmpowerHO() {
           <Typography variant="h5" sx={{ mb: 2 }}>
             Employee Accounts for SPX EXPRESS
           </Typography>
+
+          <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+            <FormControl sx={{ width: 200 }}>
+              <Select
+                value={selectedRemarks}
+                onChange={handleRemarksChange}
+                displayEmpty
+                sx={{ backgroundColor: "white" }}
+              >
+                <MenuItem value="" disabled>
+                  Select Remarks
+                </MenuItem>
+                <MenuItem value="UNFILTERED">UNFILTERED</MenuItem>
+                <MenuItem value="Applicant">Applicant</MenuItem>
+                <MenuItem value="Employed">Employed</MenuItem>
+                <MenuItem value="Resign">Resign</MenuItem>
+                <MenuItem value="Terminate">Terminate</MenuItem>
+                <MenuItem value="End of Contract">End of Contract</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
           <Box
             sx={{
               height: "100%",

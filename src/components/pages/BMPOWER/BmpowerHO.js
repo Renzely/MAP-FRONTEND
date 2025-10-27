@@ -38,6 +38,7 @@ export default function BmpowerHO() {
       setFilteredAccounts(filtered);
     }
   };
+
   const handleEdit = (employee) => {
     setSelectedEmployee(employee);
     setOpenEditModal(true);
@@ -72,7 +73,7 @@ export default function BmpowerHO() {
         );
 
         // Filter only MARABOU company
-        const marabouAccounts = response.data.filter(
+        const bmpowerAccounts = response.data.filter(
           (acc) =>
             acc.company?.toUpperCase() ===
               "BMPOWER HUMAN RESOURCES CORPORATION" &&
@@ -80,8 +81,8 @@ export default function BmpowerHO() {
               "BMPOWER HUMAN RESOURCES CORPORATION"
         );
 
-        setAccounts(marabouAccounts);
-        setFilteredAccounts(marabouAccounts);
+        setAccounts(bmpowerAccounts);
+        setFilteredAccounts(bmpowerAccounts);
       } catch (error) {
         console.error("Error fetching accounts:", error);
       }
