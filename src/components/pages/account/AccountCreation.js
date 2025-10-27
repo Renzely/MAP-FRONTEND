@@ -409,7 +409,9 @@ export default function AccountCreation() {
                     pattern: "[0-9]*",
                   }}
                   onChange={(e) => {
-                    const value = e.target.value.replace(/[^0-9]/g, "");
+                    const value = e.target.value
+                      .replace(/\s+/g, "")
+                      .replace(/[^0-9]/g, "");
                     handleChange("sss", value);
                   }}
                   error={!!formErrors.sss}
@@ -427,7 +429,9 @@ export default function AccountCreation() {
                     pattern: "[0-9]*",
                   }}
                   onChange={(e) => {
-                    const value = e.target.value.replace(/[^0-9]/g, "");
+                    const value = e.target.value
+                      .replace(/\s+/g, "")
+                      .replace(/[^0-9]/g, "");
                     handleChange("philhealth", value);
                   }}
                   error={!!formErrors.philhealth}
@@ -445,7 +449,9 @@ export default function AccountCreation() {
                     pattern: "[0-9]*",
                   }}
                   onChange={(e) => {
-                    const value = e.target.value.replace(/[^0-9]/g, "");
+                    const value = e.target.value
+                      .replace(/\s+/g, "")
+                      .replace(/[^0-9]/g, "");
                     handleChange("hdmf", value);
                   }}
                   error={!!formErrors.hdmf}
@@ -463,7 +469,9 @@ export default function AccountCreation() {
                     pattern: "[0-9]*",
                   }}
                   onChange={(e) => {
-                    const value = e.target.value.replace(/[^0-9]/g, "");
+                    const value = e.target.value
+                      .replace(/\s+/g, "")
+                      .replace(/[^0-9]/g, "");
                     handleChange("tin", value);
                   }}
                   error={!!formErrors.tin}

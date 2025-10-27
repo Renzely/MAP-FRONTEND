@@ -13,7 +13,7 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import axios from "axios";
 import Swal from "sweetalert2";
 import logo from "./Studio-Project.png";
-import backgroundImage from "./TrackPro_logo.png";
+import backgroundImage from "./Studio-Project.png";
 
 const theme = createTheme({
   palette: {
@@ -122,7 +122,7 @@ export default function Login() {
             sm={6} // Shows this on small screens and above
             sx={{
               backgroundImage: `url(${backgroundImage})`,
-              backgroundSize: "100% 100%",
+              backgroundSize: "80% 80%",
               backgroundRepeat: "no-repeat",
               backgroundPosition: "center",
               minHeight: "100%",
@@ -162,7 +162,7 @@ export default function Login() {
                     fontWeight="bold"
                     color="#384959"
                   >
-                    ADMIN LOGIN
+                    Masterlist Portal Login
                   </Typography>
                 </Box>
                 <TextField
