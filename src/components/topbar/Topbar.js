@@ -6,7 +6,7 @@ export default function Topbar({ isSidebarOpen }) {
     <div className={`topbar ${isSidebarOpen ? "shifted" : ""}`}>
       <div className="topbarWrapper">
         <div className="topLeft">
-          <span className="logo">Merch Admin Portal</span>
+          <span className="logo">Masterlist Monitoring Portal</span>
         </div>
       </div>
     </div>

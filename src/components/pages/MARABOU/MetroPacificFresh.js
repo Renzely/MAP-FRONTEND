@@ -56,12 +56,11 @@ export default function BmpowerHO() {
           "https://api-map.bmphrc.com/get-merch-accounts"
         );
 
-        // Filter only MARABOU company
+        // Filter only MARABOU company AND clientAssigned = "LONG TABLE GROUP INC.- MASAJIRO"
         const marabouAccounts = response.data.filter(
           (acc) =>
             acc.company?.toUpperCase() === "MARABOU EVERGREEN RESOURCES INC" &&
-            acc.clientAssigned?.toUpperCase() ===
-              "MARABOU EVERGREEN RESOURCES INC"
+            acc.clientAssigned?.toUpperCase() === "METRO PACIFIC FRESH FARM"
         );
 
         setAccounts(marabouAccounts);
