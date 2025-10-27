@@ -1009,7 +1009,7 @@ export default function Admin() {
                   <MenuItem value="HR COMPENSATION AND BENEFITS">
                     HR COMPENSATION AND BENEFITS
                   </MenuItem>
-                  <MenuItem value="HR">HR</MenuItem>
+                  <MenuItem value="HR SPECIALIST">HR SPECIALIST</MenuItem>
                 </Select>
               </FormControl>
 
