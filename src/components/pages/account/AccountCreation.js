@@ -345,11 +345,11 @@ export default function AccountCreation() {
                 <FormControl fullWidth sx={{ mt: 3 }}>
                   <InputLabel>Mode of Disbursement</InputLabel>
                   <Select
-                    value={formData.remarks}
+                    value={formData.modeOfDisbursement}
                     label="Mode of Disbursement"
                     onChange={(e) => {
                       const value = e.target.value;
-                      handleChange("remarks", value);
+                      handleChange("modeOfDisbursement", value);
                       handleChange("accountNumber", ""); // reset account number when mode changes
                     }}
                   >
@@ -496,19 +496,19 @@ export default function AccountCreation() {
                       UNIONBANK: 12,
                     };
 
-                    const maxLength = maxLengths[formData.remarks] || 20;
+                    const maxLength = maxLengths[formData.accountNumber] || 20;
 
                     if (value.length <= maxLength) {
                       handleChange("accountNumber", value);
                     }
                   }}
-                  disabled={!formData.remarks}
+                  disabled={!formData.modeOfDisbursement}
                   inputProps={{
                     inputMode: "text",
                     pattern: "[A-Za-z0-9]*",
                   }}
                   error={
-                    !!formData.remarks &&
+                    !!formData.accountNumber &&
                     formData.accountNumber.length > 0 &&
                     formData.accountNumber.length <
                       {
@@ -526,10 +526,10 @@ export default function AccountCreation() {
                         RCBC: 10,
                         "SECURITY BANK": 13,
                         UNIONBANK: 12,
-                      }[formData.remarks]
+                      }[formData.accountNumber]
                   }
                   helperText={
-                    !formData.remarks
+                    !formData.accountNumber
                       ? "Select Mode of Disbursement first"
                       : formData.accountNumber.length > 0 &&
                         formData.accountNumber.length <
@@ -548,7 +548,7 @@ export default function AccountCreation() {
                             RCBC: 10,
                             "SECURITY BANK": 13,
                             UNIONBANK: 12,
-                          }[formData.remarks]
+                          }[formData.accountNumber]
                       ? `Account Number must be ${
                           {
                             "AUB (Hello Money)": 12,
@@ -565,9 +565,9 @@ export default function AccountCreation() {
                             RCBC: 10,
                             "SECURITY BANK": 13,
                             UNIONBANK: 12,
-                          }[formData.remarks]
+                          }[formData.accountNumber]
                         } characters long`
-                      : formData.remarks
+                      : formData.accountNumber
                       ? `Must be ${
                           {
                             "AUB (Hello Money)": 12,
@@ -584,7 +584,7 @@ export default function AccountCreation() {
                             RCBC: 10,
                             "SECURITY BANK": 13,
                             UNIONBANK: 12,
-                          }[formData.remarks]
+                          }[formData.accountNumber]
                         } characters`
                       : ""
                   }
