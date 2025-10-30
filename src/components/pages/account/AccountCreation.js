@@ -496,7 +496,8 @@ export default function AccountCreation() {
                       UNIONBANK: 12,
                     };
 
-                    const maxLength = maxLengths[formData.accountNumber] || 20;
+                    const maxLength =
+                      maxLengths[formData.modeOfDisbursement] || 20;
 
                     if (value.length <= maxLength) {
                       handleChange("accountNumber", value);
@@ -526,10 +527,10 @@ export default function AccountCreation() {
                         RCBC: 10,
                         "SECURITY BANK": 13,
                         UNIONBANK: 12,
-                      }[formData.accountNumber]
+                      }[formData.modeOfDisbursement]
                   }
                   helperText={
-                    !formData.accountNumber
+                    !formData.modeOfDisbursement
                       ? "Select Mode of Disbursement first"
                       : formData.accountNumber.length > 0 &&
                         formData.accountNumber.length <
@@ -548,7 +549,7 @@ export default function AccountCreation() {
                             RCBC: 10,
                             "SECURITY BANK": 13,
                             UNIONBANK: 12,
-                          }[formData.accountNumber]
+                          }[formData.modeOfDisbursement]
                       ? `Account Number must be ${
                           {
                             "AUB (Hello Money)": 12,
@@ -565,9 +566,9 @@ export default function AccountCreation() {
                             RCBC: 10,
                             "SECURITY BANK": 13,
                             UNIONBANK: 12,
-                          }[formData.accountNumber]
+                          }[formData.modeOfDisbursement]
                         } characters long`
-                      : formData.accountNumber
+                      : formData.modeOfDisbursement
                       ? `Must be ${
                           {
                             "AUB (Hello Money)": 12,
@@ -584,7 +585,7 @@ export default function AccountCreation() {
                             RCBC: 10,
                             "SECURITY BANK": 13,
                             UNIONBANK: 12,
-                          }[formData.accountNumber]
+                          }[formData.modeOfDisbursement]
                         } characters`
                       : ""
                   }
