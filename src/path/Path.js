@@ -22,12 +22,14 @@ const Path = () => {
         return <Navigate to="/view-accounts" />;
       case "/view-accounts":
       case "/view-admin-accounts":
+      case "/view-recent-activity":
       case "/view-bmpowerHO":
       case "/view-asianstreak":
       case "/view-ecossentialfoods":
       case "/view-ecossentialfoodsHO":
       case "/view-engkanto":
       case "/view-magis":
+      case "/view-mckenzie":
       case "/view-pldt":
       case "/view-royalcanin":
       case "/view-shelfmate":
