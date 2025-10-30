@@ -30,7 +30,8 @@ export default function Sidebar() {
   const location = useLocation();
   const [activeItem, setActiveItem] = useState(location.pathname);
   const [isOpen, setOpen] = useState(() => {
-    return localStorage.getItem("sidebarOpen") === "true";
+    const saved = localStorage.getItem("sidebarOpen");
+    return saved === "true" ? true : false; // Defaults to false if not set
   });
   // Add state for collapse toggle
   const [openMarabou, setOpenMarabou] = useState(false);
@@ -123,6 +124,20 @@ export default function Sidebar() {
           </NavLink>
         )}
 
+        {["MIS", "HR HEAD", "HR OFFICER"].includes(roleAccount) && (
+          <NavLink
+            to="/view-recent-activity"
+            onClick={() => handleItemClick("/view-recent-activity")}
+          >
+            <li
+              className={activeItem === "/view-recent-activity" ? "active" : ""}
+            >
+              <SupervisorAccount className="sidebar-icon" />{" "}
+              {isOpen && "Recent Activity"}
+            </li>
+          </NavLink>
+        )}
+
         <li
           className={activeItem === "/view-bmpowerHO" ? "active" : ""}
           onClick={handleToggleBmpower}
@@ -208,6 +223,15 @@ export default function Sidebar() {
               >
                 <li className={activeItem === "/view-magis" ? "active" : ""}>
                   <AssignmentInd className="sidebar-icon" /> {isOpen && "Magis"}
+                </li>
+              </NavLink>
+              <NavLink
+                to="/view-mckenzie"
+                onClick={() => handleItemClick("/view-mckenzie")}
+              >
+                <li className={activeItem === "/view-mckenzie" ? "active" : ""}>
+                  <AssignmentInd className="sidebar-icon" />{" "}
+                  {isOpen && "Mckenzie"}
                 </li>
               </NavLink>
               <NavLink

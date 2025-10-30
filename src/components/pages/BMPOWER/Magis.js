@@ -13,6 +13,10 @@ import {
   InputLabel,
   Select,
 } from "@mui/material";
+import IconButton from "@mui/material/IconButton";
+import DeleteIcon from "@mui/icons-material/Delete";
+import CloseIcon from "@mui/icons-material/Close";
+
 import Topbar from "../../topbar/Topbar";
 import Sidebar from "../../sidebar/Sidebar";
 import dayjs from "dayjs";
@@ -24,6 +28,30 @@ export default function BmpowerHO() {
   const [isEditing, setIsEditing] = useState(false);
   const [selectedRemarks, setSelectedRemarks] = React.useState("");
   const [filteredAccounts, setFilteredAccounts] = React.useState([]);
+  const [previewImage, setPreviewImage] = useState(null);
+  const [viewAllModalOpen, setViewAllModalOpen] = useState(false);
+  const [viewRequirements, setViewRequirements] = useState([]);
+  const [newUploads, setNewUploads] = useState([]);
+
+  const fetchSavedRequirements = async (employeeEmail) => {
+    try {
+      const response = await axios.get(
+        "http://192.168.51.54:3001/get-merch-accounts"
+      );
+
+      // Find the employee using their email (or use employeeNo/_id if you prefer)
+      const employee = response.data.find((emp) => emp.email === employeeEmail);
+
+      if (employee && employee.requirementsImages) {
+        setViewRequirements(employee.requirementsImages);
+      } else {
+        setViewRequirements([]);
+      }
+    } catch (err) {
+      console.error("Failed to fetch saved requirements:", err);
+      setViewRequirements([]);
+    }
+  };
 
   const handleRemarksChange = (event) => {
     const value = event.target.value;
@@ -38,6 +66,7 @@ export default function BmpowerHO() {
       setFilteredAccounts(filtered);
     }
   };
+
   const handleEdit = (employee) => {
     setSelectedEmployee(employee);
     setOpenEditModal(true);
@@ -50,13 +79,22 @@ export default function BmpowerHO() {
 
   const handleSaveChanges = async (updatedEmployee) => {
     try {
+      const adminFullName = localStorage.getItem("adminFullName"); // should now exist!
+      const payload = {
+        ...updatedEmployee,
+        updatedBy: adminFullName || "Unknown", // fallback if not found
+      };
+
+      console.log("✅ Sending update with admin:", payload.updatedBy);
+
       await axios.put(
-        `https://api-map.bmphrc.com/update-employee/${updatedEmployee._id}`,
-        updatedEmployee
+        `http://192.168.51.54:3001/update-employee/${updatedEmployee._id}`,
+        payload
       );
+
       alert("Employee details updated successfully!");
       setOpenEditModal(false);
-      // refresh data after saving
+      setIsEditing(false);
       window.location.reload();
     } catch (error) {
       console.error("Error updating employee:", error);
@@ -68,10 +106,10 @@ export default function BmpowerHO() {
     const fetchAccounts = async () => {
       try {
         const response = await axios.get(
-          "https://api-map.bmphrc.com/get-merch-accounts"
+          "http://192.168.51.54:3001/get-merch-accounts"
         );
 
-        // Filter only MARABOU company AND clientAssigned = "LONG TABLE GROUP INC.- MASAJIRO"
+        // Filter only MARABOU company
         const bmpowerAccounts = response.data.filter(
           (acc) =>
             acc.company?.toUpperCase() ===
@@ -97,6 +135,12 @@ export default function BmpowerHO() {
     { field: "employeeNo", headerName: "Employee No.", width: 120 },
     { field: "firstName", headerName: "First Name", width: 130 },
     { field: "middleName", headerName: "Middle Name", width: 130 },
+    {
+      field: "modeOfDisbursement",
+      headerName: "Mode of Disbursement",
+      width: 200,
+    },
+    { field: "accountNumber", headerName: "Account Number", width: 200 },
     { field: "lastName", headerName: "Last Name", width: 130 },
     { field: "contact", headerName: "Contact", width: 130 },
     { field: "email", headerName: "Email", width: 200 },
@@ -187,7 +231,7 @@ export default function BmpowerHO() {
           }}
         >
           <Typography variant="h5" sx={{ mb: 2 }}>
-            Employee Accounts for Magis Distribution INC.
+            Employee Accounts for BMPower Human Resources Corporation HO
           </Typography>
           <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
             <FormControl sx={{ width: 200 }}>
@@ -209,6 +253,7 @@ export default function BmpowerHO() {
               </Select>
             </FormControl>
           </Box>
+
           <Box
             sx={{
               height: "100%",
@@ -388,6 +433,114 @@ export default function BmpowerHO() {
                         })
                       }
                       InputProps={{ readOnly: !isEditing }}
+                    />
+                    {isEditing ? (
+                      <FormControl fullWidth>
+                        <InputLabel>Mode of Disbursement</InputLabel>
+                        <Select
+                          value={selectedEmployee.modeOfDisbursement || ""}
+                          label="Mode of Disbursement"
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            // Reset account number when mode changes
+                            setSelectedEmployee({
+                              ...selectedEmployee,
+                              modeOfDisbursement: value,
+                              accountNumber: "",
+                            });
+                          }}
+                        >
+                          <MenuItem value="AUB (Hello Money)">
+                            AUB (Hello Money)
+                          </MenuItem>
+                          <MenuItem value="BDO NETWORK">BDO NETWORK</MenuItem>
+                          <MenuItem value="BDO UNIBANK">BDO UNIBANK</MenuItem>
+                          <MenuItem value="BPI">BPI</MenuItem>
+                          <MenuItem value="CEBUANA">CEBUANA</MenuItem>
+                          <MenuItem value="CHINABANK">CHINABANK</MenuItem>
+                          <MenuItem value="EASTWEST">EASTWEST</MenuItem>
+                          <MenuItem value="GCASH">GCASH</MenuItem>
+                          <MenuItem value="LANDBANK">LANDBANK</MenuItem>
+                          <MenuItem value="METROBANK">METROBANK</MenuItem>
+                          <MenuItem value="PNB">PNB</MenuItem>
+                          <MenuItem value="RCBC">RCBC</MenuItem>
+                          <MenuItem value="SECURITY BANK">
+                            SECURITY BANK
+                          </MenuItem>
+                          <MenuItem value="UNIONBANK">UNIONBANK</MenuItem>
+                        </Select>
+                      </FormControl>
+                    ) : (
+                      <TextField
+                        label="Mode of Disbursement"
+                        fullWidth
+                        value={selectedEmployee.modeOfDisbursement || ""}
+                        InputProps={{ readOnly: true }}
+                      />
+                    )}
+
+                    <TextField
+                      label="Account Number"
+                      fullWidth
+                      value={selectedEmployee.accountNumber || ""}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/[^0-9]/g, ""); // ✅ digits only
+
+                        const maxLengths = {
+                          GCASH: 11,
+                          CEBUANA: 11,
+                          PNB: 12,
+                          RCBC: 10,
+                          EASTWEST: 12,
+                          "AUB (Hello Money)": 12,
+                          LANDBANK: 10,
+                          UNIONBANK: 12,
+                          "BDO NETWORK": 12,
+                          "BDO UNIBANK": 12,
+                          BPI: 12,
+                          "SECURITY BANK": 13,
+                          METROBANK: 13,
+                          CHINABANK: 12,
+                        };
+
+                        const maxLength =
+                          maxLengths[selectedEmployee.modeOfDisbursement] || 20;
+
+                        if (value.length <= maxLength) {
+                          setSelectedEmployee({
+                            ...selectedEmployee,
+                            accountNumber: value,
+                          });
+                        }
+                      }}
+                      InputProps={{ readOnly: !isEditing }}
+                      inputProps={{
+                        inputMode: "numeric", // ✅ mobile numeric keyboard
+                        pattern: "[0-9]*", // ✅ HTML validation: digits only
+                      }}
+                      helperText={
+                        selectedEmployee.modeOfDisbursement
+                          ? `Must be ${
+                              {
+                                GCASH: 11,
+                                CEBUANA: 11,
+                                PNB: 12,
+                                RCBC: 10,
+                                EASTWEST: 12,
+                                "AUB (Hello Money)": 12,
+                                LANDBANK: 10,
+                                UNIONBANK: 12,
+                                "BDO NETWORK": 12,
+                                "BDO UNIBANK": 12,
+                                BPI: 12,
+                                "SECURITY BANK": 13,
+                                METROBANK: 13,
+                                CHINABANK: 12,
+                              }[selectedEmployee.modeOfDisbursement] ||
+                              "up to 20"
+                            } digits`
+                          : "Select Mode of Disbursement first"
+                      }
                     />
 
                     {/* CONTACT + EMAIL */}
@@ -621,6 +774,9 @@ export default function BmpowerHO() {
                           <MenuItem value="UNIVERSAL HARVESTER DAIRY FARM INC">
                             UNIVERSAL HARVESTER DAIRY FARM INC
                           </MenuItem>
+                          <MenuItem value="UNION GALVASTEEL CO.">
+                            UNION GALVASTEEL CO.
+                          </MenuItem>
                         </Select>
                       </FormControl>
                     ) : (
@@ -631,6 +787,298 @@ export default function BmpowerHO() {
                         InputProps={{ readOnly: true }}
                       />
                     )}
+                    {/* VIEW ALL REQUIREMENTS BUTTON */}
+                    <Button
+                      variant="outlined"
+                      sx={{
+                        mt: 2,
+                        borderColor: "#0A21C0",
+                        color: "#0A21C0",
+                        "&:hover": { backgroundColor: "#0A21C020" },
+                      }}
+                      onClick={() => {
+                        if (selectedEmployee?.email) {
+                          fetchSavedRequirements(selectedEmployee.email); // ✅ Fetch employee’s saved images
+                          setViewAllModalOpen(true);
+                        } else {
+                          alert("Please select an employee first.");
+                        }
+                      }}
+                    >
+                      View All Requirements
+                    </Button>
+
+                    {/* VIEW ALL REQUIREMENTS MODAL */}
+                    <Modal
+                      open={viewAllModalOpen}
+                      onClose={() => setViewAllModalOpen(false)}
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          width: "90%",
+                          maxWidth: 900,
+                          maxHeight: "90vh",
+                          bgcolor: "background.paper",
+                          borderRadius: "10px",
+                          boxShadow: 24,
+                          overflowY: "auto",
+                          p: 3,
+                          position: "relative",
+                        }}
+                      >
+                        <Typography variant="h6" gutterBottom>
+                          Uploaded Requirements
+                        </Typography>
+
+                        <IconButton
+                          sx={{ position: "absolute", top: 8, right: 8 }}
+                          onClick={() => setViewAllModalOpen(false)}
+                        >
+                          <CloseIcon />
+                        </IconButton>
+
+                        {viewRequirements.length > 0 ? (
+                          <Box
+                            sx={{
+                              display: "flex",
+                              flexWrap: "wrap",
+                              gap: 2,
+                              justifyContent: "center",
+                              mt: 2,
+                            }}
+                          >
+                            {viewRequirements.map((url, index) => (
+                              <Box
+                                key={index}
+                                sx={{
+                                  position: "relative",
+                                  textAlign: "center",
+                                }}
+                              >
+                                <img
+                                  src={url}
+                                  alt={`Requirement ${index + 1}`}
+                                  style={{
+                                    width: "200px",
+                                    height: "200px",
+                                    objectFit: "cover",
+                                    borderRadius: "10px",
+                                    border: "1px solid #ccc",
+                                    cursor: "pointer",
+                                  }}
+                                  onClick={() => setPreviewImage(url)}
+                                />
+
+                                {/* 🗑️ Delete icon inside modal (only in edit mode) */}
+                                {isEditing && (
+                                  <IconButton
+                                    size="small"
+                                    sx={{
+                                      position: "absolute",
+                                      top: 6,
+                                      right: 6,
+                                      backgroundColor: "rgba(255,255,255,0.8)",
+                                    }}
+                                    onClick={async () => {
+                                      if (
+                                        window.confirm(
+                                          "Are you sure you want to delete this image?"
+                                        )
+                                      ) {
+                                        setViewRequirements((prev) =>
+                                          prev.filter((_, i) => i !== index)
+                                        );
+
+                                        // Also remove from selectedEmployee if exists
+                                        setSelectedEmployee((prev) => ({
+                                          ...prev,
+                                          requirementsImages:
+                                            prev.requirementsImages?.filter(
+                                              (_, i) => i !== index
+                                            ),
+                                        }));
+                                      }
+                                    }}
+                                  >
+                                    <DeleteIcon color="error" />
+                                  </IconButton>
+                                )}
+                              </Box>
+                            ))}
+                          </Box>
+                        ) : (
+                          <Typography align="center" sx={{ mt: 3 }}>
+                            No uploaded requirements found for this employee.
+                          </Typography>
+                        )}
+                      </Box>
+                    </Modal>
+
+                    {/* UPLOADED REQUIREMENTS IMAGES */}
+                    <Box sx={{ mt: 2 }}>
+                      <Typography variant="subtitle1">
+                        Uploaded Requirements (Softcopy)
+                      </Typography>
+
+                      {/* Upload button only in edit mode */}
+                      {isEditing && (
+                        <input
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          style={{ marginTop: "8px" }}
+                          onChange={async (e) => {
+                            const files = Array.from(e.target.files);
+                            if (files.length === 0) return;
+
+                            try {
+                              const uploadedUrls = [];
+
+                              for (const file of files) {
+                                // 1️⃣ Request pre-signed URL
+                                const response = await axios.post(
+                                  "http://192.168.51.54:3001/save-requirements-images",
+                                  { fileName: file.name, fileType: file.type }
+                                );
+
+                                const { url } = response.data;
+
+                                // 2️⃣ Upload to S3
+                                await axios.put(url, file, {
+                                  headers: { "Content-Type": file.type },
+                                });
+
+                                // 3️⃣ Construct public URL
+                                const s3FileUrl = `https://mmp-portal-docs.s3.ap-southeast-1.amazonaws.com/${file.name}`;
+                                uploadedUrls.push(s3FileUrl);
+                              }
+
+                              // 4️⃣ Save to newUploads (so they appear immediately)
+                              setNewUploads((prev) => [
+                                ...prev,
+                                ...uploadedUrls,
+                              ]);
+
+                              // 5️⃣ Also store in selectedEmployee (for save logic)
+                              setSelectedEmployee((prev) => ({
+                                ...prev,
+                                requirementsImages: [
+                                  ...(prev.requirementsImages || []),
+                                  ...uploadedUrls,
+                                ],
+                              }));
+                            } catch (err) {
+                              console.error(
+                                "Upload failed:",
+                                err.response?.data || err.message
+                              );
+                              alert("Failed to upload image(s).");
+                            }
+                          }}
+                        />
+                      )}
+
+                      {/* IMAGE THUMBNAILS — show ONLY newly uploaded ones (not saved ones) */}
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexWrap: "wrap",
+                          gap: 2,
+                          mt: 2,
+                        }}
+                      >
+                        {newUploads.map((url, index) => (
+                          <Box key={index} sx={{ position: "relative" }}>
+                            <img
+                              src={url}
+                              alt={`Uploaded ${index + 1}`}
+                              style={{
+                                width: "120px",
+                                height: "120px",
+                                borderRadius: "10px",
+                                objectFit: "cover",
+                                border: "1px solid #ccc",
+                                cursor: "pointer",
+                              }}
+                              onClick={() => setPreviewImage(url)}
+                            />
+
+                            {isEditing && (
+                              <IconButton
+                                size="small"
+                                sx={{
+                                  position: "absolute",
+                                  top: 4,
+                                  right: 4,
+                                  backgroundColor: "rgba(255,255,255,0.8)",
+                                }}
+                                onClick={() => {
+                                  if (
+                                    window.confirm(
+                                      "Are you sure you want to remove this image?"
+                                    )
+                                  ) {
+                                    setNewUploads((prev) =>
+                                      prev.filter((img) => img !== url)
+                                    );
+                                    setSelectedEmployee((prev) => ({
+                                      ...prev,
+                                      requirementsImages:
+                                        prev.requirementsImages?.filter(
+                                          (img) => img !== url
+                                        ) || [],
+                                    }));
+                                  }
+                                }}
+                              >
+                                <DeleteIcon color="error" />
+                              </IconButton>
+                            )}
+                          </Box>
+                        ))}
+                      </Box>
+                    </Box>
+
+                    {/* 🖼️ SINGLE IMAGE PREVIEW MODAL */}
+                    <Modal
+                      open={!!previewImage}
+                      onClose={() => setPreviewImage(null)}
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          position: "relative",
+                          bgcolor: "background.paper",
+                          p: 2,
+                          borderRadius: "8px",
+                        }}
+                      >
+                        <img
+                          src={previewImage}
+                          alt="Preview"
+                          style={{
+                            maxWidth: "90vw",
+                            maxHeight: "80vh",
+                            borderRadius: "10px",
+                          }}
+                        />
+                        <IconButton
+                          sx={{ position: "absolute", top: 8, right: 8 }}
+                          onClick={() => setPreviewImage(null)}
+                        >
+                          <CloseIcon />
+                        </IconButton>
+                      </Box>
+                    </Modal>
 
                     {/* BUTTONS */}
                     <Stack

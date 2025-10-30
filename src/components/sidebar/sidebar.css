@@ -2,15 +2,20 @@
 
 .sidebar {
   width: 60px;
-  height: 95vh;
+  height: 100vh;
   background: #1b4965;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start; /* Align items to the top */
-  padding: 10px 0; /* Adjust padding */
-  transition: width 0.3s;
+  justify-content: flex-start;
+  padding: 10px 0;
+  transition: width 0.3s, height 0.3s;
   font-family: "Inter", sans-serif;
+  overflow-y: auto; /* scroll still works */
+
+  /* Hide scrollbar but keep scroll functional */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer and Edge */
 }
 
 .sidebar-divider {

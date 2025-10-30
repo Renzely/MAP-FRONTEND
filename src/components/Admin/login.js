@@ -59,12 +59,14 @@ export default function Login() {
           title: "Login Success!",
           icon: "success",
         }).then(() => {
+          const fullName = `${data.data.firstName} ${data.data.lastName}`;
           // Store user details in localStorage
           localStorage.setItem("isLoggedIn", "admin");
-          localStorage.setItem("firstName", data.data.firstName);
-          localStorage.setItem("lastName", data.data.lastName);
+          localStorage.setItem("adminFullName", fullName);
+
           localStorage.setItem("roleAccount", data.data.roleAccount);
           localStorage.setItem("outlet", data.data.outlet);
+          localStorage.setItem("adminEmail", data.data.emailAddress);
 
           // Redirect to accounts view
           window.location.href = "/view-accounts";

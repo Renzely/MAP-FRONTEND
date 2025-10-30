@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   Box,
   Button,
@@ -9,7 +9,10 @@ import {
   FormControl,
   Typography,
   Grid,
+  Modal,
+  IconButton,
 } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
@@ -19,6 +22,12 @@ import Sidebar from "../../sidebar/Sidebar";
 
 export default function AccountCreation() {
   const [formErrors, setFormErrors] = useState({});
+  const [openModal, setOpenModal] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [uploading, setUploading] = useState(false);
+  const [uploadedImageUrls, setUploadedImageUrls] = useState([]);
+  const fileInputRef = useRef(null);
+
   const [formData, setFormData] = useState({
     company: "",
     status: "",
@@ -27,6 +36,8 @@ export default function AccountCreation() {
     firstName: "",
     middleName: "",
     lastName: "",
+    modeOfDisbursement: "",
+    accountNumber: "",
     contact: "",
     email: "",
     birthday: null,
@@ -52,6 +63,16 @@ export default function AccountCreation() {
       setFormData((prev) => ({ ...prev, [field]: value }));
     }
 
+    if (field === "company") {
+      setFormData((prev) => ({
+        ...prev,
+        company: value,
+        clientAssigned: "", // Reset client when company changes
+      }));
+    } else {
+      setFormData((prev) => ({ ...prev, [field]: value }));
+    }
+
     // ✅ Auto-remove the error message for this field if it has value
     setFormErrors((prevErrors) => {
       const newErrors = { ...prevErrors };
@@ -72,6 +93,8 @@ export default function AccountCreation() {
       "employeeNo",
       "firstName",
       "lastName",
+      "modeOfDisbursement",
+      "accountNumber",
       "contact",
       "email",
       "birthday",
@@ -82,7 +105,6 @@ export default function AccountCreation() {
       "silBalance",
     ];
 
-    // Identify missing fields
     const errors = {};
     requiredFields.forEach((field) => {
       if (!formData[field]) {
@@ -97,9 +119,10 @@ export default function AccountCreation() {
       return;
     }
 
-    // convert dates
+    // ✅ Prepare data for submission
     const formattedData = {
       ...formData,
+      requirementsImages: uploadedImageUrls, // array of photo URLs
       birthday: formData.birthday
         ? dayjs(formData.birthday).toDate().toISOString()
         : null,
@@ -116,6 +139,8 @@ export default function AccountCreation() {
 
       if (response.status === 200) {
         alert("Account successfully created!");
+
+        // ✅ Reset form and uploaded photos
         setFormData({
           company: "",
           status: "",
@@ -124,6 +149,8 @@ export default function AccountCreation() {
           firstName: "",
           middleName: "",
           lastName: "",
+          modeOfDisbursement: "",
+          accountNumber: "",
           contact: "",
           email: "",
           birthday: null,
@@ -139,11 +166,66 @@ export default function AccountCreation() {
           clientAssigned: "",
         });
         setFormErrors({});
+        setUploadedImageUrls([]); // clear uploaded photos
+        setSelectedFiles([]);
       }
     } catch (error) {
       console.error("Error creating account:", error);
       alert("Failed to create account. Please try again.");
     }
+  };
+
+  const handleFileUpload = async (file) => {
+    if (!file) return;
+    try {
+      setUploading(true);
+
+      const response = await axios.post(
+        "https://api-map.bmphrc.com/save-requirements-images",
+        { fileName: file.name, fileType: file.type }
+      );
+
+      const { url } = response.data;
+
+      await axios.put(url, file, {
+        headers: { "Content-Type": file.type },
+      });
+
+      const s3FileUrl = `https://mmp-portal-docs.s3.ap-southeast-1.amazonaws.com/${file.name}`;
+
+      setUploadedImageUrls((prev) => [...prev, s3FileUrl]); // 👈 append new file
+    } catch (error) {
+      console.error("Upload failed:", error.response?.data || error.message);
+      alert("Failed to upload file");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const clientsByCompany = {
+    "BMPOWER HUMAN RESOURCES CORPORATION": [
+      "BMPOWER HUMAN RESOURCES CORPORATION",
+      "ECOSSENTIAL FOODS CORP",
+      "MCKENZIE DISTRIBUTION CO.",
+      "ECOSSENTIAL FOODS CORP-HEAD OFFICE",
+      "MAGIS DISTRIBUTION INC.",
+      "ASIAN STREAK BROKERAGE CO",
+      "PLDT TELESCOOP",
+      "SHELFMATE",
+      "ENGKANTO",
+      "ROYAL CANIN PHILS.",
+      "SPX EXPRESS",
+      "UNION GALVASTEEL CO",
+    ],
+    "MARABOU EVERGREEN RESOURCES INC": [
+      "MARABOU EVERGREEN RESOURCES INC",
+      "CARMENS BEST",
+      "METRO PACIFIC DAIRY FARM",
+      "METRO PACIFIC FRESH FARM",
+      "UNIVERSAL HARVESTER DAIRY FARM INC",
+      "LONG TABLE GROUP INC.- MASAJIRO",
+      "J-GYU INC",
+    ],
   };
 
   return (
@@ -260,6 +342,35 @@ export default function AccountCreation() {
                   error={!!formErrors.lastName}
                   helperText={formErrors.lastName}
                 />
+                <FormControl fullWidth sx={{ mt: 3 }}>
+                  <InputLabel>Mode of Disbursement</InputLabel>
+                  <Select
+                    value={formData.remarks}
+                    label="Mode of Disbursement"
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      handleChange("remarks", value);
+                      handleChange("accountNumber", ""); // reset account number when mode changes
+                    }}
+                  >
+                    <MenuItem value="AUB (Hello Money)">
+                      AUB (Hello Money)
+                    </MenuItem>
+                    <MenuItem value="BDO NETWORK">BDO NETWORK</MenuItem>
+                    <MenuItem value="BDO UNIBANK">BDO UNIBANK</MenuItem>
+                    <MenuItem value="BPI">BPI</MenuItem>
+                    <MenuItem value="CEBUANA">CEBUANA</MenuItem>
+                    <MenuItem value="CHINABANK">CHINABANK</MenuItem>
+                    <MenuItem value="EASTWEST">EASTWEST</MenuItem>
+                    <MenuItem value="GCASH">GCASH</MenuItem>
+                    <MenuItem value="LANDBANK">LANDBANK</MenuItem>
+                    <MenuItem value="METROBANK">METROBANK</MenuItem>
+                    <MenuItem value="PNB">PNB</MenuItem>
+                    <MenuItem value="RCBC">RCBC</MenuItem>
+                    <MenuItem value="SECURITY BANK">SECURITY BANK</MenuItem>
+                    <MenuItem value="UNIONBANK">UNIONBANK</MenuItem>
+                  </Select>
+                </FormControl>
               </Grid>
 
               {/* Column 2 */}
@@ -349,52 +460,135 @@ export default function AccountCreation() {
                     onChange={(e) =>
                       handleChange("clientAssigned", e.target.value)
                     }
+                    disabled={!formData.company} // Disable if no company selected
                   >
-                    <MenuItem value="ASIAN STREAK BROKERAGE CO">
-                      ASIAN STREAK BROKERAGE CO
-                    </MenuItem>
-                    <MenuItem value="BMPOWER HUMAN RESOURCES CORPORATION">
-                      BMPOWER HUMAN RESOURCES CORPORATION
-                    </MenuItem>
-                    <MenuItem value="CARMENS BEST">CARMENS BEST</MenuItem>
-                    <MenuItem value="ECOSSENTIAL FOODS CORP">
-                      ECOSSENTIAL FOODS CORP
-                    </MenuItem>
-                    <MenuItem value="ECOSSENTIAL FOODS CORP-HEAD OFFICE">
-                      ECOSSENTIAL FOODS CORP-HEAD OFFICE
-                    </MenuItem>
-                    <MenuItem value="ENGKANTO">ENGKANTO</MenuItem>
-                    <MenuItem value="J-GYU INC">J-GYU INC</MenuItem>
-                    <MenuItem value="LONG TABLE GROUP INC.- MASAJIRO">
-                      LONG TABLE GROUP INC. - MASAJIRO
-                    </MenuItem>
-                    <MenuItem value="MAGIS DISTRIBUTION INC.">
-                      MAGIS DISTRIBUTION INC.
-                    </MenuItem>
-                    <MenuItem value="MARABOU EVERGREEN RESOURCES INC">
-                      MARABOU EVERGREEN RESOURCES INC
-                    </MenuItem>
-                    <MenuItem value="MCKENZIE DISTRIBUTION CO.">
-                      MCKENZIE DISTRIBUTION CO.
-                    </MenuItem>
-                    <MenuItem value="METRO PACIFIC DAIRY FARM">
-                      METRO PACIFIC DAIRY FARM
-                    </MenuItem>
-                    <MenuItem value="METRO PACIFIC FRESH FARM">
-                      METRO PACIFIC FRESH FARM
-                    </MenuItem>
-                    <MenuItem value="PLDT TELESCOOP">PLDT TELESCOOP</MenuItem>
-                    <MenuItem value="RC">RC SALES AGENT</MenuItem>
-                    <MenuItem value="ROYAL CANIN PHILS.">
-                      ROYAL CANIN PHILS.
-                    </MenuItem>
-                    <MenuItem value="SHELFMATE">SHELFMATE</MenuItem>
-                    <MenuItem value="SPX EXPRESS">SPX EXPRESS</MenuItem>
-                    <MenuItem value="UNIVERSAL HARVESTER DAIRY FARM INC">
-                      UNIVERSAL HARVESTER DAIRY FARM INC
-                    </MenuItem>
+                    {formData.company &&
+                      clientsByCompany[formData.company]?.map((client) => (
+                        <MenuItem key={client} value={client}>
+                          {client}
+                        </MenuItem>
+                      ))}
                   </Select>
                 </FormControl>
+
+                <TextField
+                  label="Account Number"
+                  fullWidth
+                  sx={{ mt: 3 }}
+                  value={formData.accountNumber}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/[^a-zA-Z0-9]/g, ""); // allow letters + numbers
+
+                    const maxLengths = {
+                      "AUB (Hello Money)": 12,
+                      "BDO NETWORK": 12,
+                      "BDO UNIBANK": 12,
+                      BPI: 12,
+                      CEBUANA: 11,
+                      CHINABANK: 12,
+                      EASTWEST: 12,
+                      GCASH: 11,
+                      LANDBANK: 10,
+                      METROBANK: 13,
+                      PNB: 12,
+                      RCBC: 10,
+                      "SECURITY BANK": 13,
+                      UNIONBANK: 12,
+                    };
+
+                    const maxLength = maxLengths[formData.remarks] || 20;
+
+                    if (value.length <= maxLength) {
+                      handleChange("accountNumber", value);
+                    }
+                  }}
+                  disabled={!formData.remarks}
+                  inputProps={{
+                    inputMode: "text",
+                    pattern: "[A-Za-z0-9]*",
+                  }}
+                  error={
+                    !!formData.remarks &&
+                    formData.accountNumber.length > 0 &&
+                    formData.accountNumber.length <
+                      {
+                        "AUB (Hello Money)": 12,
+                        "BDO NETWORK": 12,
+                        "BDO UNIBANK": 12,
+                        BPI: 12,
+                        CEBUANA: 11,
+                        CHINABANK: 12,
+                        EASTWEST: 12,
+                        GCASH: 11,
+                        LANDBANK: 10,
+                        METROBANK: 13,
+                        PNB: 12,
+                        RCBC: 10,
+                        "SECURITY BANK": 13,
+                        UNIONBANK: 12,
+                      }[formData.remarks]
+                  }
+                  helperText={
+                    !formData.remarks
+                      ? "Select Mode of Disbursement first"
+                      : formData.accountNumber.length > 0 &&
+                        formData.accountNumber.length <
+                          {
+                            "AUB (Hello Money)": 12,
+                            "BDO NETWORK": 12,
+                            "BDO UNIBANK": 12,
+                            BPI: 12,
+                            CEBUANA: 11,
+                            CHINABANK: 12,
+                            EASTWEST: 12,
+                            GCASH: 11,
+                            LANDBANK: 10,
+                            METROBANK: 13,
+                            PNB: 12,
+                            RCBC: 10,
+                            "SECURITY BANK": 13,
+                            UNIONBANK: 12,
+                          }[formData.remarks]
+                      ? `Account Number must be ${
+                          {
+                            "AUB (Hello Money)": 12,
+                            "BDO NETWORK": 12,
+                            "BDO UNIBANK": 12,
+                            BPI: 12,
+                            CEBUANA: 11,
+                            CHINABANK: 12,
+                            EASTWEST: 12,
+                            GCASH: 11,
+                            LANDBANK: 10,
+                            METROBANK: 13,
+                            PNB: 12,
+                            RCBC: 10,
+                            "SECURITY BANK": 13,
+                            UNIONBANK: 12,
+                          }[formData.remarks]
+                        } characters long`
+                      : formData.remarks
+                      ? `Must be ${
+                          {
+                            "AUB (Hello Money)": 12,
+                            "BDO NETWORK": 12,
+                            "BDO UNIBANK": 12,
+                            BPI: 12,
+                            CEBUANA: 11,
+                            CHINABANK: 12,
+                            EASTWEST: 12,
+                            GCASH: 11,
+                            LANDBANK: 10,
+                            METROBANK: 13,
+                            PNB: 12,
+                            RCBC: 10,
+                            "SECURITY BANK": 13,
+                            UNIONBANK: 12,
+                          }[formData.remarks]
+                        } characters`
+                      : ""
+                  }
+                />
               </Grid>
 
               {/* Column 3 */}
@@ -499,6 +693,134 @@ export default function AccountCreation() {
                   error={!!formErrors.silBalance}
                   helperText={formErrors.silBalance}
                 />
+                <Box sx={{ mt: 3 }}>
+                  <Typography variant="subtitle1">
+                    Upload Requirements (Softcopy)
+                  </Typography>
+
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    style={{ marginTop: "8px" }}
+                    onChange={(e) => {
+                      const files = Array.from(e.target.files);
+                      setSelectedFiles(files);
+                      files.forEach((file) => handleFileUpload(file));
+                    }}
+                  />
+
+                  {uploading && (
+                    <Typography sx={{ mt: 1 }}>Uploading...</Typography>
+                  )}
+
+                  {uploadedImageUrls.length > 0 && (
+                    <Box sx={{ mt: 2 }}>
+                      <Typography variant="body2">Uploaded Files:</Typography>
+
+                      {/* 👇 Button to view all uploaded images in modal */}
+                      <Button
+                        variant="contained"
+                        size="small"
+                        sx={{
+                          mt: 3,
+                          backgroundColor: "#0A21C0",
+                          color: "#fff",
+                          "&:hover": { backgroundColor: "#081B80" },
+                        }}
+                        onClick={() => setOpenModal(true)}
+                      >
+                        View Uploaded Photos
+                      </Button>
+                    </Box>
+                  )}
+
+                  {/* 👇 Modal for viewing uploaded photos */}
+                  <Modal
+                    open={openModal}
+                    onClose={() => setOpenModal(false)}
+                    aria-labelledby="uploaded-photos-modal"
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        backgroundColor: "white",
+                        borderRadius: "10px",
+                        p: 3,
+                        maxWidth: "90%",
+                        maxHeight: "80vh",
+                        overflowY: "auto",
+                        position: "relative",
+                      }}
+                    >
+                      <IconButton
+                        sx={{ position: "absolute", top: 10, right: 10 }}
+                        onClick={() => setOpenModal(false)}
+                      >
+                        <CloseIcon />
+                      </IconButton>
+
+                      <Typography variant="h6" sx={{ mb: 2 }}>
+                        Uploaded Photos
+                      </Typography>
+
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexWrap: "wrap",
+                          gap: 2,
+                          justifyContent: "center",
+                        }}
+                      >
+                        {uploadedImageUrls.map((url, index) => (
+                          <Box
+                            key={index}
+                            sx={{
+                              display: "flex",
+                              flexDirection: "column",
+                              alignItems: "center",
+                            }}
+                          >
+                            <img
+                              src={url}
+                              alt={`Uploaded ${index + 1}`}
+                              style={{
+                                width: "150px",
+                                height: "150px",
+                                borderRadius: "10px",
+                                objectFit: "cover",
+                                border: "1px solid #ccc",
+                                marginBottom: "8px",
+                              }}
+                            />
+                            <Button
+                              variant="outlined"
+                              color="error"
+                              size="small"
+                              onClick={() => {
+                                const confirmRemove = window.confirm(
+                                  "Are you sure you want to remove this photo?"
+                                );
+                                if (confirmRemove) {
+                                  const updatedUrls = uploadedImageUrls.filter(
+                                    (_, i) => i !== index
+                                  );
+                                  setUploadedImageUrls(updatedUrls);
+                                }
+                              }}
+                            >
+                              Remove
+                            </Button>
+                          </Box>
+                        ))}
+                      </Box>
+                    </Box>
+                  </Modal>
+                </Box>
               </Grid>
               <Grid item xs={12}>
                 <Button

@@ -11,6 +11,7 @@ import {
 
 import Login from "./components/Admin/login";
 import Admin from "./components/pages/AdminAccount/Admin";
+import RecentActivity from "./components/pages/RecentActivity/RecentActivity";
 import ForgotPassword from "./components/Admin/forgotpassword";
 import Path from "./path/Path";
 
@@ -43,6 +44,7 @@ function App() {
           <Route path="/" element={<Login />} />
           <Route path="/dashBoard" element={<dashBoard />} />
           <Route path="/view-admin-accounts" element={<Admin />} />
+          <Route path="/view-recent-activity" element={<RecentActivity />} />
           <Route path="/view-accounts" element={<AccountCreation />} />
           <Route path="/forgotpassword" element={<ForgotPassword />} />
 
@@ -55,6 +57,7 @@ function App() {
           />
           <Route path="/view-engkanto" element={<Engkanto />} />
           <Route path="/view-magis" element={<Magis />} />
+          <Route path="/view-mckenzie" element={<Mckenzie />} />
           <Route path="/view-pldt" element={<PLDT />} />
           <Route path="/view-royalcanin" element={<RoyalCanin />} />
           <Route path="/view-shelfmate" element={<Shelfmate />} />
