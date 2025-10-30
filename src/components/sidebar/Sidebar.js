@@ -124,7 +124,7 @@ export default function Sidebar() {
           </NavLink>
         )}
 
-        {["MIS", "HR HEAD", "HR OFFICER"].includes(roleAccount) && (
+        {["MIS", "HR HEAD"].includes(roleAccount) && (
           <NavLink
             to="/view-recent-activity"
             onClick={() => handleItemClick("/view-recent-activity")}
