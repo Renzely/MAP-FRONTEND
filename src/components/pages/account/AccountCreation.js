@@ -345,11 +345,11 @@ export default function AccountCreation() {
                 <FormControl fullWidth sx={{ mt: 3 }}>
                   <InputLabel>Mode of Disbursement</InputLabel>
                   <Select
-                    value={formData.remarks}
+                    value={formData.modeOfDisbursement}
                     label="Mode of Disbursement"
                     onChange={(e) => {
                       const value = e.target.value;
-                      handleChange("remarks", value);
+                      handleChange("Disbursement", value);
                       handleChange("accountNumber", ""); // reset account number when mode changes
                     }}
                   >
