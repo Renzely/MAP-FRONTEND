@@ -11,6 +11,8 @@ import {
   Grid,
   Modal,
   IconButton,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
@@ -27,6 +29,11 @@ export default function AccountCreation() {
   const [uploading, setUploading] = useState(false);
   const [uploadedImageUrls, setUploadedImageUrls] = useState([]);
   const fileInputRef = useRef(null);
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success", // "success" | "error" | "warning" | "info"
+  });
 
   const [formData, setFormData] = useState({
     company: "",
@@ -92,11 +99,11 @@ export default function AccountCreation() {
       "remarks",
       "employeeNo",
       "firstName",
+      "middleName",
       "lastName",
       "modeOfDisbursement",
       "accountNumber",
       "contact",
-      "email",
       "birthday",
       "position",
       "dateHired",
@@ -107,6 +114,11 @@ export default function AccountCreation() {
 
     const errors = {};
     requiredFields.forEach((field) => {
+      // ✅ Skip accountNumber check if mode is TBA
+      if (field === "accountNumber" && formData.modeOfDisbursement === "TBA") {
+        return;
+      }
+
       if (!formData[field]) {
         errors[field] = "This field is required";
       }
@@ -115,14 +127,51 @@ export default function AccountCreation() {
     setFormErrors(errors);
 
     if (Object.keys(errors).length > 0) {
-      alert("Please fill in all required fields.");
+      setSnackbar({
+        open: true,
+        message: "Please fill in all required fields.",
+        severity: "warning",
+      });
       return;
     }
 
-    // ✅ Prepare data for submission
+    // ✅ Step 1: Check duplicates first
+    try {
+      const duplicateCheck = await axios.post(
+        "https://api-map.bmphrc.com/check-duplicate-ids",
+        {
+          sss: formData.sss,
+          philhealth: formData.philhealth,
+          hdmf: formData.hdmf,
+          tin: formData.tin,
+        }
+      );
+
+      if (duplicateCheck.status === 409) {
+        const dupErrors = duplicateCheck.data.duplicates || {};
+        setFormErrors(dupErrors);
+        alert("Duplicate numbers found. Please check highlighted fields.");
+        return;
+      }
+    } catch (error) {
+      if (error.response?.status === 409) {
+        const dupErrors = error.response.data.duplicates || {};
+        setFormErrors(dupErrors);
+        setSnackbar({
+          open: true,
+          message: "Duplicate numbers found. Please check highlighted fields.",
+          severity: "error",
+        });
+        return;
+      }
+    }
+
+    // ✅ Step 2: Prepare submission
     const formattedData = {
       ...formData,
-      requirementsImages: uploadedImageUrls, // array of photo URLs
+      accountNumber:
+        formData.modeOfDisbursement === "TBA" ? null : formData.accountNumber, // send null for TBA
+      requirementsImages: uploadedImageUrls,
       birthday: formData.birthday
         ? dayjs(formData.birthday).toDate().toISOString()
         : null,
@@ -138,9 +187,12 @@ export default function AccountCreation() {
       );
 
       if (response.status === 200) {
-        alert("Account successfully created!");
-
-        // ✅ Reset form and uploaded photos
+        setSnackbar({
+          open: true,
+          message: "Account successfully created!",
+          severity: "success",
+        });
+        // ✅ Reset form
         setFormData({
           company: "",
           status: "",
@@ -166,12 +218,16 @@ export default function AccountCreation() {
           clientAssigned: "",
         });
         setFormErrors({});
-        setUploadedImageUrls([]); // clear uploaded photos
+        setUploadedImageUrls([]);
         setSelectedFiles([]);
       }
     } catch (error) {
       console.error("Error creating account:", error);
-      alert("Failed to create account. Please try again.");
+      setSnackbar({
+        open: true,
+        message: "Failed to create account. Please try again.",
+        severity: "error",
+      });
     }
   };
 
@@ -196,7 +252,11 @@ export default function AccountCreation() {
       setUploadedImageUrls((prev) => [...prev, s3FileUrl]); // 👈 append new file
     } catch (error) {
       console.error("Upload failed:", error.response?.data || error.message);
-      alert("Failed to upload file");
+      setSnackbar({
+        open: true,
+        message: "Failed to upload file. Please try again",
+        severity: "error",
+      });
     } finally {
       setUploading(false);
     }
@@ -268,6 +328,8 @@ export default function AccountCreation() {
                     value={formData.company}
                     label="Company"
                     onChange={(e) => handleChange("company", e.target.value)}
+                    error={!!formErrors.company}
+                    helperText={formErrors.company}
                   >
                     <MenuItem value="MARABOU EVERGREEN RESOURCES INC">
                       MARABOU EVERGREEN RESOURCES INC
@@ -284,6 +346,8 @@ export default function AccountCreation() {
                     value={formData.status}
                     label="Status"
                     onChange={(e) => handleChange("status", e.target.value)}
+                    error={!!formErrors.status}
+                    helperText={formErrors.status}
                   >
                     <MenuItem value="Active">Active</MenuItem>
                     <MenuItem value="Inactive">Inactive</MenuItem>
@@ -296,6 +360,8 @@ export default function AccountCreation() {
                     value={formData.remarks}
                     label="Remarks"
                     onChange={(e) => handleChange("remarks", e.target.value)}
+                    error={!!formErrors.remarks}
+                    helperText={formErrors.remarks}
                   >
                     <MenuItem value="Applicant">Applicant</MenuItem>
                     <MenuItem value="Employed">Employed</MenuItem>
@@ -331,6 +397,8 @@ export default function AccountCreation() {
                   sx={{ mt: 3 }}
                   value={formData.middleName}
                   onChange={(e) => handleChange("middleName", e.target.value)}
+                  error={!!formErrors.middleName}
+                  helperText={formErrors.middleName}
                 />
 
                 <TextField
@@ -352,7 +420,10 @@ export default function AccountCreation() {
                       handleChange("modeOfDisbursement", value);
                       handleChange("accountNumber", ""); // reset account number when mode changes
                     }}
+                    error={!!formErrors.modeOfDisbursement}
+                    helperText={formErrors.modeOfDisbursement}
                   >
+                    <MenuItem value="TBA">TBA</MenuItem>
                     <MenuItem value="AUB (Hello Money)">
                       AUB (Hello Money)
                     </MenuItem>
@@ -394,7 +465,7 @@ export default function AccountCreation() {
                 />
 
                 <TextField
-                  label="Email Address"
+                  label="Email Address (Optional)"
                   type="email"
                   fullWidth
                   sx={{ mt: 3 }}
@@ -461,6 +532,8 @@ export default function AccountCreation() {
                       handleChange("clientAssigned", e.target.value)
                     }
                     disabled={!formData.company} // Disable if no company selected
+                    error={!!formErrors.clientAssigned}
+                    helperText={formErrors.clientAssigned}
                   >
                     {formData.company &&
                       clientsByCompany[formData.company]?.map((client) => (
@@ -477,8 +550,7 @@ export default function AccountCreation() {
                   sx={{ mt: 3 }}
                   value={formData.accountNumber}
                   onChange={(e) => {
-                    const value = e.target.value.replace(/[^a-zA-Z0-9]/g, ""); // allow letters + numbers
-
+                    const value = e.target.value.replace(/[^a-zA-Z0-9]/g, ""); // allow alphanumeric
                     const maxLengths = {
                       "AUB (Hello Money)": 12,
                       "BDO NETWORK": 12,
@@ -499,16 +571,24 @@ export default function AccountCreation() {
                     const maxLength =
                       maxLengths[formData.modeOfDisbursement] || 20;
 
-                    if (value.length <= maxLength) {
+                    // ✅ Only apply limit if mode isn't TBA
+                    if (
+                      formData.modeOfDisbursement === "TBA" ||
+                      value.length <= maxLength
+                    ) {
                       handleChange("accountNumber", value);
                     }
                   }}
-                  disabled={!formData.modeOfDisbursement}
+                  disabled={
+                    !formData.modeOfDisbursement ||
+                    formData.modeOfDisbursement === "TBA"
+                  }
                   inputProps={{
                     inputMode: "text",
                     pattern: "[A-Za-z0-9]*",
                   }}
                   error={
+                    formData.modeOfDisbursement !== "TBA" &&
                     !!formData.accountNumber &&
                     formData.accountNumber.length > 0 &&
                     formData.accountNumber.length <
@@ -530,7 +610,9 @@ export default function AccountCreation() {
                       }[formData.modeOfDisbursement]
                   }
                   helperText={
-                    !formData.modeOfDisbursement
+                    formData.modeOfDisbursement === "TBA"
+                      ? "No account number required for TBA."
+                      : !formData.modeOfDisbursement
                       ? "Select Mode of Disbursement first"
                       : formData.accountNumber.length > 0 &&
                         formData.accountNumber.length <
@@ -568,8 +650,7 @@ export default function AccountCreation() {
                             UNIONBANK: 12,
                           }[formData.modeOfDisbursement]
                         } characters long`
-                      : formData.modeOfDisbursement
-                      ? `Must be ${
+                      : `Must be ${
                           {
                             "AUB (Hello Money)": 12,
                             "BDO NETWORK": 12,
@@ -587,7 +668,6 @@ export default function AccountCreation() {
                             UNIONBANK: 12,
                           }[formData.modeOfDisbursement]
                         } characters`
-                      : ""
                   }
                 />
               </Grid>
@@ -841,6 +921,21 @@ export default function AccountCreation() {
           </Box>
         </Box>
       </Box>
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity}
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </div>
   );
 }

@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { DataGrid, GridToolbar } from "@mui/x-data-grid";
+import {
+  DataGrid,
+  GridToolbar,
+  GridToolbarQuickFilter,
+} from "@mui/x-data-grid";
 import axios from "axios";
 import {
   Box,
@@ -32,6 +36,28 @@ export default function BmpowerHO() {
   const [viewAllModalOpen, setViewAllModalOpen] = useState(false);
   const [viewRequirements, setViewRequirements] = useState([]);
   const [newUploads, setNewUploads] = useState([]);
+
+  function CustomToolbar() {
+    return (
+      <Box
+        sx={{
+          p: 1,
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          width: "100%",
+        }}
+      >
+        {/* Move Quick Filter to the LEFT */}
+        <GridToolbarQuickFilter sx={{ mr: 2 }} />
+
+        {/* Optional: You can place other buttons or info on the right */}
+        <Box sx={{ display: "flex", gap: 1 }}>
+          {/* Add custom buttons here if needed */}
+        </Box>
+      </Box>
+    );
+  }
 
   const fetchSavedRequirements = async (employeeEmail) => {
     try {
@@ -130,21 +156,9 @@ export default function BmpowerHO() {
 
   const columns = [
     { field: "count", headerName: "#", width: 70 },
-    { field: "company", headerName: "Company", width: 400 },
-    { field: "remarks", headerName: "Remarks", width: 120 },
-    { field: "status", headerName: "Status", width: 120 },
-    { field: "employeeNo", headerName: "Employee No.", width: 120 },
+    { field: "lastName", headerName: "Last Name", width: 130 },
     { field: "firstName", headerName: "First Name", width: 130 },
     { field: "middleName", headerName: "Middle Name", width: 130 },
-    {
-      field: "modeOfDisbursement",
-      headerName: "Mode of Disbursement",
-      width: 200,
-    },
-    { field: "accountNumber", headerName: "Account Number", width: 200 },
-    { field: "lastName", headerName: "Last Name", width: 130 },
-    { field: "contact", headerName: "Contact", width: 130 },
-    { field: "email", headerName: "Email", width: 200 },
     {
       field: "birthday",
       headerName: "Birthday",
@@ -169,6 +183,19 @@ export default function BmpowerHO() {
     { field: "philhealth", headerName: "PHIC No.", width: 120 },
     { field: "hdmf", headerName: "HDMF No.", width: 120 },
     { field: "tin", headerName: "TIN No.", width: 120 },
+    { field: "company", headerName: "Company", width: 400 },
+    { field: "remarks", headerName: "Remarks", width: 120 },
+    { field: "status", headerName: "Status", width: 120 },
+    { field: "employeeNo", headerName: "Employee No.", width: 120 },
+
+    {
+      field: "modeOfDisbursement",
+      headerName: "Mode of Disbursement",
+      width: 200,
+    },
+    { field: "accountNumber", headerName: "Account Number", width: 200 },
+    { field: "contact", headerName: "Contact", width: 130 },
+    { field: "email", headerName: "Email", width: 200 },
     { field: "position", headerName: "Position", width: 150 },
     {
       field: "dateHired",
@@ -232,7 +259,7 @@ export default function BmpowerHO() {
           }}
         >
           <Typography variant="h5" sx={{ mb: 2 }}>
-            Employee Accounts for BMPower Human Resources Corporation HO
+            Employee Accounts for ECOSSENTIAL FOODS CORP-HEAD OFFICE
           </Typography>
           <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
             <FormControl sx={{ width: 200 }}>
@@ -1145,7 +1172,7 @@ export default function BmpowerHO() {
                   },
                 },
               }}
-              slots={{ toolbar: GridToolbar }}
+              slots={{ toolbar: GridToolbar, toolbar: CustomToolbar }}
               slotProps={{
                 toolbar: {
                   showQuickFilter: true,
