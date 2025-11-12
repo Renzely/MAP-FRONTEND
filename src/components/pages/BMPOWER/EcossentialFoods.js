@@ -48,12 +48,12 @@ export default function BmpowerHO() {
           width: "100%",
         }}
       >
-        {/* Move Quick Filter to the LEFT */}
+        {/* Left side – Quick Filter */}
         <GridToolbarQuickFilter sx={{ mr: 2 }} />
 
-        {/* Optional: You can place other buttons or info on the right */}
-        <Box sx={{ display: "flex", gap: 1 }}>
-          {/* Add custom buttons here if needed */}
+        {/* Right side – Default Grid Toolbar buttons */}
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <GridToolbar />
         </Box>
       </Box>
     );
@@ -1171,7 +1171,7 @@ export default function BmpowerHO() {
                   },
                 },
               }}
-              slots={{ toolbar: CustomToolbar }}
+              slots={{ toolbar: GridToolbar, toolbar: CustomToolbar }}
               slotProps={{
                 toolbar: {
                   showQuickFilter: true,
