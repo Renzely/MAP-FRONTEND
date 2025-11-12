@@ -689,8 +689,18 @@ export default function AccountCreation() {
                       .replace(/[^0-9]/g, "");
                     handleChange("sss", value);
                   }}
-                  error={!!formErrors.sss}
-                  helperText={formErrors.sss}
+                  error={
+                    !!formData.sss &&
+                    formData.sss.length > 0 &&
+                    formData.sss.length < 10
+                  }
+                  helperText={
+                    formData.sss &&
+                    formData.sss.length > 0 &&
+                    formData.sss.length < 10
+                      ? "SSS number must be 10 digits"
+                      : ""
+                  }
                 />
 
                 <TextField
@@ -709,8 +719,18 @@ export default function AccountCreation() {
                       .replace(/[^0-9]/g, "");
                     handleChange("philhealth", value);
                   }}
-                  error={!!formErrors.philhealth}
-                  helperText={formErrors.philhealth}
+                  error={
+                    !!formData.philhealth &&
+                    formData.philhealth.length > 0 &&
+                    formData.philhealth.length < 12
+                  }
+                  helperText={
+                    formData.philhealth &&
+                    formData.philhealth.length > 0 &&
+                    formData.philhealth.length < 12
+                      ? "PhilHealth number must be 12 digits"
+                      : ""
+                  }
                 />
 
                 <TextField
@@ -729,8 +749,18 @@ export default function AccountCreation() {
                       .replace(/[^0-9]/g, "");
                     handleChange("hdmf", value);
                   }}
-                  error={!!formErrors.hdmf}
-                  helperText={formErrors.hdmf}
+                  error={
+                    !!formData.hdmf &&
+                    formData.hdmf.length > 0 &&
+                    formData.hdmf.length < 12
+                  }
+                  helperText={
+                    formData.hdmf &&
+                    formData.hdmf.length > 0 &&
+                    formData.hdmf.length < 12
+                      ? "HDMF number must be 12 digits"
+                      : ""
+                  }
                 />
 
                 <TextField
@@ -749,8 +779,18 @@ export default function AccountCreation() {
                       .replace(/[^0-9]/g, "");
                     handleChange("tin", value);
                   }}
-                  error={!!formErrors.tin}
-                  helperText={formErrors.tin}
+                  error={
+                    !!formData.tin &&
+                    formData.tin.length > 0 &&
+                    formData.tin.length < 12
+                  }
+                  helperText={
+                    formData.tin &&
+                    formData.tin.length > 0 &&
+                    formData.tin.length < 12
+                      ? "TIN number must be 12 digits"
+                      : ""
+                  }
                 />
 
                 <TextField
