@@ -1173,7 +1173,7 @@ export default function BmpowerHO() {
                   },
                 },
               }}
-              slots={{ toolbar: GridToolbar }}
+              slots={{ toolbar: CustomToolbar }}
               slotProps={{
                 toolbar: {
                   showQuickFilter: true,

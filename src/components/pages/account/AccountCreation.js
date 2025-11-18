@@ -60,6 +60,23 @@ export default function AccountCreation() {
     clientAssigned: "",
   });
 
+  const accountMaxLengths = {
+    "AUB (Hello Money)": 12,
+    "BDO NETWORK": 12,
+    "BDO UNIBANK": 12,
+    BPI: 12,
+    CEBUANA: 11,
+    CHINABANK: 12,
+    EASTWEST: 12,
+    GCASH: 11,
+    LANDBANK: 10,
+    METROBANK: 13,
+    PNB: 12,
+    RCBC: 10,
+    "SECURITY BANK": 13,
+    UNIONBANK: 12,
+  };
+
   const handleChange = (field, value) => {
     // If birthday, calculate age
     if (field === "birthday") {
@@ -113,16 +130,54 @@ export default function AccountCreation() {
     ];
 
     const errors = {};
+
     requiredFields.forEach((field) => {
-      // ✅ Skip accountNumber check if mode is TBA
+      // Skip accountNumber validation ONLY if TBA
       if (field === "accountNumber" && formData.modeOfDisbursement === "TBA") {
         return;
       }
 
-      if (!formData[field]) {
+      // REQUIRED FIELD CHECK
+      if (!formData[field] || formData[field].toString().trim() === "") {
         errors[field] = "This field is required";
       }
     });
+
+    // ⭐ EXACT-LENGTH VALIDATION (after required-field check)
+    if (!errors.contact) {
+      if (formData.contact.length !== 11) {
+        errors.contact = "Contact number must be exactly 11 digits";
+      }
+    }
+
+    const accountRequiredLengths = {
+      "AUB (Hello Money)": 12,
+      "BDO NETWORK": 12,
+      "BDO UNIBANK": 12,
+      BPI: 12,
+      CEBUANA: 11,
+      CHINABANK: 12,
+      EASTWEST: 12,
+      GCASH: 11,
+      LANDBANK: 10,
+      METROBANK: 13,
+      PNB: 12,
+      RCBC: 10,
+      "SECURITY BANK": 13,
+      UNIONBANK: 12,
+    };
+
+    // ⭐ ACCOUNT NUMBER EXACT LENGTH CHECK (skip if TBA)
+    if (
+      formData.modeOfDisbursement !== "TBA" &&
+      !errors.accountNumber // only validate if required-field passed
+    ) {
+      const requiredLength =
+        accountRequiredLengths[formData.modeOfDisbursement];
+      if (requiredLength && formData.accountNumber.length !== requiredLength) {
+        errors.accountNumber = `Account number must be exactly ${requiredLength} characters`;
+      }
+    }
 
     setFormErrors(errors);
 
@@ -386,7 +441,10 @@ export default function AccountCreation() {
                   fullWidth
                   sx={{ mt: 3 }}
                   value={formData.firstName}
-                  onChange={(e) => handleChange("firstName", e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/[^A-Za-z\s-]/g, "");
+                    handleChange("firstName", value);
+                  }}
                   error={!!formErrors.firstName}
                   helperText={formErrors.firstName}
                 />
@@ -396,7 +454,10 @@ export default function AccountCreation() {
                   fullWidth
                   sx={{ mt: 3 }}
                   value={formData.middleName}
-                  onChange={(e) => handleChange("middleName", e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/[^A-Za-z\s-]/g, "");
+                    handleChange("middleName", value);
+                  }}
                   error={!!formErrors.middleName}
                   helperText={formErrors.middleName}
                 />
@@ -406,10 +467,14 @@ export default function AccountCreation() {
                   fullWidth
                   sx={{ mt: 3 }}
                   value={formData.lastName}
-                  onChange={(e) => handleChange("lastName", e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/[^A-Za-z\s-]/g, "");
+                    handleChange("lastName", value);
+                  }}
                   error={!!formErrors.lastName}
                   helperText={formErrors.lastName}
                 />
+
                 <FormControl fullWidth sx={{ mt: 3 }}>
                   <InputLabel>Mode of Disbursement</InputLabel>
                   <Select
@@ -451,17 +516,19 @@ export default function AccountCreation() {
                   fullWidth
                   value={formData.contact}
                   onChange={(e) => {
-                    const value = e.target.value;
-                    if (/^\d{0,11}$/.test(value)) {
-                      handleChange("contact", value);
-                    }
+                    const value = e.target.value.replace(/[^0-9]/g, "");
+                    if (value.length <= 11) handleChange("contact", value);
                   }}
                   inputProps={{
                     maxLength: 11,
                     inputMode: "numeric",
                   }}
-                  error={!!formErrors.contact}
-                  helperText={formErrors.contact}
+                  error={Boolean(formErrors.contact)}
+                  helperText={
+                    formErrors.contact
+                      ? formErrors.contact
+                      : "Must be exactly 11 digits"
+                  }
                 />
 
                 <TextField
@@ -543,35 +610,16 @@ export default function AccountCreation() {
                       ))}
                   </Select>
                 </FormControl>
-
                 <TextField
                   label="Account Number"
                   fullWidth
                   sx={{ mt: 3 }}
                   value={formData.accountNumber}
                   onChange={(e) => {
-                    const value = e.target.value.replace(/[^a-zA-Z0-9]/g, ""); // allow alphanumeric
-                    const maxLengths = {
-                      "AUB (Hello Money)": 12,
-                      "BDO NETWORK": 12,
-                      "BDO UNIBANK": 12,
-                      BPI: 12,
-                      CEBUANA: 11,
-                      CHINABANK: 12,
-                      EASTWEST: 12,
-                      GCASH: 11,
-                      LANDBANK: 10,
-                      METROBANK: 13,
-                      PNB: 12,
-                      RCBC: 10,
-                      "SECURITY BANK": 13,
-                      UNIONBANK: 12,
-                    };
-
+                    const value = e.target.value.replace(/[^a-zA-Z0-9]/g, "");
                     const maxLength =
-                      maxLengths[formData.modeOfDisbursement] || 20;
+                      accountMaxLengths[formData.modeOfDisbursement] || 20;
 
-                    // ✅ Only apply limit if mode isn't TBA
                     if (
                       formData.modeOfDisbursement === "TBA" ||
                       value.length <= maxLength
@@ -587,86 +635,16 @@ export default function AccountCreation() {
                     inputMode: "text",
                     pattern: "[A-Za-z0-9]*",
                   }}
-                  error={
-                    formData.modeOfDisbursement !== "TBA" &&
-                    !!formData.accountNumber &&
-                    formData.accountNumber.length > 0 &&
-                    formData.accountNumber.length <
-                      {
-                        "AUB (Hello Money)": 12,
-                        "BDO NETWORK": 12,
-                        "BDO UNIBANK": 12,
-                        BPI: 12,
-                        CEBUANA: 11,
-                        CHINABANK: 12,
-                        EASTWEST: 12,
-                        GCASH: 11,
-                        LANDBANK: 10,
-                        METROBANK: 13,
-                        PNB: 12,
-                        RCBC: 10,
-                        "SECURITY BANK": 13,
-                        UNIONBANK: 12,
-                      }[formData.modeOfDisbursement]
-                  }
+                  error={Boolean(formErrors.accountNumber)}
                   helperText={
-                    formData.modeOfDisbursement === "TBA"
+                    formErrors.accountNumber
+                      ? formErrors.accountNumber
+                      : formData.modeOfDisbursement === "TBA"
                       ? "No account number required for TBA."
                       : !formData.modeOfDisbursement
                       ? "Select Mode of Disbursement first"
-                      : formData.accountNumber.length > 0 &&
-                        formData.accountNumber.length <
-                          {
-                            "AUB (Hello Money)": 12,
-                            "BDO NETWORK": 12,
-                            "BDO UNIBANK": 12,
-                            BPI: 12,
-                            CEBUANA: 11,
-                            CHINABANK: 12,
-                            EASTWEST: 12,
-                            GCASH: 11,
-                            LANDBANK: 10,
-                            METROBANK: 13,
-                            PNB: 12,
-                            RCBC: 10,
-                            "SECURITY BANK": 13,
-                            UNIONBANK: 12,
-                          }[formData.modeOfDisbursement]
-                      ? `Account Number must be ${
-                          {
-                            "AUB (Hello Money)": 12,
-                            "BDO NETWORK": 12,
-                            "BDO UNIBANK": 12,
-                            BPI: 12,
-                            CEBUANA: 11,
-                            CHINABANK: 12,
-                            EASTWEST: 12,
-                            GCASH: 11,
-                            LANDBANK: 10,
-                            METROBANK: 13,
-                            PNB: 12,
-                            RCBC: 10,
-                            "SECURITY BANK": 13,
-                            UNIONBANK: 12,
-                          }[formData.modeOfDisbursement]
-                        } characters long`
                       : `Must be ${
-                          {
-                            "AUB (Hello Money)": 12,
-                            "BDO NETWORK": 12,
-                            "BDO UNIBANK": 12,
-                            BPI: 12,
-                            CEBUANA: 11,
-                            CHINABANK: 12,
-                            EASTWEST: 12,
-                            GCASH: 11,
-                            LANDBANK: 10,
-                            METROBANK: 13,
-                            PNB: 12,
-                            RCBC: 10,
-                            "SECURITY BANK": 13,
-                            UNIONBANK: 12,
-                          }[formData.modeOfDisbursement]
+                          accountMaxLengths[formData.modeOfDisbursement]
                         } characters`
                   }
                 />
