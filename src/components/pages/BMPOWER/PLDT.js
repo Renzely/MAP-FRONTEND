@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import {
   DataGrid,
   GridToolbar,
+  GridToolbarExport,
   GridToolbarQuickFilter,
 } from "@mui/x-data-grid";
 import axios from "axios";
@@ -48,13 +49,17 @@ export default function BmpowerHO() {
           width: "100%",
         }}
       >
-        {/* Left side – Quick Filter */}
-        <GridToolbarQuickFilter sx={{ mr: 2 }} />
-
-        {/* Right side – Default Grid Toolbar buttons */}
+        {/* Left side – Quick Filter + CSV Export only */}
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <GridToolbar />
+          <GridToolbarQuickFilter />
+          <GridToolbarExport
+            printOptions={{ disableToolbarButton: true }} // disable print
+            csvOptions={{ utf8WithBom: true }} // CSV enabled
+          />
         </Box>
+
+        {/* Right side – remove all default toolbar buttons */}
+        <Box />
       </Box>
     );
   }
