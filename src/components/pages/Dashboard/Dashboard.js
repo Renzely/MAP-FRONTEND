@@ -96,7 +96,7 @@ export default function Admin() {
 
         setMonthlyData([]);
 
-        let url = `http://192.168.68.50:3001/get-merch-accounts-dashboard?company=${encodeURIComponent(
+        let url = `https://api-map.bmphrc.com/get-merch-accounts-dashboard?company=${encodeURIComponent(
           company.trim()
         )}`;
 

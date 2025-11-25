@@ -67,7 +67,7 @@ export default function BmpowerHO() {
   const fetchSavedRequirements = async (employeeEmail) => {
     try {
       const response = await axios.get(
-        "http://192.168.68.50:3001/get-merch-accounts"
+        "https://api-map.bmphrc.com/get-merch-accounts"
       );
 
       // Find the employee using their email (or use employeeNo/_id if you prefer)
@@ -119,7 +119,7 @@ export default function BmpowerHO() {
       console.log("✅ Sending update with admin:", payload.updatedBy);
 
       await axios.put(
-        `http://192.168.68.50:3001/update-employee/${updatedEmployee._id}`,
+        `https://api-map.bmphrc.com/update-employee/${updatedEmployee._id}`,
         payload
       );
 
@@ -137,7 +137,7 @@ export default function BmpowerHO() {
     const fetchAccounts = async () => {
       try {
         const response = await axios.get(
-          "http://192.168.68.50:3001/get-merch-accounts"
+          "https://api-map.bmphrc.com/get-merch-accounts"
         );
 
         // Filter only MARABOU company
@@ -973,7 +973,7 @@ export default function BmpowerHO() {
                               for (const file of files) {
                                 // 1️⃣ Request pre-signed URL
                                 const response = await axios.post(
-                                  "http://192.168.68.50:3001/save-requirements-images",
+                                  "https://api-map.bmphrc.com/save-requirements-images",
                                   { fileName: file.name, fileType: file.type }
                                 );
 
