@@ -11,6 +11,7 @@ import {
 
 import Login from "./components/Admin/login";
 import Admin from "./components/pages/AdminAccount/Admin";
+import Dashboard from "./components/pages/Dashboard/Dashboard";
 import RecentActivity from "./components/pages/RecentActivity/RecentActivity";
 import ForgotPassword from "./components/Admin/forgotpassword";
 import Path from "./path/Path";
@@ -42,7 +43,7 @@ function App() {
       <Routes>
         <Route element={<Path />}>
           <Route path="/" element={<Login />} />
-          <Route path="/dashBoard" element={<dashBoard />} />
+          <Route path="/view-dashboard" element={<Dashboard />} />
           <Route path="/view-admin-accounts" element={<Admin />} />
           <Route path="/view-recent-activity" element={<RecentActivity />} />
           <Route path="/view-accounts" element={<AccountCreation />} />

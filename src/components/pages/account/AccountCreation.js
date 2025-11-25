@@ -23,6 +23,8 @@ import Topbar from "../../topbar/Topbar";
 import Sidebar from "../../sidebar/Sidebar";
 
 export default function AccountCreation() {
+  const adminFullName = localStorage.getItem("adminFullName");
+
   const [formErrors, setFormErrors] = useState({});
   const [openModal, setOpenModal] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState([]);
@@ -193,7 +195,7 @@ export default function AccountCreation() {
     // ✅ Step 1: Check duplicates first
     try {
       const duplicateCheck = await axios.post(
-        "https://api-map.bmphrc.com/check-duplicate-ids",
+        "http://192.168.68.50:3001/check-duplicate-ids",
         {
           sss: formData.sss,
           philhealth: formData.philhealth,
@@ -224,6 +226,7 @@ export default function AccountCreation() {
     // ✅ Step 2: Prepare submission
     const formattedData = {
       ...formData,
+      createdBy: adminFullName,
       accountNumber:
         formData.modeOfDisbursement === "TBA" ? null : formData.accountNumber, // send null for TBA
       requirementsImages: uploadedImageUrls,
@@ -237,7 +240,7 @@ export default function AccountCreation() {
 
     try {
       const response = await axios.post(
-        "https://api-map.bmphrc.com/create-merch-account",
+        "http://192.168.68.50:3001/create-merch-account",
         formattedData
       );
 
@@ -292,7 +295,7 @@ export default function AccountCreation() {
       setUploading(true);
 
       const response = await axios.post(
-        "https://api-map.bmphrc.com/save-requirements-images",
+        "http://192.168.68.50:3001/save-requirements-images",
         { fileName: file.name, fileType: file.type }
       );
 

@@ -1,16 +1,14 @@
 import React, { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
-  Inventory,
+  Dashboard,
   AssignmentInd,
   ManageAccounts,
   Logout,
   SupervisorAccount,
-  AssignmentReturn,
-  Store,
-  Checklist,
   ExpandLess,
   ExpandMore,
+  ListAlt,
 } from "@mui/icons-material";
 import WarehouseIcon from "@mui/icons-material/Warehouse";
 import {
@@ -102,11 +100,21 @@ export default function Sidebar() {
       {/* Sidebar Menu */}
       <ul className="sidebar-menu">
         <NavLink
+          to="/view-dashboard"
+          onClick={() => handleItemClick("/view-dashboard")}
+        >
+          <li className={activeItem === "/view-dashboard" ? "active" : ""}>
+            <Dashboard className="sidebar-icon" /> {isOpen && "Dashboard"}
+          </li>
+        </NavLink>
+
+        <NavLink
           to="/view-accounts"
           onClick={() => handleItemClick("/view-accounts")}
         >
           <li className={activeItem === "/view-accounts" ? "active" : ""}>
-            <ManageAccounts className="sidebar-icon" /> {isOpen && "Accounts"}
+            <ManageAccounts className="sidebar-icon" />{" "}
+            {isOpen && "Account Creation"}
           </li>
         </NavLink>
 
@@ -132,8 +140,7 @@ export default function Sidebar() {
             <li
               className={activeItem === "/view-recent-activity" ? "active" : ""}
             >
-              <SupervisorAccount className="sidebar-icon" />{" "}
-              {isOpen && "Recent Activity"}
+              <ListAlt className="sidebar-icon" /> {isOpen && "Recent Activity"}
             </li>
           </NavLink>
         )}

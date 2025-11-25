@@ -49,7 +49,7 @@ export default function Login() {
 
     try {
       const response = await axios.post(
-        "https://api-map.bmphrc.com/login-admin",
+        "http://192.168.68.50:3001/login-admin",
         body
       );
       const data = await response.data;
@@ -69,7 +69,7 @@ export default function Login() {
           localStorage.setItem("adminEmail", data.data.emailAddress);
 
           // Redirect to accounts view
-          window.location.href = "/view-accounts";
+          window.location.href = "/view-dashboard";
         });
       } else {
         Swal.fire({
