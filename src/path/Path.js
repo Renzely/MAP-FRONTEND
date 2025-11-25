@@ -22,6 +22,7 @@ const Path = () => {
         return <Navigate to="/view-accounts" />;
       case "/view-accounts":
       case "/view-admin-accounts":
+      case "/view-dashboard":
       case "/view-recent-activity":
       case "/view-bmpowerHO":
       case "/view-asianstreak":

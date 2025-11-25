@@ -67,11 +67,11 @@ export default function BmpowerHO() {
   const fetchSavedRequirements = async (employeeEmail) => {
     try {
       const response = await axios.get(
-        "https://api-map.bmphrc.com/get-merch-accounts"
+        "http://192.168.68.50:3001/get-merch-accounts"
       );
 
       // Find the employee using their email (or use employeeNo/_id if you prefer)
-      const employee = response.data.find((emp) => emp.email === employeeEmail);
+      const employee = response.data.find((emp) => emp._id === employeeEmail);
 
       if (employee && employee.requirementsImages) {
         setViewRequirements(employee.requirementsImages);
@@ -119,7 +119,7 @@ export default function BmpowerHO() {
       console.log("✅ Sending update with admin:", payload.updatedBy);
 
       await axios.put(
-        `https://api-map.bmphrc.com/update-employee/${updatedEmployee._id}`,
+        `http://192.168.68.50:3001/update-employee/${updatedEmployee._id}`,
         payload
       );
 
@@ -137,7 +137,7 @@ export default function BmpowerHO() {
     const fetchAccounts = async () => {
       try {
         const response = await axios.get(
-          "https://api-map.bmphrc.com/get-merch-accounts"
+          "http://192.168.68.50:3001/get-merch-accounts"
         );
 
         // Filter only MARABOU company
@@ -829,8 +829,8 @@ export default function BmpowerHO() {
                         "&:hover": { backgroundColor: "#0A21C020" },
                       }}
                       onClick={() => {
-                        if (selectedEmployee?.email) {
-                          fetchSavedRequirements(selectedEmployee.email); // ✅ Fetch employee’s saved images
+                        if (selectedEmployee) {
+                          fetchSavedRequirements(selectedEmployee._id); // ✅ Fetch employee’s saved images
                           setViewAllModalOpen(true);
                         } else {
                           alert("Please select an employee first.");
@@ -974,7 +974,7 @@ export default function BmpowerHO() {
                               for (const file of files) {
                                 // 1️⃣ Request pre-signed URL
                                 const response = await axios.post(
-                                  "https://api-map.bmphrc.com/save-requirements-images",
+                                  "http://192.168.68.50:3001/save-requirements-images",
                                   { fileName: file.name, fileType: file.type }
                                 );
 

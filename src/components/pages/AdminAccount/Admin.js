@@ -144,7 +144,7 @@ export default function Admin() {
   const handleBranchSave = async (email) => {
     try {
       const response = await axios.put(
-        "https://api-map.bmphrc.com/update-admin-outlet",
+        "http://192.168.68.50:3001/update-admin-outlet",
         {
           emailAddress: email, // Use the passed email directly
           outlet: selectedBranches,
@@ -325,7 +325,7 @@ export default function Admin() {
 
   //     // Send the emails to the backend
   //     const response = await axios.post(
-  //       "https://api-map.bmphrc.com/update-coor-details",
+  //       "http://192.168.68.50:3001/update-coor-details",
   //       {
   //         emails: selectedEmails,
   //       }
@@ -508,7 +508,7 @@ export default function Admin() {
   async function getUser() {
     try {
       const response = await axios.post(
-        "https://api-map.bmphrc.com/get-all-user"
+        "http://192.168.68.50:3001/get-all-user"
       );
 
       const data = response.data.data;
@@ -534,7 +534,7 @@ export default function Admin() {
   async function getUser() {
     try {
       const response = await axios.post(
-        "https://api-map.bmphrc.com/get-admin-user",
+        "http://192.168.68.50:3001/get-admin-user",
         requestBody
       );
       const data = response.data.data;
@@ -562,7 +562,7 @@ export default function Admin() {
 
   async function setStatus() {
     await axios
-      .put("https://api-map.bmphrc.com/update-admin-status", requestBody)
+      .put("http://192.168.68.50:3001/update-admin-status", requestBody)
       .then(async (response) => {
         const data = await response.data.data;
 
@@ -590,7 +590,7 @@ export default function Admin() {
     }
 
     await axios
-      .post("https://api-map.bmphrc.com/send-otp", {
+      .post("http://192.168.68.50:3001/send-otp", {
         email: adminEmail,
       })
       .then(async (response) => {
@@ -647,7 +647,7 @@ export default function Admin() {
       };
 
       axios
-        .post("https://api-map.bmphrc.com/register-user-admin", userDetails)
+        .post("http://192.168.68.50:3001/register-user-admin", userDetails)
         .then(async (response) => {
           const data = response.data;
 

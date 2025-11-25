@@ -56,7 +56,7 @@ export default function ForgotPassword() {
 
     try {
       const response = await axios.post(
-        "https://api-map.bmphrc.com/send-otp-forgotpassword",
+        "http://192.168.68.50:3001/send-otp-forgotpassword",
         { emailAddress: emailAddress }
       );
       const res = response.data;
@@ -99,7 +99,7 @@ export default function ForgotPassword() {
     };
 
     axios
-      .put("https://api-map.bmphrc.com/forgot-password-reset", body)
+      .put("http://192.168.68.50:3001/forgot-password-reset", body)
       .then(async (response) => {
         const res = await response.data;
         if (res.status === 200) {
