@@ -49,7 +49,7 @@ export default function Login() {
 
     try {
       const response = await axios.post(
-        "http://192.168.68.50:3001/login-admin",
+        "https://api-map.bmphrc.com/login-admin",
         body
       );
       const data = await response.data;
