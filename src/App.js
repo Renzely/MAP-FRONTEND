@@ -27,6 +27,7 @@ import PLDT from "./components/pages/BMPOWER/PLDT";
 import RoyalCanin from "./components/pages/BMPOWER/RoyalCanin";
 import Shelfmate from "./components/pages/BMPOWER/Shelfmate";
 import SPX from "./components/pages/BMPOWER/SPX";
+import UnionGalvasteel from "./components/pages/BMPOWER/UnionGalvasteel";
 
 import MarabouHO from "./components/pages/MARABOU/MarabouHO";
 import Longtable from "./components/pages/MARABOU/LongTable";
@@ -63,6 +64,7 @@ function App() {
           <Route path="/view-royalcanin" element={<RoyalCanin />} />
           <Route path="/view-shelfmate" element={<Shelfmate />} />
           <Route path="/view-spx" element={<SPX />} />
+          <Route path="/view-galvasteel" element={<UnionGalvasteel />} />
 
           <Route path="/view-marabouHO" element={<MarabouHO />} />
           <Route path="/view-longtable" element={<Longtable />} />

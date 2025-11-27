@@ -35,6 +35,7 @@ const Path = () => {
       case "/view-royalcanin":
       case "/view-shelfmate":
       case "/view-spx":
+      case "/view-galvasteel":
 
       case "/view-marabouHO":
       case "/view-longtable":
