@@ -57,6 +57,7 @@ export default function AccountCreation() {
     tin: "",
     position: "",
     dateHired: null,
+    dateResigned: null,
     homeAddress: "",
     silBalance: "",
     clientAssigned: "",
@@ -80,31 +81,54 @@ export default function AccountCreation() {
   };
 
   const handleChange = (field, value) => {
-    // If birthday, calculate age
-    if (field === "birthday") {
-      const birthDate = dayjs(value);
-      const age = dayjs().diff(birthDate, "year");
-      setFormData((prev) => ({ ...prev, birthday: value, age }));
-    } else {
-      setFormData((prev) => ({ ...prev, [field]: value }));
-    }
+    setFormData((prev) => {
+      let updated = { ...prev, [field]: value };
 
-    if (field === "company") {
-      setFormData((prev) => ({
-        ...prev,
-        company: value,
-        clientAssigned: "", // Reset client when company changes
-      }));
-    } else {
-      setFormData((prev) => ({ ...prev, [field]: value }));
-    }
+      // If birthday → calculate age
+      if (field === "birthday") {
+        const birthDate = dayjs(value);
+        const age = dayjs().diff(birthDate, "year");
+        updated.age = age;
+      }
 
-    // ✅ Auto-remove the error message for this field if it has value
+      // If company changes → reset clientAssigned
+      if (field === "company") {
+        updated.clientAssigned = "";
+      }
+
+      // If remarks is changed
+      if (field === "remarks") {
+        if (value !== "Resign") {
+          // Clear dateResigned if not resigning
+          updated.dateResigned = null;
+        }
+      }
+
+      return updated;
+    });
+
+    // --- Error Handling Logic ---
     setFormErrors((prevErrors) => {
-      const newErrors = { ...prevErrors };
+      let newErrors = { ...prevErrors };
+
+      // Clear error for the current field once it has a value
       if (value && newErrors[field]) {
         delete newErrors[field];
       }
+
+      // Special rule: Remarks = Resign → dateResigned required
+      if (field === "remarks" && value === "Resign") {
+        if (!formData.dateResigned) {
+          newErrors.dateResigned =
+            "Date Resigned is required when employee resigns.";
+        }
+      }
+
+      // If user selects a date after choosing resign → clear error
+      if (field === "dateResigned" && value) {
+        delete newErrors.dateResigned;
+      }
+
       return newErrors;
     });
   };
@@ -150,6 +174,12 @@ export default function AccountCreation() {
       if (formData.contact.length !== 11) {
         errors.contact = "Contact number must be exactly 11 digits";
       }
+    }
+
+    // If remarks is "Resign", dateResigned must be filled
+    if (formData.remarks === "Resign" && !formData.dateResigned) {
+      errors.dateResigned =
+        "Date Resigned is required when remarks is 'Resign'";
     }
 
     const accountRequiredLengths = {
@@ -236,6 +266,9 @@ export default function AccountCreation() {
       dateHired: formData.dateHired
         ? dayjs(formData.dateHired).toDate().toISOString()
         : null,
+      dateResigned: formData.dateResigned
+        ? dayjs(formData.dateResigned).toDate().toISOString()
+        : null,
     };
 
     try {
@@ -271,6 +304,7 @@ export default function AccountCreation() {
           tin: "",
           position: "",
           dateHired: null,
+          dateResigned: null,
           homeAddress: "",
           silBalance: "",
           clientAssigned: "",
@@ -399,6 +433,27 @@ export default function AccountCreation() {
                 </FormControl>
 
                 <FormControl fullWidth sx={{ mt: 3 }}>
+                  <InputLabel>Client Assigned</InputLabel>
+                  <Select
+                    value={formData.clientAssigned}
+                    label="Client Assigned"
+                    onChange={(e) =>
+                      handleChange("clientAssigned", e.target.value)
+                    }
+                    disabled={!formData.company} // Disable if no company selected
+                    error={!!formErrors.clientAssigned}
+                    helperText={formErrors.clientAssigned}
+                  >
+                    {formData.company &&
+                      clientsByCompany[formData.company]?.map((client) => (
+                        <MenuItem key={client} value={client}>
+                          {client}
+                        </MenuItem>
+                      ))}
+                  </Select>
+                </FormControl>
+
+                <FormControl fullWidth sx={{ mt: 3 }}>
                   <InputLabel>Status</InputLabel>
                   <Select
                     value={formData.status}
@@ -477,39 +532,6 @@ export default function AccountCreation() {
                   error={!!formErrors.lastName}
                   helperText={formErrors.lastName}
                 />
-
-                <FormControl fullWidth sx={{ mt: 3 }}>
-                  <InputLabel>Mode of Disbursement</InputLabel>
-                  <Select
-                    value={formData.modeOfDisbursement}
-                    label="Mode of Disbursement"
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      handleChange("modeOfDisbursement", value);
-                      handleChange("accountNumber", ""); // reset account number when mode changes
-                    }}
-                    error={!!formErrors.modeOfDisbursement}
-                    helperText={formErrors.modeOfDisbursement}
-                  >
-                    <MenuItem value="TBA">TBA</MenuItem>
-                    <MenuItem value="AUB (Hello Money)">
-                      AUB (Hello Money)
-                    </MenuItem>
-                    <MenuItem value="BDO NETWORK">BDO NETWORK</MenuItem>
-                    <MenuItem value="BDO UNIBANK">BDO UNIBANK</MenuItem>
-                    <MenuItem value="BPI">BPI</MenuItem>
-                    <MenuItem value="CEBUANA">CEBUANA</MenuItem>
-                    <MenuItem value="CHINABANK">CHINABANK</MenuItem>
-                    <MenuItem value="EASTWEST">EASTWEST</MenuItem>
-                    <MenuItem value="GCASH">GCASH</MenuItem>
-                    <MenuItem value="LANDBANK">LANDBANK</MenuItem>
-                    <MenuItem value="METROBANK">METROBANK</MenuItem>
-                    <MenuItem value="PNB">PNB</MenuItem>
-                    <MenuItem value="RCBC">RCBC</MenuItem>
-                    <MenuItem value="SECURITY BANK">SECURITY BANK</MenuItem>
-                    <MenuItem value="UNIONBANK">UNIONBANK</MenuItem>
-                  </Select>
-                </FormControl>
               </Grid>
 
               {/* Column 2 */}
@@ -538,7 +560,7 @@ export default function AccountCreation() {
                   label="Email Address (Optional)"
                   type="email"
                   fullWidth
-                  sx={{ mt: 3 }}
+                  sx={{ mt: 0 }}
                   value={formData.email}
                   onChange={(e) => handleChange("email", e.target.value)}
                   error={!!formErrors.email}
@@ -594,23 +616,35 @@ export default function AccountCreation() {
                 </LocalizationProvider>
 
                 <FormControl fullWidth sx={{ mt: 3 }}>
-                  <InputLabel>Client Assigned</InputLabel>
+                  <InputLabel>Mode of Disbursement</InputLabel>
                   <Select
-                    value={formData.clientAssigned}
-                    label="Client Assigned"
-                    onChange={(e) =>
-                      handleChange("clientAssigned", e.target.value)
-                    }
-                    disabled={!formData.company} // Disable if no company selected
-                    error={!!formErrors.clientAssigned}
-                    helperText={formErrors.clientAssigned}
+                    value={formData.modeOfDisbursement}
+                    label="Mode of Disbursement"
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      handleChange("modeOfDisbursement", value);
+                      handleChange("accountNumber", ""); // reset account number when mode changes
+                    }}
+                    error={!!formErrors.modeOfDisbursement}
+                    helperText={formErrors.modeOfDisbursement}
                   >
-                    {formData.company &&
-                      clientsByCompany[formData.company]?.map((client) => (
-                        <MenuItem key={client} value={client}>
-                          {client}
-                        </MenuItem>
-                      ))}
+                    <MenuItem value="TBA">TBA</MenuItem>
+                    <MenuItem value="AUB (Hello Money)">
+                      AUB (Hello Money)
+                    </MenuItem>
+                    <MenuItem value="BDO NETWORK">BDO NETWORK</MenuItem>
+                    <MenuItem value="BDO UNIBANK">BDO UNIBANK</MenuItem>
+                    <MenuItem value="BPI">BPI</MenuItem>
+                    <MenuItem value="CEBUANA">CEBUANA</MenuItem>
+                    <MenuItem value="CHINABANK">CHINABANK</MenuItem>
+                    <MenuItem value="EASTWEST">EASTWEST</MenuItem>
+                    <MenuItem value="GCASH">GCASH</MenuItem>
+                    <MenuItem value="LANDBANK">LANDBANK</MenuItem>
+                    <MenuItem value="METROBANK">METROBANK</MenuItem>
+                    <MenuItem value="PNB">PNB</MenuItem>
+                    <MenuItem value="RCBC">RCBC</MenuItem>
+                    <MenuItem value="SECURITY BANK">SECURITY BANK</MenuItem>
+                    <MenuItem value="UNIONBANK">UNIONBANK</MenuItem>
                   </Select>
                 </FormControl>
                 <TextField
@@ -775,6 +809,34 @@ export default function AccountCreation() {
                 />
 
                 <TextField
+                  label="SIL Balance"
+                  fullWidth
+                  sx={{ mt: 3 }}
+                  value={formData.silBalance}
+                  onChange={(e) => handleChange("silBalance", e.target.value)}
+                  error={!!formErrors.silBalance}
+                  helperText={formErrors.silBalance}
+                />
+
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    label="Date Resigned"
+                    value={formData.dateResigned}
+                    disabled={formData.remarks !== "Resign"} // <--- IMPORTANT
+                    onChange={(newValue) =>
+                      handleChange("dateResigned", newValue)
+                    }
+                    sx={{ width: "100%", mt: 3 }}
+                    slotProps={{
+                      textField: {
+                        error: !!formErrors.dateResigned,
+                        helperText: formErrors.dateResigned,
+                      },
+                    }}
+                  />
+                </LocalizationProvider>
+
+                <TextField
                   label="Home Address"
                   fullWidth
                   multiline
@@ -786,15 +848,6 @@ export default function AccountCreation() {
                   helperText={formErrors.homeAddress}
                 />
 
-                <TextField
-                  label="SIL Balance"
-                  fullWidth
-                  sx={{ mt: 3 }}
-                  value={formData.silBalance}
-                  onChange={(e) => handleChange("silBalance", e.target.value)}
-                  error={!!formErrors.silBalance}
-                  helperText={formErrors.silBalance}
-                />
                 <Box sx={{ mt: 3 }}>
                   <Typography variant="subtitle1">
                     Upload Requirements (Softcopy)

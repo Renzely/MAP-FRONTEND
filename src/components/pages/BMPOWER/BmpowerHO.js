@@ -161,6 +161,22 @@ export default function BmpowerHO() {
 
   const columns = [
     { field: "count", headerName: "#", width: 70 },
+    {
+      field: "action",
+      headerName: "Action",
+      width: 120,
+      sortable: false,
+      renderCell: (params) => (
+        <Button
+          variant="contained"
+          color="primary"
+          size="small"
+          onClick={() => handleEdit(params.row)}
+        >
+          Edit
+        </Button>
+      ),
+    },
     { field: "lastName", headerName: "Last Name", width: 130 },
     { field: "firstName", headerName: "First Name", width: 130 },
     { field: "middleName", headerName: "Middle Name", width: 130 },
@@ -221,25 +237,47 @@ export default function BmpowerHO() {
         return dayjs(value).format("DD-MMM-YY");
       },
     },
+    {
+      field: "dateResigned",
+      headerName: "Date Resigned",
+      width: 150,
+      valueGetter: (value, row) => {
+        const raw = row?.dateResigned;
+        const dateValue =
+          typeof raw === "object" && raw?.$date
+            ? raw.$date
+            : typeof raw === "string"
+            ? raw
+            : null;
+        return dateValue;
+      },
+      valueFormatter: (value) => {
+        if (!value) return "";
+        return dayjs(value).format("DD-MMM-YY");
+      },
+    },
+    {
+      field: "dateResigned",
+      headerName: "Date Resigned",
+      width: 150,
+      valueGetter: (value, row) => {
+        const raw = row?.dateResigned;
+        const dateValue =
+          typeof raw === "object" && raw?.$date
+            ? raw.$date
+            : typeof raw === "string"
+            ? raw
+            : null;
+        return dateValue;
+      },
+      valueFormatter: (value) => {
+        if (!value) return "";
+        return dayjs(value).format("DD-MMM-YY");
+      },
+    },
     { field: "homeAddress", headerName: "Home Address", width: 250 },
     { field: "silBalance", headerName: "SIL Balance", width: 120 },
     { field: "clientAssigned", headerName: "Client Assigned", width: 150 },
-    {
-      field: "action",
-      headerName: "Action",
-      width: 120,
-      sortable: false,
-      renderCell: (params) => (
-        <Button
-          variant="contained"
-          color="primary"
-          size="small"
-          onClick={() => handleEdit(params.row)}
-        >
-          Edit
-        </Button>
-      ),
-    },
   ];
 
   // Assign a unique ID for DataGrid
@@ -718,6 +756,25 @@ export default function BmpowerHO() {
                         setSelectedEmployee({
                           ...selectedEmployee,
                           dateHired: e.target.value,
+                        })
+                      }
+                      InputProps={{ readOnly: !isEditing }}
+                    />
+                    <TextField
+                      label="Date Resigned"
+                      fullWidth
+                      type="date"
+                      value={
+                        selectedEmployee.dateResigned
+                          ? dayjs(selectedEmployee.dateResigned).format(
+                              "YYYY-MM-DD"
+                            )
+                          : ""
+                      }
+                      onChange={(e) =>
+                        setSelectedEmployee({
+                          ...selectedEmployee,
+                          dateResigned: e.target.value,
                         })
                       }
                       InputProps={{ readOnly: !isEditing }}

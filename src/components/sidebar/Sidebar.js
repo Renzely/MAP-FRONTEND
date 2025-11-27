@@ -62,7 +62,7 @@ export default function Sidebar() {
   };
 
   const roleAccount = localStorage.getItem("roleAccount");
-  const firstName = localStorage.getItem("firstName");
+  const fullName = localStorage.getItem("adminFullName");
 
   return (
     <div
@@ -84,8 +84,8 @@ export default function Sidebar() {
         />
         {isOpen && (
           <div className="user-info">
-            <Typography variant="body1" className="sidebar-name">
-              {firstName}
+            <Typography variant="body2" className="sidebar-name">
+              {fullName}
             </Typography>
             <Typography variant="body2" className="sidebar-role">
               {roleAccount}
@@ -279,6 +279,17 @@ export default function Sidebar() {
                 <li className={activeItem === "/view-spx" ? "active" : ""}>
                   <AssignmentInd className="sidebar-icon" />{" "}
                   {isOpen && "SPX Express"}
+                </li>
+              </NavLink>
+              <NavLink
+                to="/view-galvasteel"
+                onClick={() => handleItemClick("/view-galvasteel")}
+              >
+                <li
+                  className={activeItem === "/view-galvasteel" ? "active" : ""}
+                >
+                  <AssignmentInd className="sidebar-icon" />{" "}
+                  {isOpen && "Union Galvasteel"}
                 </li>
               </NavLink>
             </ul>
