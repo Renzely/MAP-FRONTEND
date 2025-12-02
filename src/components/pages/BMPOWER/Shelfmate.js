@@ -27,6 +27,7 @@ import Sidebar from "../../sidebar/Sidebar";
 import dayjs from "dayjs";
 
 export default function BmpowerHO() {
+  const XLSX = require("sheetjs-style");
   const [accounts, setAccounts] = useState([]);
   const [openEditModal, setOpenEditModal] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
@@ -52,10 +53,6 @@ export default function BmpowerHO() {
         {/* Left side – Quick Filter + CSV Export only */}
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <GridToolbarQuickFilter />
-          <GridToolbarExport
-            printOptions={{ disableToolbarButton: true }} // disable print
-            csvOptions={{ utf8WithBom: true }} // CSV enabled
-          />
         </Box>
 
         {/* Right side – remove all default toolbar buttons */}
@@ -63,7 +60,6 @@ export default function BmpowerHO() {
       </Box>
     );
   }
-
   const fetchSavedRequirements = async (employeeEmail) => {
     try {
       const response = await axios.get(
@@ -157,6 +153,88 @@ export default function BmpowerHO() {
 
     fetchAccounts();
   }, []);
+
+  const getExportData = async () => {
+    try {
+      const response = await axios.post(
+        "https://api-map.bmphrc.com/export-merch-accounts",
+        {
+          remarks: selectedRemarks, // optional filter
+          clientAssigned: "SHELFMATE",
+        }
+      );
+
+      const headers = [
+        "#",
+        "Company",
+        "Client",
+        "EmployeeNo",
+        "Fullname",
+        "Status",
+        "Remarks",
+        "Position",
+        "Contact",
+        "Email",
+        "Birthday",
+        "DateHired",
+        "DateResigned",
+        "HomeAddress",
+        "ModeOfDisbursement",
+        "AccountNumber",
+        "CreatedBy",
+      ];
+
+      const newData = response.data.data;
+
+      // Generate XLSX file
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet([]);
+
+      XLSX.utils.sheet_add_aoa(ws, [headers], { origin: "A1" });
+      XLSX.utils.sheet_add_json(ws, newData, {
+        origin: "A2",
+        skipHeader: true,
+      });
+
+      // Auto width
+      ws["!cols"] = headers.map((h) => ({
+        wch:
+          Math.max(
+            h.length,
+            ...newData.map((row) => (row[h] || "").toString().length)
+          ) + 4,
+      }));
+
+      // Header styling
+      headers.forEach((_, col) => {
+        const cell = XLSX.utils.encode_cell({ r: 0, c: col });
+        if (ws[cell])
+          ws[cell].s = {
+            font: { bold: true },
+            alignment: { horizontal: "center", vertical: "center" },
+          };
+      });
+
+      XLSX.utils.book_append_sheet(wb, ws, "Merch Accounts");
+
+      const buffer = XLSX.write(wb, { type: "array", bookType: "xlsx" });
+      const blob = new Blob([buffer], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+
+      alert(`Successfully exported ${newData.length} records!`);
+
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `MASTERLIST_Shelfmate_${
+        new Date().toISOString().split("T")[0]
+      }.xlsx`;
+      link.click();
+    } catch (error) {
+      console.error(error);
+      alert("Export failed. Please try again.");
+    }
+  };
 
   const columns = [
     { field: "count", headerName: "#", width: 70 },
@@ -255,25 +333,6 @@ export default function BmpowerHO() {
         return dayjs(value).format("DD-MMM-YY");
       },
     },
-    {
-      field: "dateResigned",
-      headerName: "Date Resigned",
-      width: 150,
-      valueGetter: (value, row) => {
-        const raw = row?.dateResigned;
-        const dateValue =
-          typeof raw === "object" && raw?.$date
-            ? raw.$date
-            : typeof raw === "string"
-            ? raw
-            : null;
-        return dateValue;
-      },
-      valueFormatter: (value) => {
-        if (!value) return "";
-        return dayjs(value).format("DD-MMM-YY");
-      },
-    },
     { field: "homeAddress", headerName: "Home Address", width: 250 },
     { field: "silBalance", headerName: "SIL Balance", width: 120 },
     { field: "clientAssigned", headerName: "Client Assigned", width: 150 },
@@ -303,7 +362,14 @@ export default function BmpowerHO() {
           <Typography variant="h5" sx={{ mb: 2 }}>
             Employee Accounts for SHELFMATE
           </Typography>
-          <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 2, // space between dropdown & button
+              mb: 2,
+            }}
+          >
             <FormControl sx={{ width: 200 }}>
               <Select
                 value={selectedRemarks}
@@ -322,6 +388,23 @@ export default function BmpowerHO() {
                 <MenuItem value="End of Contract">End of Contract</MenuItem>
               </Select>
             </FormControl>
+
+            <Button
+              size=""
+              onClick={getExportData} // <-- remove quotes!
+              variant="contained"
+              sx={{
+                backgroundColor: "#2e6385ff",
+                color: "#fff",
+                borderColor: "#fff",
+                "&:hover": { backgroundColor: "#0c2e3fff" },
+                width: "180px", // ⬅ custom width
+                height: "50px", // ⬅ custom height
+                fontSize: "16px", // ⬅ optional
+              }}
+            >
+              Export
+            </Button>
           </Box>
 
           <Box
