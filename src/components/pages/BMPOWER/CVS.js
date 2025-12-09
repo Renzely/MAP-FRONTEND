@@ -60,7 +60,6 @@ export default function BmpowerHO() {
       </Box>
     );
   }
-
   const fetchSavedRequirements = async (employeeEmail) => {
     try {
       const response = await axios.get(
@@ -142,8 +141,7 @@ export default function BmpowerHO() {
           (acc) =>
             acc.company?.toUpperCase() ===
               "BMPOWER HUMAN RESOURCES CORPORATION" &&
-            acc.clientAssigned?.toUpperCase() ===
-              "BMPOWER HUMAN RESOURCES CORPORATION"
+            acc.clientAssigned?.toUpperCase() === "CONVIENCE STORE"
         );
 
         setAccounts(bmpowerAccounts);
@@ -162,7 +160,7 @@ export default function BmpowerHO() {
         "https://api-map.bmphrc.com/export-merch-accounts",
         {
           remarks: selectedRemarks, // optional filter
-          clientAssigned: "BMPOWER HUMAN RESOURCES CORPORATION",
+          clientAssigned: "ECOSSENTIAL FOODS CORP-HEAD OFFICE",
         }
       );
 
@@ -231,7 +229,7 @@ export default function BmpowerHO() {
 
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
-      link.download = `MASTERLIST_BMPower-HO_${
+      link.download = `MASTERLIST_EFC-CVS${
         new Date().toISOString().split("T")[0]
       }.xlsx`;
       link.click();
@@ -365,8 +363,7 @@ export default function BmpowerHO() {
           }}
         >
           <Typography variant="h5" sx={{ mb: 2 }}>
-            Employee Accounts for BMPOWER HUMAN RESOURCES CORPORATION Head
-            Office
+            Employee Accounts for CONVIENCE STORE
           </Typography>
           <Box
             sx={{
@@ -1326,7 +1323,6 @@ export default function BmpowerHO() {
               slotProps={{
                 toolbar: {
                   showQuickFilter: true,
-                  printOptions: { disableToolbarButton: true },
                   csvOptions: { disableToolbarButton: true },
                 },
               }}

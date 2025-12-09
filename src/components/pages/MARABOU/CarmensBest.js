@@ -180,7 +180,10 @@ export default function BmpowerHO() {
         "HomeAddress",
         "ModeOfDisbursement",
         "AccountNumber",
-        "CreatedBy",
+        "SSS",
+        "PhilHealth",
+        "HDMF",
+        "Tin",
       ];
 
       const newData = response.data.data;
@@ -359,7 +362,7 @@ export default function BmpowerHO() {
           }}
         >
           <Typography variant="h5" sx={{ mb: 2 }}>
-            Employee Accounts for J-GYU INC
+            Employee Accounts for CARMENS BEST
           </Typography>
           <Box
             sx={{

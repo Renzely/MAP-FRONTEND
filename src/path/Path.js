@@ -26,7 +26,9 @@ const Path = () => {
       case "/view-recent-activity":
       case "/view-bmpowerHO":
       case "/view-asianstreak":
+      case "/view-cvs":
       case "/view-ecossentialfoods":
+      case "/view-ecossentialfoodsCOORS":
       case "/view-ecossentialfoodsHO":
       case "/view-engkanto":
       case "/view-magis":
