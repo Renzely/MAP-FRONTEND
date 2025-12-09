@@ -190,6 +190,15 @@ export default function Sidebar() {
                 </li>
               </NavLink>
               <NavLink
+                to="/view-cvs"
+                onClick={() => handleItemClick("/view-cvs")}
+              >
+                <li className={activeItem === "/view-cvs" ? "active" : ""}>
+                  <AssignmentInd className="sidebar-icon" />{" "}
+                  {isOpen && "Convience Store"}
+                </li>
+              </NavLink>
+              <NavLink
                 to="/view-ecossentialfoods"
                 onClick={() => handleItemClick("/view-ecossentialfoods")}
               >
@@ -200,6 +209,19 @@ export default function Sidebar() {
                 >
                   <AssignmentInd className="sidebar-icon" />{" "}
                   {isOpen && "Ecossential Foods"}
+                </li>
+              </NavLink>
+              <NavLink
+                to="/view-ecossentialfoodsCOORS"
+                onClick={() => handleItemClick("/view-ecossentialfoodsCOORS")}
+              >
+                <li
+                  className={
+                    activeItem === "/view-ecossentialfoodsCOORS" ? "active" : ""
+                  }
+                >
+                  <AssignmentInd className="sidebar-icon" />{" "}
+                  {isOpen && "Ecossential Foods COOR"}
                 </li>
               </NavLink>
               <NavLink
@@ -380,6 +402,19 @@ export default function Sidebar() {
                   {isOpen && "Universal Harvester Dairy Farm INC"}
                 </li>
               </NavLink>
+
+              <NavLink
+                to="/view-longtable"
+                onClick={() => handleItemClick("/view-longtable")}
+              >
+                <li
+                  className={activeItem === "/view-longtable" ? "active" : ""}
+                >
+                  <AssignmentInd className="sidebar-icon" />{" "}
+                  {isOpen && "Long Table - Masajiro"}
+                </li>
+              </NavLink>
+
               <NavLink
                 to="/view-jgyu"
                 onClick={() => handleItemClick("/view-jgyu")}

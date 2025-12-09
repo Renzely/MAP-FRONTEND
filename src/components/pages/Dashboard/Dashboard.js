@@ -1,7 +1,17 @@
 import "./Dashboard.css";
 import * as React from "react";
 import { useState, useEffect } from "react";
-import { MenuItem, TextField, Box, CircularProgress } from "@mui/material";
+import {
+  MenuItem,
+  TextField,
+  Box,
+  CircularProgress,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+} from "@mui/material";
 import Topbar from "../../topbar/Topbar";
 import Sidebar from "../../sidebar/Sidebar";
 import {
@@ -20,6 +30,11 @@ export default function Admin() {
   const [company, setCompany] = useState("BMPOWER HUMAN RESOURCES CORPORATION");
   const [clientList, setClientList] = useState([]);
   const [selectedClient, setSelectedClient] = useState("");
+  const [openModal, setOpenModal] = useState(false);
+  const [modalTitle, setModalTitle] = useState("");
+  const [modalData, setModalData] = useState([]);
+  const [employees, setEmployees] = useState([]);
+
   const [summary, setSummary] = useState({
     employed: 0,
     resign: 0,
@@ -27,6 +42,35 @@ export default function Admin() {
     terminate: 0,
     endContract: 0,
   });
+
+  const handleOpenModal = (type) => {
+    setModalTitle(type);
+
+    let filtered = [];
+
+    const matchType = type.toLowerCase();
+
+    switch (matchType) {
+      case "employed":
+        filtered = employees.filter((a) => a.remarks === "employed");
+        break;
+      case "resigned":
+        filtered = employees.filter((a) => a.remarks === "resign");
+        break;
+      case "applicants":
+        filtered = employees.filter((a) => a.remarks === "applicant");
+        break;
+      case "terminated":
+        filtered = employees.filter((a) => a.remarks === "terminate");
+        break;
+      case "end of contract":
+        filtered = employees.filter((a) => a.remarks === "end of contract");
+        break;
+    }
+
+    setModalData(filtered);
+    setOpenModal(true);
+  };
 
   const [year, setYear] = useState("All");
   const yearOptions = [
@@ -51,7 +95,9 @@ export default function Admin() {
   const companyClientsMap = {
     "BMPOWER HUMAN RESOURCES CORPORATION": [
       "BMPOWER HUMAN RESOURCES CORPORATION",
+      "CONVIENCE STORE",
       "ECOSSENTIAL FOODS CORP",
+      "ECOSSENTIAL FOODS CORP-COORDINATORS",
       "MCKENZIE DISTRIBUTION CO.",
       "ECOSSENTIAL FOODS CORP-HEAD OFFICE",
       "MAGIS DISTRIBUTION INC.",
@@ -122,7 +168,10 @@ export default function Admin() {
           ...a,
           remarks: a.remarks?.toLowerCase(),
           dateHired: a.dateHired ? new Date(a.dateHired) : null,
+          dateResigned: a.dateResigned ? new Date(a.dateResigned) : null,
         }));
+
+        setEmployees(normalizedData);
 
         // SUMMARY COUNTS
         const summaryCounts = {
@@ -261,15 +310,104 @@ export default function Admin() {
                   mb: 4,
                 }}
               >
-                <SummaryCard title="Employed" value={summary.employed} />
-                <SummaryCard title="Resigned" value={summary.resign} />
-                <SummaryCard title="Applicants" value={summary.applicant} />
-                <SummaryCard title="Terminated" value={summary.terminate} />
+                <SummaryCard
+                  title="Employed"
+                  value={summary.employed}
+                  onClick={() => handleOpenModal("Employed")}
+                />
+
+                <SummaryCard
+                  title="Resigned"
+                  value={summary.resign}
+                  onClick={() => handleOpenModal("Resigned")}
+                />
+
+                <SummaryCard
+                  title="Applicants"
+                  value={summary.applicant}
+                  onClick={() => handleOpenModal("Applicants")}
+                />
+
+                <SummaryCard
+                  title="Terminated"
+                  value={summary.terminate}
+                  onClick={() => handleOpenModal("Terminated")}
+                />
+
                 <SummaryCard
                   title="End of Contract"
                   value={summary.endContract}
+                  onClick={() => handleOpenModal("End of Contract")}
                 />
               </Box>
+
+              <Dialog
+                open={openModal}
+                onClose={() => setOpenModal(false)}
+                fullWidth
+                maxWidth="md"
+              >
+                <DialogTitle>{modalTitle} Employees</DialogTitle>
+                <DialogContent dividers>
+                  {modalData.length === 0 ? (
+                    <p>No employees found.</p>
+                  ) : (
+                    modalData.map((emp, i) => (
+                      <Box
+                        key={i}
+                        sx={{
+                          borderBottom: "1px solid #ccc",
+                          padding: "10px 0",
+                          mb: 1,
+                        }}
+                      >
+                        <strong>
+                          {emp.lastName}, {emp.firstName} {emp.middleName}
+                        </strong>
+                        <br />
+                        Client Assigned: {emp.clientAssigned}
+                        <br />
+                        {/* EMPLOYED */}
+                        {modalTitle === "Employed" && emp.dateHired && (
+                          <>
+                            Hired Date:{" "}
+                            {emp.dateHired.toISOString().slice(0, 10)}
+                          </>
+                        )}
+                        {/* RESIGNED */}
+                        {modalTitle === "Resigned" && emp.dateResigned && (
+                          <>
+                            Resigned Date:{" "}
+                            {emp.dateResigned.toISOString().slice(0, 10)}
+                          </>
+                        )}
+                        {/* TERMINATED */}
+                        {modalTitle === "Terminated" && emp.dateResigned && (
+                          <>Terminated Date: {emp.dateResigned.slice(0, 10)}</>
+                        )}
+                        {/* END OF CONTRACT */}
+                        {modalTitle === "End of Contract" &&
+                          emp.dateResigned && (
+                            <>
+                              End Contract Date: {emp.dateResigned.slice(0, 10)}
+                            </>
+                          )}
+                        {/* APPLICANTS */}
+                        {modalTitle === "Applicants" && emp.dateHired && (
+                          <>
+                            Applied Date:{" "}
+                            {emp.dateHired.toISOString().slice(0, 10)}
+                          </>
+                        )}
+                      </Box>
+                    ))
+                  )}
+                </DialogContent>
+
+                <DialogActions>
+                  <Button onClick={() => setOpenModal(false)}>Close</Button>
+                </DialogActions>
+              </Dialog>
 
               {/* GRAPH */}
               <Box sx={{ background: "#fff", p: 2, borderRadius: 2 }}>
@@ -354,9 +492,10 @@ export default function Admin() {
   );
 }
 
-function SummaryCard({ title, value }) {
+function SummaryCard({ title, value, onClick }) {
   return (
     <Box
+      onClick={onClick}
       sx={{
         background: "#fff",
         color: "#000",
@@ -364,6 +503,9 @@ function SummaryCard({ title, value }) {
         borderRadius: 2,
         textAlign: "center",
         boxShadow: "0px 3px 6px rgba(0,0,0,0.2)",
+        cursor: "pointer",
+        transition: "0.2s",
+        ":hover": { transform: "scale(1.05)" },
       }}
     >
       <h3 style={{ margin: 0 }}>{title}</h3>

@@ -181,7 +181,10 @@ export default function BmpowerHO() {
         "HomeAddress",
         "ModeOfDisbursement",
         "AccountNumber",
-        "CreatedBy",
+        "SSS",
+        "PhilHealth",
+        "HDMF",
+        "Tin",
       ];
 
       const newData = response.data.data;

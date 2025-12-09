@@ -90,9 +90,12 @@ export default function RecentActivity() {
                           borderRadius: 2,
                           boxShadow: 3,
                           "&:hover": { boxShadow: 6 },
+                          height: 350, // uniform card height
+                          display: "flex",
+                          flexDirection: "column",
                         }}
                       >
-                        <CardContent>
+                        <CardContent sx={{ flexGrow: 1, overflow: "hidden" }}>
                           {/* Employee Name */}
                           <Typography variant="h6" sx={{ fontWeight: 600 }}>
                             {activity.employeeName}
@@ -120,44 +123,53 @@ export default function RecentActivity() {
                               Updated Fields:
                             </Typography>
 
-                            {Array.isArray(activity.changes) &&
-                            activity.changes.filter(
-                              (change) => change.field !== "updatedBy"
-                            ).length > 0 ? (
-                              <ul style={{ margin: 0, paddingLeft: "20px" }}>
-                                {activity.changes
-                                  .filter(
-                                    (change) => change.field !== "updatedBy"
-                                  )
-                                  .map((change, i) => (
-                                    <li key={change._id?.$oid || i}>
-                                      <Typography variant="body2">
-                                        <strong>{change.field}</strong> from{" "}
-                                        <span style={{ color: "#C62828" }}>
-                                          "{change.oldValue}"
-                                        </span>{" "}
-                                        →{" "}
-                                        <span style={{ color: "#2E7D32" }}>
-                                          "{change.newValue}"
-                                        </span>
-                                      </Typography>
-                                    </li>
-                                  ))}
-                              </ul>
-                            ) : (
-                              <Typography
-                                variant="body2"
-                                color="text.secondary"
-                              >
-                                No changes recorded.
-                              </Typography>
-                            )}
+                            {/* Scrollable Updated Fields */}
+                            <Box
+                              sx={{
+                                maxHeight: 180,
+                                overflowY: "auto",
+                                pr: 1,
+                              }}
+                            >
+                              {Array.isArray(activity.changes) &&
+                              activity.changes.filter(
+                                (change) => change.field !== "updatedBy"
+                              ).length > 0 ? (
+                                <ul style={{ margin: 0, paddingLeft: "20px" }}>
+                                  {activity.changes
+                                    .filter(
+                                      (change) => change.field !== "updatedBy"
+                                    )
+                                    .map((change, i) => (
+                                      <li key={change._id?.$oid || i}>
+                                        <Typography variant="body2">
+                                          <strong>{change.field}</strong> from{" "}
+                                          <span style={{ color: "#C62828" }}>
+                                            "{change.oldValue}"
+                                          </span>{" "}
+                                          →{" "}
+                                          <span style={{ color: "#2E7D32" }}>
+                                            "{change.newValue}"
+                                          </span>
+                                        </Typography>
+                                      </li>
+                                    ))}
+                                </ul>
+                              ) : (
+                                <Typography
+                                  variant="body2"
+                                  color="text.secondary"
+                                >
+                                  No changes recorded.
+                                </Typography>
+                              )}
+                            </Box>
                           </Box>
 
                           {/* Updated By */}
                           <Typography
                             variant="body2"
-                            sx={{ mt: 2, color: "#666" }}
+                            sx={{ mt: 1.5, color: "#666" }}
                           >
                             Updated by:{" "}
                             <span style={{ fontWeight: 600, color: "#000" }}>
