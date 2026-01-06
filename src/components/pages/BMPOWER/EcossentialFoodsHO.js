@@ -358,9 +358,9 @@ export default function BmpowerHO() {
           sx={{
             flexGrow: 1,
             p: 1,
-            backgroundColor: "#003554",
+            backgroundColor: "#edf2f4",
             minHeight: "auto",
-            color: "#fff",
+            color: "#1F2937",
           }}
         >
           <Typography variant="h5" sx={{ mb: 2 }}>
@@ -418,6 +418,7 @@ export default function BmpowerHO() {
               maxHeight: "80vh",
               marginTop: 2,
               overflow: "hidden",
+              boxShadow: "0px 3px 6px rgba(0,0,0,0.4)",
               "& .MuiDataGrid-root": {
                 backgroundColor: "#fff",
               },

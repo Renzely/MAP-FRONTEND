@@ -57,7 +57,7 @@ export default function RecentActivity() {
           sx={{
             flexGrow: 1,
             p: 1,
-            backgroundColor: "#003554",
+            backgroundColor: "#edf2f4",
             minHeight: "100vh",
             color: "#fff",
           }}

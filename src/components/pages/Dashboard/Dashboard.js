@@ -41,7 +41,16 @@ export default function Admin() {
     applicant: 0,
     terminate: 0,
     endContract: 0,
+    recent: 0,
   });
+
+  const isRecent = (date) => {
+    const now = new Date();
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(now.getDate() - 7);
+
+    return new Date(date) >= sevenDaysAgo;
+  };
 
   const handleOpenModal = (type) => {
     setModalTitle(type);
@@ -65,6 +74,11 @@ export default function Admin() {
         break;
       case "end of contract":
         filtered = employees.filter((a) => a.remarks === "end of contract");
+        break;
+      case "recent employees":
+        filtered = employees
+          .filter((a) => a.createdAt && isRecent(a.createdAt))
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         break;
     }
 
@@ -132,12 +146,17 @@ export default function Admin() {
       try {
         setLoading(true);
 
+        const recentEmployeesCount = employees.filter(
+          (a) => a.createdAt && isRecent(a.createdAt)
+        ).length;
+
         setSummary({
           employed: 0,
           resign: 0,
           applicant: 0,
           terminate: 0,
           endContract: 0,
+          recent: recentEmployeesCount,
         });
 
         setMonthlyData([]);
@@ -252,13 +271,20 @@ export default function Admin() {
             flexGrow: 1,
             padding: { xs: "10px", sm: "20px" },
             overflow: "auto",
-            backgroundColor: "#003554",
+            backgroundColor: "#edf2f4",
             color: "#fff",
             minHeight: "100vh",
           }}
         >
-          {/* Filters */}
-          <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
+          {/* FILTERS */}
+          <Box
+            sx={{
+              display: "flex",
+              gap: 2,
+              mb: 3,
+              flexDirection: { xs: "column", md: "row" },
+            }}
+          >
             <TextField
               select
               label="Select Company"
@@ -303,8 +329,8 @@ export default function Admin() {
                   display: "grid",
                   gridTemplateColumns: {
                     xs: "1fr",
-                    sm: "1fr 1fr",
-                    md: "repeat(3, 1fr)",
+                    sm: "repeat(2, 1fr)",
+                    md: "repeat(5, 1fr)", // 👈 one row
                   },
                   gap: 2,
                   mb: 4,
@@ -315,25 +341,21 @@ export default function Admin() {
                   value={summary.employed}
                   onClick={() => handleOpenModal("Employed")}
                 />
-
-                <SummaryCard
-                  title="Resigned"
-                  value={summary.resign}
-                  onClick={() => handleOpenModal("Resigned")}
-                />
-
                 <SummaryCard
                   title="Applicants"
                   value={summary.applicant}
                   onClick={() => handleOpenModal("Applicants")}
                 />
-
+                <SummaryCard
+                  title="Resigned"
+                  value={summary.resign}
+                  onClick={() => handleOpenModal("Resigned")}
+                />
                 <SummaryCard
                   title="Terminated"
                   value={summary.terminate}
                   onClick={() => handleOpenModal("Terminated")}
                 />
-
                 <SummaryCard
                   title="End of Contract"
                   value={summary.endContract}
@@ -341,6 +363,150 @@ export default function Admin() {
                 />
               </Box>
 
+              {/* GRAPH + RECENT EMPLOYEES */}
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: {
+                    xs: "1fr",
+                    md: "3fr 1.5fr",
+                  },
+                  gap: 2,
+                }}
+              >
+                {/* HEADCOUNT OVERVIEW */}
+                <Box
+                  sx={{
+                    background: "#fff",
+                    p: 2,
+                    borderRadius: 2,
+                    boxShadow: "0px 3px 6px rgba(0,0,0,0.2)",
+                  }}
+                >
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      mb: 2,
+                    }}
+                  >
+                    <h3 style={{ color: "#000", margin: 0 }}>
+                      Headcount Overview
+                    </h3>
+
+                    <TextField
+                      select
+                      label="Year"
+                      size="small"
+                      value={year}
+                      onChange={(e) => setYear(e.target.value)}
+                      sx={{ width: 140 }}
+                    >
+                      {yearOptions.map((y) => (
+                        <MenuItem key={y} value={y}>
+                          {y === "All" ? "All Years" : y}
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                  </Box>
+
+                  <ResponsiveContainer width="100%" height={300}>
+                    <LineChart data={monthlyData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="month" />
+                      <YAxis />
+                      <Tooltip />
+                      <Legend />
+
+                      <Line
+                        type="monotone"
+                        dataKey="employed"
+                        stroke="#19d251"
+                        strokeWidth={3}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="resign"
+                        stroke="#d32f2f"
+                        strokeWidth={3}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="applicant"
+                        stroke="#0288d1"
+                        strokeWidth={3}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="terminate"
+                        stroke="#f57c00"
+                        strokeWidth={3}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="endContract"
+                        stroke="#7b1fa2"
+                        strokeWidth={3}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </Box>
+
+                {/* RECENT EMPLOYEES */}
+                <Box
+                  sx={{
+                    background: "#fff",
+                    boxShadow: "0px 3px 6px rgba(0,0,0,0.2)",
+                    p: 2,
+                    borderRadius: 2,
+                    overflowY: "auto",
+                  }}
+                >
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      mb: 1,
+                    }}
+                  >
+                    <h3 style={{ color: "#000", margin: 0 }}>
+                      Recent Employees
+                    </h3>
+                    <Button
+                      size="small"
+                      onClick={() => handleOpenModal("Recent Employees")}
+                    >
+                      View All
+                    </Button>
+                  </Box>
+
+                  {employees
+                    .filter((e) => e.createdAt && isRecent(e.createdAt))
+                    .sort(
+                      (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+                    ) // ✅ latest first
+                    .slice(0, 5)
+                    .map((emp, i) => (
+                      <Box
+                        key={i}
+                        sx={{ borderBottom: "1px solid #eee", py: 1 }}
+                      >
+                        <strong style={{ color: "#000" }}>
+                          {emp.lastName}, {emp.firstName}
+                        </strong>
+
+                        <Box sx={{ fontSize: 13, color: "#555" }}>
+                          Created by: {emp.createdBy}
+                        </Box>
+
+                        <Box sx={{ fontSize: 12, color: "#777" }}>
+                          {new Date(emp.createdAt).toLocaleDateString()}
+                        </Box>
+                      </Box>
+                    ))}
+                </Box>
+              </Box>
               <Dialog
                 open={openModal}
                 onClose={() => setOpenModal(false)}
@@ -399,6 +565,15 @@ export default function Admin() {
                             {emp.dateHired.toISOString().slice(0, 10)}
                           </>
                         )}
+                        {modalTitle === "Recent Employees" && (
+                          <>
+                            Created By: {emp.createdBy}
+                            <br />
+                            Date Created:{" "}
+                            {new Date(emp.createdAt).toISOString().slice(0, 10)}
+                            <br />
+                          </>
+                        )}
                       </Box>
                     ))
                   )}
@@ -409,81 +584,8 @@ export default function Admin() {
                 </DialogActions>
               </Dialog>
 
-              {/* GRAPH */}
-              <Box sx={{ background: "#fff", p: 2, borderRadius: 2 }}>
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    mb: 2,
-                  }}
-                >
-                  <h3 style={{ color: "#000", marginBottom: "10px" }}>
-                    Headcount Overview
-                  </h3>
-
-                  <TextField
-                    select
-                    label="Year"
-                    size="small"
-                    value={year}
-                    onChange={(e) => setYear(e.target.value)}
-                    sx={{ width: 140 }}
-                  >
-                    {yearOptions.map((y) => (
-                      <MenuItem key={y} value={y}>
-                        {y === "All" ? "All Years" : y}
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                </Box>
-
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={monthlyData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-
-                    <Line
-                      type="monotone"
-                      dataKey="employed"
-                      name="Employed"
-                      stroke="#19d251"
-                      strokeWidth={3}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="resign"
-                      name="Resigned"
-                      stroke="#d32f2f"
-                      strokeWidth={3}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="applicant"
-                      name="Applicants"
-                      stroke="#0288d1"
-                      strokeWidth={3}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="terminate"
-                      name="Terminated"
-                      stroke="#f57c00"
-                      strokeWidth={3}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="endContract"
-                      name="End of Contract"
-                      stroke="#7b1fa2"
-                      strokeWidth={3}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </Box>
+              {/* MODAL (UNCHANGED, STILL WORKS) */}
+              {/* keep your Dialog code here */}
             </>
           )}
         </Box>
@@ -497,7 +599,8 @@ function SummaryCard({ title, value, onClick }) {
     <Box
       onClick={onClick}
       sx={{
-        background: "#fff",
+        background: "#FFFFFF",
+        border: "#E5EAF0",
         color: "#000",
         padding: 3,
         borderRadius: 2,
