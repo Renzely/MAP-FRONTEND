@@ -701,7 +701,7 @@ export default function Admin() {
             padding: { xs: "10px", sm: "20px" },
             // maxWidth: "100%",
             overflow: "auto",
-            backgroundColor: "#003554",
+            backgroundColor: "#edf2f4",
           }}
         >
           {/* Add User Button */}
@@ -730,6 +730,7 @@ export default function Admin() {
               maxHeight: "80vh",
               marginTop: 2,
               overflow: "hidden",
+              boxShadow: "0px 3px 6px rgba(0,0,0,0.4)",
               "& .MuiDataGrid-root": {
                 backgroundColor: "#fff",
               },

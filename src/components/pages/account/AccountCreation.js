@@ -391,9 +391,9 @@ export default function AccountCreation() {
           sx={{
             flexGrow: 1,
             p: 1,
-            backgroundColor: "#003554",
+            backgroundColor: "#edf2f4",
             minHeight: "auto",
-            color: "#fff",
+            color: "#1F2937",
           }}
         >
           <Typography variant="h5" gutterBottom>
