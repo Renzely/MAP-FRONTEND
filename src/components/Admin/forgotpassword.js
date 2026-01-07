@@ -15,7 +15,7 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 import axios from "axios";
 import Swal from "sweetalert2";
 import logo from "./Studio-Project.png";
-import backgroundImage from "./TrackPro_logo.png";
+import logoHD from "./HireDesk.png";
 
 const theme = createTheme({
   palette: {
@@ -135,7 +135,7 @@ export default function ForgotPassword() {
         sx={{
           height: "100vh",
           background:
-            "linear-gradient(135deg, #6A89A7, #BDDDFC, #88BDF2, #384959)",
+            "linear-gradient(135deg, #4d7aa3ff, #BDDDFC, #1f507eff, #0f2a44)",
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
@@ -159,8 +159,8 @@ export default function ForgotPassword() {
             xs={false} // Hides this on extra-small screens (mobile)
             sm={6} // Shows this on small screens and above
             sx={{
-              backgroundImage: `url(${backgroundImage})`,
-              backgroundSize: "100% 100%",
+              backgroundImage: `url(${logoHD})`,
+              backgroundSize: "99% 99%",
               backgroundRepeat: "no-repeat",
               backgroundPosition: "center",
               minHeight: "100%",
@@ -179,9 +179,9 @@ export default function ForgotPassword() {
             }}
           >
             <Container maxWidth="xs">
-              <Box sx={{ display: "flex", justifyContent: "center", mb: 2 }}>
+              {/* <Box sx={{ display: "flex", justifyContent: "center", mb: 2 }}>
                 <img src={logo} alt="Logo" style={{ width: "80px" }} />
-              </Box>
+              </Box> */}
               <Typography
                 component="h1"
                 variant="h5"
@@ -212,10 +212,10 @@ export default function ForgotPassword() {
                     sx={{
                       mt: 3,
                       mb: 2,
-                      backgroundColor: "#77b1d4",
+                      backgroundColor: "#0f2a44",
                       fontWeight: "bold",
                       "&:hover": {
-                        backgroundColor: "#517891",
+                        backgroundColor: "#2b567eff",
                       },
                     }}
                   >
@@ -259,10 +259,10 @@ export default function ForgotPassword() {
                     sx={{
                       mt: 3,
                       mb: 2,
-                      backgroundColor: "#77b1d4",
+                      backgroundColor: "#0f2a44",
                       fontWeight: "bold",
                       "&:hover": {
-                        backgroundColor: "#517891",
+                        backgroundColor: "#2b567eff",
                       },
                     }}
                   >
@@ -274,12 +274,12 @@ export default function ForgotPassword() {
                     sx={{
                       mt: 1,
                       mb: 2,
-                      color: "#558B71",
-                      borderColor: "#558B71",
+                      color: "#517891",
+                      borderColor: "#77b1d4",
                       fontWeight: "bold",
                       "&:hover": {
-                        backgroundColor: "#E8F5E9",
-                        borderColor: "#7FCFA8",
+                        backgroundColor: "#77b1d4",
+                        borderColor: "#517891",
                         color: "#FFFFFF",
                       },
                     }}

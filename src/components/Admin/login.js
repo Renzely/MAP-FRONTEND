@@ -12,8 +12,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import axios from "axios";
 import Swal from "sweetalert2";
-import logo from "./Studio-Project.png";
-import backgroundImage from "./Studio-Project.png";
+import logoHD from "./HireDesk.png";
 
 const theme = createTheme({
   palette: {
@@ -95,7 +94,7 @@ export default function Login() {
         sx={{
           height: "100vh",
           background:
-            "linear-gradient(135deg, #6A89A7, #BDDDFC, #88BDF2, #384959)", // Three-color gradient background
+            "linear-gradient(135deg, #4d7aa3ff, #BDDDFC, #1f507eff, #0f2a44)", // Three-color gradient background
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
@@ -117,14 +116,13 @@ export default function Login() {
           }}
         >
           {/* Left side - Image */}
-          {/* Left side - Image (Hidden on Mobile) */}
           <Grid
             item
             xs={false} // Hides this on extra-small screens (mobile)
             sm={6} // Shows this on small screens and above
             sx={{
-              backgroundImage: `url(${backgroundImage})`,
-              backgroundSize: "80% 80%",
+              backgroundImage: `url(${logoHD})`,
+              backgroundSize: "99% 99%",
               backgroundRepeat: "no-repeat",
               backgroundPosition: "center",
               minHeight: "100%",
@@ -151,10 +149,10 @@ export default function Login() {
                 sx={{ mt: 2 }}
                 onSubmit={handleSubmit}
               >
-                {/* Center the logo */}
+                {/* Center the logo
                 <Box sx={{ display: "flex", justifyContent: "center", mb: 2 }}>
-                  <img src={logo} alt="Logo" style={{ width: "80px" }} />
-                </Box>
+                  <img src={logoHD} alt="Logo" style={{ width: "80px" }} />
+                </Box> */}
 
                 {/* Center the LOGIN text */}
                 <Box sx={{ display: "flex", justifyContent: "center", mb: 2 }}>
@@ -162,9 +160,9 @@ export default function Login() {
                     component="h1"
                     variant="h5"
                     fontWeight="bold"
-                    color="#384959"
+                    color="#0f2a44"
                   >
-                    Masterlist Portal Login
+                    LOGIN
                   </Typography>
                 </Box>
                 <TextField
@@ -194,10 +192,10 @@ export default function Login() {
                   sx={{
                     mt: 3,
                     mb: 2,
-                    backgroundColor: "#77b1d4",
+                    backgroundColor: "#0f2a44",
                     fontWeight: "bold",
                     "&:hover": {
-                      backgroundColor: "#517891",
+                      backgroundColor: "#2b567eff",
                     },
                   }}
                 >

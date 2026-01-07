@@ -17,6 +17,8 @@ import Sidebar from "../../sidebar/Sidebar";
 import {
   LineChart,
   Line,
+  BarChart,
+  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -27,7 +29,7 @@ import {
 import axios from "axios";
 
 export default function Admin() {
-  const [company, setCompany] = useState("BMPOWER HUMAN RESOURCES CORPORATION");
+  const [company, setCompany] = useState("All");
   const [clientList, setClientList] = useState([]);
   const [selectedClient, setSelectedClient] = useState("");
   const [openModal, setOpenModal] = useState(false);
@@ -134,13 +136,78 @@ export default function Admin() {
     ],
   };
 
-  // Set client list when company changes
+  // Generate unique colors for each client
+  const generateColors = (count) => {
+    const colors = [
+      "#1976d2",
+      "#2e7d32",
+      "#d32f2f",
+      "#f57c00",
+      "#7b1fa2",
+      "#512da8",
+      "#303f9f",
+      "#1976d2",
+      "#0288d1",
+      "#0097a7",
+      "#00796b",
+      "#388e3c",
+      "#689f38",
+      "#afb42b",
+      "#fbc02d",
+      "#ffa000",
+      "#f57c00",
+      "#e64a19",
+      "#5d4037",
+      "#616161",
+    ];
+    return Array.from({ length: count }, (_, i) => colors[i % colors.length]);
+  };
+
+  const getClientBarDataForLegend = (companyName) => {
+    const clients = companyClientsMap[companyName] || [];
+    const colors = generateColors(clients.length);
+
+    // Create a single data object with each client as a separate property
+    const dataObject = { category: companyName };
+
+    clients.forEach((client, index) => {
+      const headcount = employees.filter(
+        (e) =>
+          e.remarks === "employed" &&
+          e.clientAssigned &&
+          e.clientAssigned.trim().toLowerCase() === client.trim().toLowerCase()
+      ).length;
+
+      dataObject[client] = headcount;
+    });
+
+    return {
+      data: [dataObject],
+      clients: clients,
+      colors: colors,
+    };
+  };
+
+  const bmpowerBarData = getClientBarDataForLegend(
+    "BMPOWER HUMAN RESOURCES CORPORATION"
+  );
+  const marabouBarData = getClientBarDataForLegend(
+    "MARABOU EVERGREEN RESOURCES INC"
+  );
+
   useEffect(() => {
-    setClientList(companyClientsMap[company] || []);
-    setSelectedClient("");
+    if (company === "All") {
+      // Combine all clients from all companies
+      const allClients = Object.values(companyClientsMap).flat();
+      setClientList(allClients);
+      setSelectedClient(""); // reset
+    } else {
+      setClientList(companyClientsMap[company] || []);
+      setSelectedClient("");
+    }
   }, [company]);
 
-  // MAIN FETCH: summary + graph
+  // Set client list when company changes
   useEffect(() => {
     const fetchSummary = async () => {
       try {
@@ -161,16 +228,25 @@ export default function Admin() {
 
         setMonthlyData([]);
 
-        let url = `https://api-map.bmphrc.com/get-merch-accounts-dashboard?company=${encodeURIComponent(
-          company.trim()
-        )}`;
+        let url = `https://api-map.bmphrc.com/get-merch-accounts-dashboard`;
+        const params = [];
+
+        if (company !== "All") {
+          params.push(`company=${encodeURIComponent(company.trim())}`);
+        }
 
         if (year !== "All") {
-          url += `&year=${year}`;
+          params.push(`year=${year}`);
         }
 
         if (selectedClient) {
-          url += `&clientAssigned=${encodeURIComponent(selectedClient.trim())}`;
+          params.push(
+            `clientAssigned=${encodeURIComponent(selectedClient.trim())}`
+          );
+        }
+
+        if (params.length) {
+          url += `?${params.join("&")}`;
         }
 
         console.log("Fetching URL:", url);
@@ -178,10 +254,7 @@ export default function Admin() {
         const response = await axios.get(url);
         const data = response.data;
 
-        if (!Array.isArray(data)) {
-          console.error("API did not return an array:", data);
-          return;
-        }
+        if (!Array.isArray(data)) return;
 
         const normalizedData = data.map((a) => ({
           ...a,
@@ -193,7 +266,7 @@ export default function Admin() {
         setEmployees(normalizedData);
 
         // SUMMARY COUNTS
-        const summaryCounts = {
+        setSummary({
           employed: normalizedData.filter((a) => a.remarks === "employed")
             .length,
           resign: normalizedData.filter((a) => a.remarks === "resign").length,
@@ -204,51 +277,32 @@ export default function Admin() {
           endContract: normalizedData.filter(
             (a) => a.remarks === "end of contract"
           ).length,
-        };
+        });
 
-        setSummary(summaryCounts);
-
-        // MONTHLY GRAPH DATA
-        const monthCounts = Array(12)
-          .fill(null)
-          .map(() => ({
-            employed: 0,
-            resign: 0,
-            applicant: 0,
-            terminate: 0,
-            endContract: 0,
-          }));
+        // MONTHLY GRAPH
+        const monthCounts = Array.from({ length: 12 }, () => ({
+          employed: 0,
+          resign: 0,
+          applicant: 0,
+          terminate: 0,
+          endContract: 0,
+        }));
 
         normalizedData.forEach((a) => {
           if (a.dateHired instanceof Date && !isNaN(a.dateHired)) {
             const monthIndex = a.dateHired.getMonth();
-
-            switch (a.remarks) {
-              case "employed":
-                monthCounts[monthIndex].employed++;
-                break;
-              case "resign":
-                monthCounts[monthIndex].resign++;
-                break;
-              case "terminate":
-                monthCounts[monthIndex].terminate++;
-                break;
-              case "applicant":
-                monthCounts[monthIndex].applicant++;
-                break;
-              case "end of contract":
-                monthCounts[monthIndex].endContract++;
-                break;
+            if (monthCounts[monthIndex][a.remarks] !== undefined) {
+              monthCounts[monthIndex][a.remarks]++;
             }
           }
         });
 
-        const monthly = monthCounts.map((data, i) => ({
-          month: new Date(0, i).toLocaleString("default", { month: "short" }),
-          ...data,
-        }));
-
-        setMonthlyData(monthly);
+        setMonthlyData(
+          monthCounts.map((data, i) => ({
+            month: new Date(0, i).toLocaleString("default", { month: "short" }),
+            ...data,
+          }))
+        );
       } catch (error) {
         console.error("Error fetching summary:", error);
       } finally {
@@ -293,6 +347,8 @@ export default function Admin() {
               fullWidth
               sx={{ backgroundColor: "#fff" }}
             >
+              <MenuItem value="All">All Companies</MenuItem>
+
               {Object.keys(companyClientsMap).map((c) => (
                 <MenuItem key={c} value={c}>
                   {c}
@@ -306,9 +362,11 @@ export default function Admin() {
               value={selectedClient}
               onChange={(e) => setSelectedClient(e.target.value)}
               fullWidth
+              disabled={company === "All"}
               sx={{ backgroundColor: "#fff" }}
             >
-              <MenuItem value="">All</MenuItem>
+              <MenuItem value="All Client">All Client</MenuItem>
+
               {clientList.map((c) => (
                 <MenuItem key={c} value={c}>
                   {c}
@@ -372,6 +430,7 @@ export default function Admin() {
                     md: "3fr 1.5fr",
                   },
                   gap: 2,
+                  mb: 4,
                 }}
               >
                 {/* HEADCOUNT OVERVIEW */}
@@ -388,6 +447,7 @@ export default function Admin() {
                       display: "flex",
                       justifyContent: "space-between",
                       mb: 2,
+                      mb: 4,
                     }}
                   >
                     <h3 style={{ color: "#000", margin: 0 }}>
@@ -419,30 +479,35 @@ export default function Admin() {
                       <Legend />
 
                       <Line
+                        name="Employed"
                         type="monotone"
                         dataKey="employed"
                         stroke="#19d251"
                         strokeWidth={3}
                       />
                       <Line
+                        name="Resigned"
                         type="monotone"
                         dataKey="resign"
                         stroke="#d32f2f"
                         strokeWidth={3}
                       />
                       <Line
+                        name="Applicant"
                         type="monotone"
                         dataKey="applicant"
                         stroke="#0288d1"
                         strokeWidth={3}
                       />
                       <Line
+                        name="Terminated"
                         type="monotone"
                         dataKey="terminate"
                         stroke="#f57c00"
                         strokeWidth={3}
                       />
                       <Line
+                        name="End of Contract"
                         type="monotone"
                         dataKey="endContract"
                         stroke="#7b1fa2"
@@ -507,6 +572,98 @@ export default function Admin() {
                     ))}
                 </Box>
               </Box>
+
+              {/* CLIENT HEADCOUNT BARCHARTS */}
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: {
+                    xs: "1fr",
+                    md: "1fr 1fr",
+                  },
+                  gap: 2,
+                  mb: 3,
+                }}
+              >
+                {/* BMPOWER */}
+                <Box
+                  sx={{
+                    background: "#fff",
+                    p: 2,
+                    borderRadius: 2,
+                    boxShadow: "0px 3px 6px rgba(0,0,0,0.2)",
+                  }}
+                >
+                  <h4 style={{ color: "#000", marginBottom: 10 }}>
+                    BMPOWER HUMAN RESOURCES CORPORATION - EMPLOYED PER CLIENT
+                  </h4>
+
+                  <ResponsiveContainer width="100%" height={280}>
+                    <BarChart data={bmpowerBarData.data}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="category" tick={{ fontSize: 10 }} />
+                      <YAxis />
+                      <Tooltip />
+                      <Legend
+                        wrapperStyle={{ fontSize: "10px" }}
+                        iconType="rect"
+                      />
+                      {bmpowerBarData.clients.map((client, index) => (
+                        <Bar
+                          key={client}
+                          dataKey={client}
+                          fill={bmpowerBarData.colors[index]}
+                          name={
+                            client.length > 20
+                              ? `${client.substring(0, 20)}...`
+                              : client
+                          }
+                        />
+                      ))}
+                    </BarChart>
+                  </ResponsiveContainer>
+                </Box>
+
+                {/* MARABOU */}
+                <Box
+                  sx={{
+                    background: "#fff",
+                    p: 2,
+                    borderRadius: 2,
+                    boxShadow: "0px 3px 6px rgba(0,0,0,0.2)",
+                  }}
+                >
+                  <h4 style={{ color: "#000", marginBottom: 10 }}>
+                    MARABOU EVERGREEN RESOURCES INC - EMPLOYED PER CLIENT
+                  </h4>
+
+                  <ResponsiveContainer width="100%" height={280}>
+                    <BarChart data={marabouBarData.data}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="category" tick={{ fontSize: 10 }} />
+                      <YAxis />
+                      <Tooltip />
+                      <Legend
+                        wrapperStyle={{ fontSize: "10px" }}
+                        iconType="rect"
+                      />
+                      {marabouBarData.clients.map((client, index) => (
+                        <Bar
+                          key={client}
+                          dataKey={client}
+                          fill={marabouBarData.colors[index]}
+                          name={
+                            client.length > 20
+                              ? `${client.substring(0, 20)}...`
+                              : client
+                          }
+                        />
+                      ))}
+                    </BarChart>
+                  </ResponsiveContainer>
+                </Box>
+              </Box>
+
               <Dialog
                 open={openModal}
                 onClose={() => setOpenModal(false)}
