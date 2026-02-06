@@ -141,7 +141,7 @@ export default function Admin() {
   const handleBranchSave = async (email) => {
     try {
       const response = await axios.put(
-        "http://192.168.68.50:3001/update-admin-outlet",
+        "https://api-map.bmphrc.com/update-admin-outlet",
         {
           emailAddress: email,
           outlet: selectedBranches,
@@ -413,7 +413,7 @@ export default function Admin() {
   async function getUser() {
     try {
       const response = await axios.post(
-        "http://192.168.68.50:3001/get-admin-user",
+        "https://api-map.bmphrc.com/get-admin-user",
         requestBody,
       );
       const data = response.data.data;
@@ -441,7 +441,7 @@ export default function Admin() {
 
   async function setStatus() {
     await axios
-      .put("http://192.168.68.50:3001/update-admin-status", requestBody)
+      .put("https://api-map.bmphrc.com/update-admin-status", requestBody)
       .then(async (response) => {
         window.location.reload();
       });
@@ -467,7 +467,7 @@ export default function Admin() {
     }
 
     await axios
-      .post("http://192.168.68.50:3001/send-otp", {
+      .post("https://api-map.bmphrc.com/send-otp", {
         email: adminEmail,
       })
       .then(async (response) => {
@@ -524,7 +524,7 @@ export default function Admin() {
       };
 
       axios
-        .post("http://192.168.68.50:3001/register-user-admin", userDetails)
+        .post("https://api-map.bmphrc.com/register-user-admin", userDetails)
         .then(async (response) => {
           const data = response.data;
 
