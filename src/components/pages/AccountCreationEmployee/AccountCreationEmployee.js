@@ -337,7 +337,7 @@ export default function AccountCreationEnhanced() {
 
     try {
       const duplicateCheck = await axios.post(
-        "http://192.168.68.50:3001/check-duplicate-ids",
+        "https://api-map.bmphrc.com/check-duplicate-ids",
         {
           sss: formData.sss,
           philhealth: formData.philhealth,
@@ -391,7 +391,7 @@ export default function AccountCreationEnhanced() {
 
     try {
       const response = await axios.post(
-        "http://192.168.68.50:3001/create-merch-account",
+        "https://api-map.bmphrc.com/create-merch-account",
         formattedData,
       );
 
@@ -474,7 +474,7 @@ export default function AccountCreationEnhanced() {
       const uniqueFileName = `${timestamp}_${file.name}`;
 
       const response = await axios.post(
-        "http://192.168.68.50:3001/save-requirements-images",
+        "https://api-map.bmphrc.com/save-requirements-images",
         {
           fileName: uniqueFileName,
           fileType: file.type,
