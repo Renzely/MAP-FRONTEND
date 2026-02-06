@@ -1213,7 +1213,6 @@ export default function AccountCreationEnhanced() {
                       />
                     </Grid>
 
-                    {/* Outlets (Multi-select for ECOSSENTIAL FOODS CORP) */}
                     {/* {isOutletClient && (
                       <Grid item xs={12} md={3}>
                         <Autocomplete
