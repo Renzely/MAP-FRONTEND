@@ -19,8 +19,10 @@ const Path = () => {
     switch (path) {
       case "/":
       case "/forgotpassword":
-        return <Navigate to="/view-accounts" />;
-      case "/view-accounts":
+        return <Navigate to="/view-dashboard" />;
+      case "/view-AccountCreationEmployee":
+      case "/view-AccountCreationProfileclient":
+      case "/view-clientProfile":
       case "/view-admin-accounts":
       case "/view-dashboard":
       case "/view-recent-activity":
@@ -49,7 +51,7 @@ const Path = () => {
         return <Outlet />;
       default:
         console.log("Unknown path, redirecting to default route.");
-        return <Navigate to="/view-accounts" />;
+        return <Navigate to="/view-dashboard" />;
     }
   }
 

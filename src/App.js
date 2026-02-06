@@ -9,11 +9,11 @@ import {
   createBrowserRouter,
 } from "react-router-dom";
 
-import Login from "./components/Admin/login";
+import Login from "./components/landingPage/login";
 import Admin from "./components/pages/AdminAccount/Admin";
 import Dashboard from "./components/pages/Dashboard/Dashboard";
 import RecentActivity from "./components/pages/RecentActivity/RecentActivity";
-import ForgotPassword from "./components/Admin/forgotpassword";
+import ForgotPassword from "./components/landingPage/forgotpassword";
 import Path from "./path/Path";
 
 import BmpowerHO from "./components/pages/BMPOWER/BmpowerHO";
@@ -38,7 +38,9 @@ import MetroPacific from "./components/pages/MARABOU/MetroPacific";
 import MetroPacificFresh from "./components/pages/MARABOU/MetroPacificFresh";
 import UniversalHarvester from "./components/pages/MARABOU/UniversalHarvester";
 import Jgyu from "./components/pages/MARABOU/J-GYU";
-import AccountCreation from "./components/pages/account/AccountCreation";
+import AccountCreationEmployee from "./components/pages/AccountCreationEmployee/AccountCreationEmployee";
+import AccountCreationProfile from "./components/pages/AccountCreationProfileclient/AccountCreationProfileclient";
+import ViewClientProfile from "./components/pages/ViewClientProfile/ViewClientProfile";
 
 function App() {
   return (
@@ -49,7 +51,15 @@ function App() {
           <Route path="/view-dashboard" element={<Dashboard />} />
           <Route path="/view-admin-accounts" element={<Admin />} />
           <Route path="/view-recent-activity" element={<RecentActivity />} />
-          <Route path="/view-accounts" element={<AccountCreation />} />
+          <Route
+            path="/view-AccountCreationEmployee"
+            element={<AccountCreationEmployee />}
+          />
+          <Route
+            path="/view-AccountCreationProfileclient"
+            element={<AccountCreationProfile />}
+          />
+          <Route path="/view-clientProfile" element={<ViewClientProfile />} />
           <Route path="/forgotpassword" element={<ForgotPassword />} />
 
           <Route path="/view-bmpowerHO" element={<BmpowerHO />} />
