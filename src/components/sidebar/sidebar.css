@@ -1,156 +1,276 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap");
-
+/* Sidebar Container */
 .sidebar {
-  width: 60px;
-  height: 100vh;
-  background: #0f2a44;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  padding: 10px 0;
-  transition: width 0.3s, height 0.3s;
-  font-family: "Inter", sans-serif;
-  overflow-y: auto; /* scroll still works */
-
-  /* Hide scrollbar but keep scroll functional */
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* Internet Explorer and Edge */
-}
-
-.sidebar-divider {
-  width: 90%; /* Adjust width as needed */
-  border: 0;
-  height: 1px;
-  background: #ffffff; /* Adjust color to match your design */
-  margin: 10px auto; /* Add spacing above and below the line */
-  margin-top: -20px;
+  position: fixed;
+  top: 64px;
+  left: 0;
+  height: calc(100vh - 64px);
+  background: linear-gradient(135deg, #143b5f 0%, #1a3a5c 100%);
+  color: white;
+  transition: width 0.3s ease;
+  width: 70px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  z-index: 999;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .sidebar.open {
-  width: 200px;
+  width: 280px;
 }
 
-.sidebar-header {
-  display: flex;
-  justify-content: center; /* Center when closed */
-  width: 100%;
-  padding: 20px 0; /* Add some padding */
-}
-
-.sidebar.open .sidebar-header {
-  justify-content: flex-end; /* Align to the right when open */
-  padding-right: 10px; /* Add some spacing from the edge */
-}
-
-.sidebar-user {
-  text-align: center;
-  color: white;
-  display: flex;
-  flex-direction: column;
-  align-items: center; /* Center the avatar */
-  margin-top: 50px;
-  margin-bottom: 50px;
-  position: relative; /* Make sure user info is fixed relative to this container */
-  border: none; /* Ensure no border is applied */
-  background: none; /* Ensure no background is applied */
-}
-
-.sidebar-avatar {
-  width: 60px;
-  height: 60px;
-  margin-bottom: 10px;
-}
-
-.sidebar-name {
-  font-size: 12px;
-  font-family: "Inter", sans-serif;
-  color: white;
-  border: none; /* Ensure no border is applied */
-  background: none; /* Ensure no background is applied */
-}
-
-.sidebar-menu a {
-  text-decoration: none; /* Remove underline */
-}
-
-.sidebar-menu a.active {
-  text-decoration: none; /* Remove underline from active */
-}
-
-.sidebar-menu {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start; /* Align menu items to the left */
-  list-style: none;
-  padding: 0;
-  gap: 15px; /* Reduce the gap between menu items */
-  width: 100%; /* Ensure the menu takes full width */
-  margin-top: 10px; /* Adjust margin to reduce gap */
-}
-
-.sidebar-menu li {
-  color: #ffffff;
-  font-size: 15px;
-  padding: 10px;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.3s;
-  width: 100%; /* Ensure full width for alignment */
-  display: flex;
-  align-items: center; /* Align icon and text vertically */
-  gap: 10px; /* Space between icon and text */
-  box-sizing: border-box; /* Ensure padding is included in width */
-  border: none; /* Ensure no border is applied */
-  background: none; /* Ensure no background is applied */
-}
-
-.sidebar-menu li .sidebar-icon {
-  font-size: 24px;
-  min-width: 35px; /* Ensure icons have consistent width */
-}
-
-.sidebar-menu .active {
-  background: #5066f8;
-  color: white;
-  width: 100%; /* Remove calc to ensure full width */
-}
-
-.logout {
-  color: red;
-}
-
-.sidebar-submenu {
-  list-style: none;
-  margin: 0;
-  padding: 0; /* reset */
-}
-
-.sidebar-submenu li {
-  padding-left: 10px; /* aligns submenu icon under Marabou icon */
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.sidebar-submenu-scroll {
-  max-height: 200px; /* adjust height as needed */
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding-right: 5px; /* space for scrollbar */
-  margin-left: 0; /* align perfectly with Marabou */
-}
-
-/* Optional: style the scrollbar for a cleaner look */
-.sidebar-submenu-scroll::-webkit-scrollbar {
+/* Scrollbar Styling */
+.sidebar::-webkit-scrollbar {
   width: 6px;
 }
 
-.sidebar-submenu-scroll::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.3);
+.sidebar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
   border-radius: 3px;
 }
 
-.sidebar-submenu-scroll::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(255, 255, 255, 0.5);
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* Sidebar Header */
+.sidebar-header {
+  padding: 16px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.menu-button {
+  color: white !important;
+  padding: 8px !important;
+}
+
+/* Divider */
+.sidebar-divider {
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin: 0;
+}
+
+/* Sidebar Menu */
+.sidebar-menu {
+  list-style: none;
+  padding: 8px 0;
+  margin: 0;
+}
+
+.sidebar-menu > a {
+  text-decoration: none;
+  color: white;
+  display: block;
+}
+
+/* Menu Items - Main Structure */
+.sidebar-menu li {
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  position: relative;
+}
+
+/* When sidebar is OPEN - Text on LEFT, Icon on LEFT */
+.sidebar.open .sidebar-menu li {
+  justify-content: flex-start; /* Align to left */
+}
+
+/* When sidebar is COLLAPSED - Center the icon */
+.sidebar:not(.open) .sidebar-menu li {
+  justify-content: center;
+  padding: 14px;
+}
+
+.sidebar-menu li:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-menu li.active {
+  background: rgba(255, 255, 255, 0.15);
+  border-left: 4px solid #90e0ef;
+}
+
+/* Active indicator */
+.sidebar-menu li.active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 4px;
+  background: #90e0ef;
+}
+
+/* Sidebar Icons */
+.sidebar-icon {
+  font-size: 24px !important;
+  flex-shrink: 0;
+  color: white;
+  min-width: 24px; /* Ensure consistent icon width */
+}
+
+/* Menu Text - Always left-aligned when visible */
+.menu-text {
+  flex: 1;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Expand/Collapse Icon - Always on the right */
+.expand-icon {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.expand-icon svg {
+  font-size: 20px !important;
+}
+
+/* Menu with Submenu Styling */
+.menu-with-submenu {
+  cursor: pointer;
+}
+
+/* Submenu Container */
+.sidebar-submenu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.sidebar-submenu-scroll {
+  max-height: 400px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.sidebar-submenu-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar-submenu-scroll::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.sidebar-submenu-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+}
+
+.sidebar-submenu a {
+  text-decoration: none;
+  color: white;
+  display: block;
+}
+
+/* Submenu Items */
+.sidebar-submenu li {
+  padding: 12px 20px 12px 50px; /* Increased left padding for indentation */
+  font-size: 13px;
+  border-left: 3px solid transparent;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sidebar-submenu li:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-left-color: rgba(144, 224, 239, 0.5);
+}
+
+.sidebar-submenu li.active {
+  background: rgba(255, 255, 255, 0.12);
+  border-left-color: #90e0ef;
+}
+
+/* Nested Submenu (BMPOWER, MARABOU inside Account Management) */
+.submenu-nested {
+  padding-left: 40px !important; /* Extra indentation for nested items */
+  font-size: 13px;
+}
+
+/* Logout Button */
+.sidebar-menu li.logout {
+  margin-top: auto;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ff6b6b;
+  font-weight: 600;
+}
+
+.sidebar-menu li.logout:hover {
+  background: rgba(255, 107, 107, 0.1);
+}
+
+.sidebar-menu li.logout .sidebar-icon {
+  color: #ff6b6b;
+}
+
+/* Hide text when sidebar is collapsed */
+.sidebar:not(.open) .menu-text {
+  display: none;
+}
+
+.sidebar:not(.open) .expand-icon {
+  display: none;
+}
+
+.sidebar:not(.open) .sidebar-submenu {
+  display: none;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 0;
+    transform: translateX(-100%);
+  }
+
+  .sidebar.open {
+    width: 280px;
+    transform: translateX(0);
+  }
+}
+
+/* Smooth Transitions */
+.sidebar * {
+  transition: all 0.2s ease;
+}
+
+/* Tooltip for collapsed sidebar */
+.sidebar:not(.open) li {
+  position: relative;
+}
+
+/* Material-UI Tooltip adjustments */
+.MuiTooltip-popper {
+  z-index: 1000 !important;
+}
+
+.MuiTooltip-tooltip {
+  background-color: #2e6385ff !important;
+  font-size: 13px !important;
+  padding: 8px 12px !important;
+  border-radius: 6px !important;
+}
+
+.MuiTooltip-arrow {
+  color: #2e6385ff !important;
 }

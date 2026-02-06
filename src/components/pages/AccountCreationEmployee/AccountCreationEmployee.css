@@ -1,0 +1,62 @@
+/* Account Creation Page Styles */
+.accountCreation {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f5f7fa;
+  position: relative;
+}
+
+/* Main content wrapper - accounts for fixed topbar */
+.accountCreation > div {
+  padding-top: 64px; /* Height of topbar */
+}
+
+/* Adjust content area when sidebar is collapsed (default) */
+.accountCreation .MuiBox-root {
+  margin-left: 70px;
+  transition: margin-left 0.3s ease;
+}
+
+/* When sidebar is open, increase left margin */
+body:has(.sidebar.open) .accountCreation .MuiBox-root {
+  margin-left: 280px;
+}
+
+/* Mobile responsiveness - no margin for sidebar */
+@media (max-width: 768px) {
+  .accountCreation .MuiBox-root {
+    margin-left: 0 !important;
+  }
+
+  .accountCreation > div {
+    padding-top: 56px; /* Smaller topbar on mobile */
+  }
+}
+
+/* Ensure proper spacing for form sections */
+.accountCreation form {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Smooth transitions for all interactive elements */
+.accountCreation * {
+  transition: all 0.2s ease;
+}
+
+/* Make sure content doesn't overlap with sidebar */
+.accountCreation main {
+  flex: 1;
+  position: relative;
+}
+
+/* Fix for modal backdrop */
+.accountCreation .MuiModal-root {
+  z-index: 1300 !important;
+}
+
+/* Ensure snackbar appears above everything */
+.accountCreation .MuiSnackbar-root {
+  z-index: 1400 !important;
+}

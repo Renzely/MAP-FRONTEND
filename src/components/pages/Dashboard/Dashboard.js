@@ -11,6 +11,8 @@ import {
   DialogContent,
   DialogActions,
   Button,
+  Paper,
+  Typography,
 } from "@mui/material";
 import Topbar from "../../topbar/Topbar";
 import Sidebar from "../../sidebar/Sidebar";
@@ -27,8 +29,10 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import axios from "axios";
+import dayjs from "dayjs";
 
 export default function Admin() {
+  const XLSX = require("sheetjs-style");
   const [company, setCompany] = useState("All");
   const [clientList, setClientList] = useState([]);
   const [selectedClient, setSelectedClient] = useState("");
@@ -36,6 +40,28 @@ export default function Admin() {
   const [modalTitle, setModalTitle] = useState("");
   const [modalData, setModalData] = useState([]);
   const [employees, setEmployees] = useState([]);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Listen to sidebar state from localStorage
+  useEffect(() => {
+    const checkSidebarState = () => {
+      const isOpen = localStorage.getItem("sidebarOpen") === "true";
+      setSidebarOpen(isOpen);
+    };
+
+    checkSidebarState();
+
+    // Listen for storage changes
+    window.addEventListener("storage", checkSidebarState);
+
+    // Poll for changes (since localStorage doesn't trigger storage event in same window)
+    const interval = setInterval(checkSidebarState, 100);
+
+    return () => {
+      window.removeEventListener("storage", checkSidebarState);
+      clearInterval(interval);
+    };
+  }, []);
 
   const [summary, setSummary] = useState({
     employed: 0,
@@ -175,7 +201,7 @@ export default function Admin() {
         (e) =>
           e.remarks === "employed" &&
           e.clientAssigned &&
-          e.clientAssigned.trim().toLowerCase() === client.trim().toLowerCase()
+          e.clientAssigned.trim().toLowerCase() === client.trim().toLowerCase(),
       ).length;
 
       dataObject[client] = headcount;
@@ -189,10 +215,10 @@ export default function Admin() {
   };
 
   const bmpowerBarData = getClientBarDataForLegend(
-    "BMPOWER HUMAN RESOURCES CORPORATION"
+    "BMPOWER HUMAN RESOURCES CORPORATION",
   );
   const marabouBarData = getClientBarDataForLegend(
-    "MARABOU EVERGREEN RESOURCES INC"
+    "MARABOU EVERGREEN RESOURCES INC",
   );
 
   useEffect(() => {
@@ -214,7 +240,7 @@ export default function Admin() {
         setLoading(true);
 
         const recentEmployeesCount = employees.filter(
-          (a) => a.createdAt && isRecent(a.createdAt)
+          (a) => a.createdAt && isRecent(a.createdAt),
         ).length;
 
         setSummary({
@@ -228,7 +254,7 @@ export default function Admin() {
 
         setMonthlyData([]);
 
-        let url = `https://api-map.bmphrc.com/get-merch-accounts-dashboard`;
+        let url = `http://192.168.68.50:3001/get-merch-accounts-dashboard`;
         const params = [];
 
         if (company !== "All") {
@@ -241,7 +267,7 @@ export default function Admin() {
 
         if (selectedClient) {
           params.push(
-            `clientAssigned=${encodeURIComponent(selectedClient.trim())}`
+            `clientAssigned=${encodeURIComponent(selectedClient.trim())}`,
           );
         }
 
@@ -275,7 +301,7 @@ export default function Admin() {
           terminate: normalizedData.filter((a) => a.remarks === "terminate")
             .length,
           endContract: normalizedData.filter(
-            (a) => a.remarks === "end of contract"
+            (a) => a.remarks === "end of contract",
           ).length,
         });
 
@@ -301,7 +327,7 @@ export default function Admin() {
           monthCounts.map((data, i) => ({
             month: new Date(0, i).toLocaleString("default", { month: "short" }),
             ...data,
-          }))
+          })),
         );
       } catch (error) {
         console.error("Error fetching summary:", error);
@@ -313,71 +339,202 @@ export default function Admin() {
     fetchSummary();
   }, [company, selectedClient, year]);
 
+  const getExportData = async () => {
+    try {
+      const response = await axios.post(
+        "http://192.168.68.50:3001/export-merch-accounts",
+        {
+          //remarks: selectedRemarks, // optional filter
+          // clientAssigned: "CARMENS BEST",
+        },
+      );
+
+      const headers = [
+        "#",
+        "Company",
+        "Client",
+        "EmployeeNo",
+        "Fullname",
+        "Status",
+        "Remarks",
+        "Position",
+        "Contact",
+        "Email",
+        "Birthday",
+        "DateHired",
+        "DateResigned",
+        "HomeAddress",
+        "ModeOfDisbursement",
+        "AccountNumber",
+        "SSS",
+        "PhilHealth",
+        "HDMF",
+        "Tin",
+      ];
+
+      const newData = response.data.data;
+
+      // Generate XLSX file
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet([]);
+
+      XLSX.utils.sheet_add_aoa(ws, [headers], { origin: "A1" });
+      XLSX.utils.sheet_add_json(ws, newData, {
+        origin: "A2",
+        skipHeader: true,
+      });
+
+      // Auto width
+      ws["!cols"] = headers.map((h) => ({
+        wch:
+          Math.max(
+            h.length,
+            ...newData.map((row) => (row[h] || "").toString().length),
+          ) + 4,
+      }));
+
+      // Header styling
+      headers.forEach((_, col) => {
+        const cell = XLSX.utils.encode_cell({ r: 0, c: col });
+        if (ws[cell])
+          ws[cell].s = {
+            font: { bold: true },
+            alignment: { horizontal: "center", vertical: "center" },
+          };
+      });
+
+      XLSX.utils.book_append_sheet(wb, ws, "Employees");
+
+      const buffer = XLSX.write(wb, { type: "array", bookType: "xlsx" });
+      const blob = new Blob([buffer], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+
+      alert(`Successfully exported ${newData.length} records!`);
+
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `MASTERLIST_${
+        new Date().toISOString().split("T")[0]
+      }.xlsx`;
+      link.click();
+    } catch (error) {
+      console.error(error);
+      alert("Export failed. Please try again.");
+    }
+  };
+
   return (
-    <div className="account">
+    <>
       <Topbar />
-
-      <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" } }}>
-        <Sidebar />
-
+      <Sidebar />
+      <Box
+        sx={{
+          marginLeft: { xs: 0, md: sidebarOpen ? "280px" : "70px" },
+          transition: "margin-left 0.3s ease",
+          minHeight: "100vh",
+          backgroundColor: "#f5f7fa",
+          paddingTop: "64px", // Account for fixed topbar
+        }}
+      >
         <Box
           sx={{
-            flexGrow: 1,
-            padding: { xs: "10px", sm: "20px" },
-            overflow: "auto",
-            backgroundColor: "#edf2f4",
-            color: "#fff",
-            minHeight: "100vh",
+            p: 3,
+            maxWidth: "1800px",
+            margin: "0 auto",
           }}
         >
           {/* FILTERS */}
-          <Box
+          <Paper
+            elevation={0}
             sx={{
-              display: "flex",
-              gap: 2,
+              p: 2.5,
               mb: 3,
-              flexDirection: { xs: "column", md: "row" },
+              borderRadius: "12px",
+              border: "1px solid #e0e0e0",
             }}
           >
-            <TextField
-              select
-              label="Select Company"
-              value={company}
-              onChange={(e) => setCompany(e.target.value)}
-              fullWidth
-              sx={{ backgroundColor: "#fff" }}
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: {
+                  xs: "1fr",
+                  md: "1fr 1fr auto",
+                },
+                gap: 2,
+                alignItems: "center",
+              }}
             >
-              <MenuItem value="All">All Companies</MenuItem>
+              {/* COMPANY DROPDOWN */}
+              <TextField
+                select
+                label="Select Company"
+                value={company}
+                onChange={(e) => setCompany(e.target.value)}
+                fullWidth
+                sx={{
+                  backgroundColor: "#fff",
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: "8px",
+                  },
+                }}
+              >
+                <MenuItem value="All">All Companies</MenuItem>
+                {Object.keys(companyClientsMap).map((c) => (
+                  <MenuItem key={c} value={c}>
+                    {c}
+                  </MenuItem>
+                ))}
+              </TextField>
 
-              {Object.keys(companyClientsMap).map((c) => (
-                <MenuItem key={c} value={c}>
-                  {c}
-                </MenuItem>
-              ))}
-            </TextField>
+              {/* CLIENT DROPDOWN */}
+              <TextField
+                select
+                label="Select Client"
+                value={selectedClient}
+                onChange={(e) => setSelectedClient(e.target.value)}
+                fullWidth
+                disabled={company === "All"}
+                sx={{
+                  backgroundColor: "#fff",
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: "8px",
+                  },
+                }}
+              >
+                <MenuItem value="All Client">All Client</MenuItem>
+                {clientList.map((c) => (
+                  <MenuItem key={c} value={c}>
+                    {c}
+                  </MenuItem>
+                ))}
+              </TextField>
 
-            <TextField
-              select
-              label="Select Client"
-              value={selectedClient}
-              onChange={(e) => setSelectedClient(e.target.value)}
-              fullWidth
-              disabled={company === "All"}
-              sx={{ backgroundColor: "#fff" }}
-            >
-              <MenuItem value="All Client">All Client</MenuItem>
-
-              {clientList.map((c) => (
-                <MenuItem key={c} value={c}>
-                  {c}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Box>
+              {/* EXPORT BUTTON */}
+              <Button
+                variant="contained"
+                onClick={getExportData}
+                sx={{
+                  height: 56,
+                  px: 3,
+                  whiteSpace: "nowrap",
+                  backgroundColor: "#2e6385ff",
+                  borderRadius: "8px",
+                  fontWeight: 600,
+                  textTransform: "none",
+                  "&:hover": {
+                    backgroundColor: "#0c2e3fff",
+                  },
+                }}
+              >
+                Export All
+              </Button>
+            </Box>
+          </Paper>
 
           {loading ? (
             <Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
-              <CircularProgress />
+              <CircularProgress sx={{ color: "#2e6385ff" }} />
             </Box>
           ) : (
             <>
@@ -388,36 +545,41 @@ export default function Admin() {
                   gridTemplateColumns: {
                     xs: "1fr",
                     sm: "repeat(2, 1fr)",
-                    md: "repeat(5, 1fr)", // 👈 one row
+                    md: "repeat(5, 1fr)",
                   },
                   gap: 2,
-                  mb: 4,
+                  mb: 3,
                 }}
               >
                 <SummaryCard
-                  title="Employed"
+                  title="EMPLOYED"
                   value={summary.employed}
                   onClick={() => handleOpenModal("Employed")}
+                  color="#4caf50"
                 />
                 <SummaryCard
-                  title="Applicants"
+                  title="APPLICANTS"
                   value={summary.applicant}
                   onClick={() => handleOpenModal("Applicants")}
+                  color="#2196f3"
                 />
                 <SummaryCard
-                  title="Resigned"
+                  title="RESIGNED"
                   value={summary.resign}
                   onClick={() => handleOpenModal("Resigned")}
+                  color="#ff9800"
                 />
                 <SummaryCard
-                  title="Terminated"
+                  title="TERMINATED"
                   value={summary.terminate}
                   onClick={() => handleOpenModal("Terminated")}
+                  color="#f44336"
                 />
                 <SummaryCard
-                  title="End of Contract"
+                  title="END OF CONTRACT"
                   value={summary.endContract}
                   onClick={() => handleOpenModal("End of Contract")}
+                  color="#9c27b0"
                 />
               </Box>
 
@@ -430,29 +592,35 @@ export default function Admin() {
                     md: "3fr 1.5fr",
                   },
                   gap: 2,
-                  mb: 4,
+                  mb: 3,
                 }}
               >
                 {/* HEADCOUNT OVERVIEW */}
-                <Box
+                <Paper
+                  elevation={0}
                   sx={{
-                    background: "#fff",
-                    p: 2,
-                    borderRadius: 2,
-                    boxShadow: "0px 3px 6px rgba(0,0,0,0.2)",
+                    p: 3,
+                    borderRadius: "12px",
+                    border: "1px solid #e0e0e0",
                   }}
                 >
                   <Box
                     sx={{
                       display: "flex",
                       justifyContent: "space-between",
-                      mb: 2,
-                      mb: 4,
+                      alignItems: "center",
+                      mb: 3,
                     }}
                   >
-                    <h3 style={{ color: "#000", margin: 0 }}>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        color: "#2e6385ff",
+                        fontWeight: 600,
+                      }}
+                    >
                       Headcount Overview
-                    </h3>
+                    </Typography>
 
                     <TextField
                       select
@@ -460,7 +628,12 @@ export default function Admin() {
                       size="small"
                       value={year}
                       onChange={(e) => setYear(e.target.value)}
-                      sx={{ width: 140 }}
+                      sx={{
+                        width: 140,
+                        "& .MuiOutlinedInput-root": {
+                          borderRadius: "8px",
+                        },
+                      }}
                     >
                       {yearOptions.map((y) => (
                         <MenuItem key={y} value={y}>
@@ -482,49 +655,64 @@ export default function Admin() {
                         name="Employed"
                         type="monotone"
                         dataKey="employed"
-                        stroke="#19d251"
+                        stroke="#4caf50"
                         strokeWidth={3}
                       />
                       <Line
                         name="Resigned"
                         type="monotone"
                         dataKey="resign"
-                        stroke="#d32f2f"
+                        stroke="#ff9800"
                         strokeWidth={3}
                       />
                       <Line
                         name="Applicant"
                         type="monotone"
                         dataKey="applicant"
-                        stroke="#0288d1"
+                        stroke="#2196f3"
                         strokeWidth={3}
                       />
                       <Line
                         name="Terminated"
                         type="monotone"
                         dataKey="terminate"
-                        stroke="#f57c00"
+                        stroke="#f44336"
                         strokeWidth={3}
                       />
                       <Line
                         name="End of Contract"
                         type="monotone"
                         dataKey="endContract"
-                        stroke="#7b1fa2"
+                        stroke="#9c27b0"
                         strokeWidth={3}
                       />
                     </LineChart>
                   </ResponsiveContainer>
-                </Box>
+                </Paper>
 
                 {/* RECENT EMPLOYEES */}
-                <Box
+                <Paper
+                  elevation={0}
                   sx={{
-                    background: "#fff",
-                    boxShadow: "0px 3px 6px rgba(0,0,0,0.2)",
-                    p: 2,
-                    borderRadius: 2,
+                    p: 3,
+                    borderRadius: "12px",
+                    border: "1px solid #e0e0e0",
+                    maxHeight: "400px",
                     overflowY: "auto",
+                    "&::-webkit-scrollbar": {
+                      width: "8px",
+                    },
+                    "&::-webkit-scrollbar-track": {
+                      background: "#f1f1f1",
+                      borderRadius: "10px",
+                    },
+                    "&::-webkit-scrollbar-thumb": {
+                      background: "#888",
+                      borderRadius: "10px",
+                      "&:hover": {
+                        background: "#555",
+                      },
+                    },
                   }}
                 >
                   <Box
@@ -532,15 +720,26 @@ export default function Admin() {
                       display: "flex",
                       justifyContent: "space-between",
                       alignItems: "center",
-                      mb: 1,
+                      mb: 2,
                     }}
                   >
-                    <h3 style={{ color: "#000", margin: 0 }}>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        color: "#2e6385ff",
+                        fontWeight: 600,
+                      }}
+                    >
                       Recent Employees
-                    </h3>
+                    </Typography>
                     <Button
                       size="small"
                       onClick={() => handleOpenModal("Recent Employees")}
+                      sx={{
+                        color: "#2e6385ff",
+                        textTransform: "none",
+                        fontWeight: 600,
+                      }}
                     >
                       View All
                     </Button>
@@ -549,28 +748,53 @@ export default function Admin() {
                   {employees
                     .filter((e) => e.createdAt && isRecent(e.createdAt))
                     .sort(
-                      (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-                    ) // ✅ latest first
+                      (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+                    )
                     .slice(0, 5)
                     .map((emp, i) => (
                       <Box
                         key={i}
-                        sx={{ borderBottom: "1px solid #eee", py: 1 }}
+                        sx={{
+                          borderBottom: "1px solid #e0e0e0",
+                          py: 1.5,
+                          "&:last-child": {
+                            borderBottom: "none",
+                          },
+                        }}
                       >
-                        <strong style={{ color: "#000" }}>
+                        <Typography
+                          variant="body1"
+                          sx={{
+                            fontWeight: 600,
+                            color: "#000",
+                          }}
+                        >
                           {emp.lastName}, {emp.firstName}
-                        </strong>
+                        </Typography>
 
-                        <Box sx={{ fontSize: 13, color: "#555" }}>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            fontSize: 13,
+                            color: "#555",
+                            mt: 0.5,
+                          }}
+                        >
                           Created by: {emp.createdBy}
-                        </Box>
+                        </Typography>
 
-                        <Box sx={{ fontSize: 12, color: "#777" }}>
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            fontSize: 12,
+                            color: "#777",
+                          }}
+                        >
                           {new Date(emp.createdAt).toLocaleDateString()}
-                        </Box>
+                        </Typography>
                       </Box>
                     ))}
-                </Box>
+                </Paper>
               </Box>
 
               {/* CLIENT HEADCOUNT BARCHARTS */}
@@ -586,17 +810,25 @@ export default function Admin() {
                 }}
               >
                 {/* BMPOWER */}
-                <Box
+                <Paper
+                  elevation={0}
                   sx={{
-                    background: "#fff",
-                    p: 2,
-                    borderRadius: 2,
-                    boxShadow: "0px 3px 6px rgba(0,0,0,0.2)",
+                    p: 3,
+                    borderRadius: "12px",
+                    border: "1px solid #e0e0e0",
                   }}
                 >
-                  <h4 style={{ color: "#000", marginBottom: 10 }}>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      color: "#2e6385ff",
+                      fontWeight: 600,
+                      mb: 2,
+                      fontSize: "14px",
+                    }}
+                  >
                     BMPOWER HUMAN RESOURCES CORPORATION - EMPLOYED PER CLIENT
-                  </h4>
+                  </Typography>
 
                   <ResponsiveContainer width="100%" height={280}>
                     <BarChart data={bmpowerBarData.data}>
@@ -622,20 +854,28 @@ export default function Admin() {
                       ))}
                     </BarChart>
                   </ResponsiveContainer>
-                </Box>
+                </Paper>
 
                 {/* MARABOU */}
-                <Box
+                <Paper
+                  elevation={0}
                   sx={{
-                    background: "#fff",
-                    p: 2,
-                    borderRadius: 2,
-                    boxShadow: "0px 3px 6px rgba(0,0,0,0.2)",
+                    p: 3,
+                    borderRadius: "12px",
+                    border: "1px solid #e0e0e0",
                   }}
                 >
-                  <h4 style={{ color: "#000", marginBottom: 10 }}>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      color: "#2e6385ff",
+                      fontWeight: 600,
+                      mb: 2,
+                      fontSize: "14px",
+                    }}
+                  >
                     MARABOU EVERGREEN RESOURCES INC - EMPLOYED PER CLIENT
-                  </h4>
+                  </Typography>
 
                   <ResponsiveContainer width="100%" height={280}>
                     <BarChart data={marabouBarData.data}>
@@ -661,115 +901,232 @@ export default function Admin() {
                       ))}
                     </BarChart>
                   </ResponsiveContainer>
-                </Box>
+                </Paper>
               </Box>
 
+              {/* MODAL */}
               <Dialog
                 open={openModal}
                 onClose={() => setOpenModal(false)}
                 fullWidth
                 maxWidth="md"
+                PaperProps={{
+                  sx: {
+                    borderRadius: "12px",
+                  },
+                }}
               >
-                <DialogTitle>{modalTitle} Employees</DialogTitle>
+                <DialogTitle
+                  sx={{
+                    backgroundColor: "#2e6385ff",
+                    color: "white",
+                    fontWeight: 600,
+                  }}
+                >
+                  {modalTitle}
+                </DialogTitle>
                 <DialogContent dividers>
                   {modalData.length === 0 ? (
-                    <p>No employees found.</p>
+                    <Typography sx={{ textAlign: "center", py: 3 }}>
+                      No employees found.
+                    </Typography>
                   ) : (
-                    modalData.map((emp, i) => (
-                      <Box
-                        key={i}
-                        sx={{
-                          borderBottom: "1px solid #ccc",
-                          padding: "10px 0",
-                          mb: 1,
-                        }}
-                      >
-                        <strong>
-                          {emp.lastName}, {emp.firstName} {emp.middleName}
-                        </strong>
-                        <br />
-                        Client Assigned: {emp.clientAssigned}
-                        <br />
-                        {/* EMPLOYED */}
-                        {modalTitle === "Employed" && emp.dateHired && (
-                          <>
-                            Hired Date:{" "}
-                            {emp.dateHired.toISOString().slice(0, 10)}
-                          </>
-                        )}
-                        {/* RESIGNED */}
-                        {modalTitle === "Resigned" && emp.dateResigned && (
-                          <>
-                            Resigned Date:{" "}
-                            {emp.dateResigned.toISOString().slice(0, 10)}
-                          </>
-                        )}
-                        {/* TERMINATED */}
-                        {modalTitle === "Terminated" && emp.dateResigned && (
-                          <>Terminated Date: {emp.dateResigned.slice(0, 10)}</>
-                        )}
-                        {/* END OF CONTRACT */}
-                        {modalTitle === "End of Contract" &&
-                          emp.dateResigned && (
+                    modalData
+                      .slice()
+                      .sort((a, b) => {
+                        let dateA, dateB;
+
+                        switch (modalTitle) {
+                          case "Employed":
+                          case "Applicants":
+                            dateA = a.dateHired;
+                            dateB = b.dateHired;
+                            break;
+
+                          case "Resigned":
+                          case "Terminated":
+                          case "End of Contract":
+                            dateA = a.dateResigned;
+                            dateB = b.dateResigned;
+                            break;
+
+                          case "Recent Employees":
+                            dateA = a.createdAt;
+                            dateB = b.createdAt;
+                            break;
+
+                          default:
+                            return 0;
+                        }
+
+                        return new Date(dateB) - new Date(dateA);
+                      })
+                      .map((emp, i) => (
+                        <Box
+                          key={emp._id || i}
+                          sx={{
+                            borderBottom: "1px solid #e0e0e0",
+                            py: 2,
+                            "&:last-child": {
+                              borderBottom: "none",
+                            },
+                          }}
+                        >
+                          <Typography
+                            variant="body1"
+                            sx={{ fontWeight: 600, mb: 0.5 }}
+                          >
+                            {emp.lastName}, {emp.firstName} {emp.middleName}
+                          </Typography>
+                          <Typography variant="body2" sx={{ color: "#666" }}>
+                            Client Assigned: {emp.clientAssigned}
+                          </Typography>
+
+                          {/* EMPLOYED */}
+                          {modalTitle === "Employed" && emp.dateHired && (
+                            <Typography variant="body2" sx={{ color: "#666" }}>
+                              Hired Date:{" "}
+                              {new Date(emp.dateHired)
+                                .toISOString()
+                                .slice(0, 10)}
+                            </Typography>
+                          )}
+                          {/* RESIGNED */}
+                          {modalTitle === "Resigned" && emp.dateResigned && (
+                            <Typography variant="body2" sx={{ color: "#666" }}>
+                              Resigned Date:{" "}
+                              {new Date(emp.dateResigned)
+                                .toISOString()
+                                .slice(0, 10)}
+                            </Typography>
+                          )}
+                          {/* TERMINATED */}
+                          {modalTitle === "Terminated" && emp.dateResigned && (
+                            <Typography variant="body2" sx={{ color: "#666" }}>
+                              Terminated Date:{" "}
+                              {new Date(emp.dateResigned)
+                                .toISOString()
+                                .slice(0, 10)}
+                            </Typography>
+                          )}
+                          {/* END OF CONTRACT */}
+                          {modalTitle === "End of Contract" &&
+                            emp.dateResigned && (
+                              <Typography
+                                variant="body2"
+                                sx={{ color: "#666" }}
+                              >
+                                End Contract Date:{" "}
+                                {new Date(emp.dateResigned)
+                                  .toISOString()
+                                  .slice(0, 10)}
+                              </Typography>
+                            )}
+                          {/* APPLICANTS */}
+                          {modalTitle === "Applicants" && emp.dateHired && (
+                            <Typography variant="body2" sx={{ color: "#666" }}>
+                              Applied Date:{" "}
+                              {new Date(emp.dateHired)
+                                .toISOString()
+                                .slice(0, 10)}
+                            </Typography>
+                          )}
+                          {/* RECENT EMPLOYEES */}
+                          {modalTitle === "Recent Employees" && (
                             <>
-                              End Contract Date: {emp.dateResigned.slice(0, 10)}
+                              <Typography
+                                variant="body2"
+                                sx={{ color: "#666" }}
+                              >
+                                Created By: {emp.createdBy}
+                              </Typography>
+                              <Typography
+                                variant="body2"
+                                sx={{ color: "#666" }}
+                              >
+                                Date Created:{" "}
+                                {new Date(emp.createdAt)
+                                  .toISOString()
+                                  .slice(0, 10)}
+                              </Typography>
                             </>
                           )}
-                        {/* APPLICANTS */}
-                        {modalTitle === "Applicants" && emp.dateHired && (
-                          <>
-                            Applied Date:{" "}
-                            {emp.dateHired.toISOString().slice(0, 10)}
-                          </>
-                        )}
-                        {modalTitle === "Recent Employees" && (
-                          <>
-                            Created By: {emp.createdBy}
-                            <br />
-                            Date Created:{" "}
-                            {new Date(emp.createdAt).toISOString().slice(0, 10)}
-                            <br />
-                          </>
-                        )}
-                      </Box>
-                    ))
+                        </Box>
+                      ))
                   )}
                 </DialogContent>
 
                 <DialogActions>
-                  <Button onClick={() => setOpenModal(false)}>Close</Button>
+                  <Button
+                    onClick={() => setOpenModal(false)}
+                    sx={{
+                      color: "#2e6385ff",
+                      fontWeight: 600,
+                      textTransform: "none",
+                    }}
+                  >
+                    Close
+                  </Button>
                 </DialogActions>
               </Dialog>
-
-              {/* MODAL (UNCHANGED, STILL WORKS) */}
-              {/* keep your Dialog code here */}
             </>
           )}
         </Box>
       </Box>
-    </div>
+    </>
   );
 }
 
-function SummaryCard({ title, value, onClick }) {
+function SummaryCard({ title, value, onClick, color }) {
   return (
-    <Box
+    <Paper
       onClick={onClick}
+      elevation={0}
       sx={{
-        background: "#FFFFFF",
-        border: "#E5EAF0",
-        color: "#000",
-        padding: 3,
-        borderRadius: 2,
+        p: 3,
+        borderRadius: "12px",
         textAlign: "center",
-        boxShadow: "0px 3px 6px rgba(0,0,0,0.2)",
+        border: "1px solid #e0e0e0",
         cursor: "pointer",
-        transition: "0.2s",
-        ":hover": { transform: "scale(1.05)" },
+        transition: "all 0.3s ease",
+        position: "relative",
+        overflow: "hidden",
+        "&::before": {
+          content: '""',
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: "4px",
+          backgroundColor: color,
+        },
+        "&:hover": {
+          transform: "translateY(-4px)",
+          boxShadow: "0 8px 16px rgba(0,0,0,0.15)",
+        },
       }}
     >
-      <h3 style={{ margin: 0 }}>{title}</h3>
-      <h1 style={{ margin: 0, fontSize: "2.5rem" }}>{value}</h1>
-    </Box>
+      <Typography
+        variant="h6"
+        sx={{
+          fontWeight: 600,
+          color: "#666",
+          fontSize: "14px",
+          mb: 1,
+        }}
+      >
+        {title}
+      </Typography>
+      <Typography
+        variant="h2"
+        sx={{
+          fontWeight: 700,
+          color: color,
+          fontSize: "3rem",
+        }}
+      >
+        {value}
+      </Typography>
+    </Paper>
   );
 }
