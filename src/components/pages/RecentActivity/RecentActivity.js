@@ -53,7 +53,7 @@ export default function RecentActivity() {
   const fetchRecentActivities = async () => {
     try {
       const response = await axios.get(
-        "https://api-map.bmphrc.com/recent-activities",
+        "https://api-map.bmphrc.com//recent-activities",
       );
       if (response.status === 200 && response.data.data) {
         setActivities(response.data.data);

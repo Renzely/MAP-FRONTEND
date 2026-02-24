@@ -116,7 +116,7 @@ export default function ClientProfileCreationEnhanced() {
       setUploading(true);
 
       const response = await axios.post(
-        "https://api-map.bmphrc.com/save-requirements-images-client",
+        "https://api-map.bmphrc.com//save-requirements-images-client",
         { fileName: file.name, fileType: file.type },
       );
 
@@ -207,7 +207,7 @@ export default function ClientProfileCreationEnhanced() {
 
     try {
       const response = await axios.post(
-        "https://api-map.bmphrc.com/create-client-profile",
+        "https://api-map.bmphrc.com//create-client-profile",
         formattedData,
       );
 

@@ -111,7 +111,7 @@ export default function BmpowerHO() {
   const fetchSavedRequirements = async (employeeEmail) => {
     try {
       const response = await axios.get(
-        "https://api-map.bmphrc.com/get-merch-accounts",
+        "https://api-map.bmphrc.com//get-merch-accounts",
       );
 
       const employee = response.data.find((emp) => emp._id === employeeEmail);
@@ -209,7 +209,7 @@ export default function BmpowerHO() {
       };
 
       await axios.put(
-        `https://api-map.bmphrc.com/update-employee/${updatedEmployee._id}`,
+        `https://api-map.bmphrc.com//update-employee/${updatedEmployee._id}`,
         payload,
       );
 
@@ -241,7 +241,7 @@ export default function BmpowerHO() {
     const fetchAccounts = async () => {
       try {
         const response = await axios.get(
-          "https://api-map.bmphrc.com/get-merch-accounts",
+          "https://api-map.bmphrc.com//get-merch-accounts",
         );
 
         const bmpowerAccounts = response.data.filter(
@@ -263,7 +263,7 @@ export default function BmpowerHO() {
   const getExportData = async () => {
     try {
       const response = await axios.post(
-        "https://api-map.bmphrc.com/export-merch-accounts",
+        "https://api-map.bmphrc.com//export-merch-accounts",
         {
           remarks: selectedRemarks,
           clientAssigned: "COSMETIQUE ASIA",
@@ -1603,7 +1603,7 @@ export default function BmpowerHO() {
 
                                     for (const file of files) {
                                       const response = await axios.post(
-                                        "https://api-map.bmphrc.com/save-requirements-images",
+                                        "https://api-map.bmphrc.com//save-requirements-images",
                                         {
                                           fileName: file.name,
                                           fileType: file.type,
