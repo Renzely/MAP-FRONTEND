@@ -283,11 +283,10 @@ export default function ClientProfileCreationEnhanced() {
       "ECOSSENTIAL FOODS CORP-HEAD OFFICE",
       "MAGIS DISTRIBUTION INC.",
       "ASIAN STREAK BROKERAGE CO",
-      "CONVIENCE STORE",
       "PLDT TELESCOOP",
-      "SHELFMATE",
+      "MANDOM",
       "ENGKANTO",
-      "ROYAL CANIN PHILS.",
+      "DEL MONTE",
       "SPX EXPRESS",
       "UNION GALVASTEEL CO",
     ],
@@ -299,6 +298,7 @@ export default function ClientProfileCreationEnhanced() {
       "UNIVERSAL HARVESTER DAIRY FARM INC",
       "LONG TABLE GROUP INC.- MASAJIRO",
       "J-GYU INC",
+      "COSMETIQUE ASIA",
     ],
   };
 
@@ -328,7 +328,8 @@ export default function ClientProfileCreationEnhanced() {
             sx={{
               p: 4,
               mb: 3,
-              background: "linear-gradient(135deg, #1e3a5f 0%, #2c5282 100%)",
+              background:
+                "linear-gradient(135deg, #2e6385ff 0%, #0c2e3fff 100%)",
               borderRadius: 3,
             }}
           >
@@ -350,7 +351,7 @@ export default function ClientProfileCreationEnhanced() {
                   variant="h4"
                   sx={{ fontWeight: 700, color: "white", mb: 0.5 }}
                 >
-                  Client Profile Creation
+                  Client Profile Registration
                 </Typography>
                 <Typography
                   variant="body1"

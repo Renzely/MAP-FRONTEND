@@ -137,7 +137,8 @@ export default function Admin() {
   const companyClientsMap = {
     "BMPOWER HUMAN RESOURCES CORPORATION": [
       "BMPOWER HUMAN RESOURCES CORPORATION",
-      "CONVIENCE STORE",
+      "ASIAN STREAK BROKERAGE CO",
+      "PLDT TELESCOOP",
       "ECOSSENTIAL FOODS CORP",
       "ECOSSENTIAL FOODS CORP-COORDINATORS",
       "MCKENZIE DISTRIBUTION CO.",
@@ -145,9 +146,9 @@ export default function Admin() {
       "MAGIS DISTRIBUTION INC.",
       "ASIAN STREAK BROKERAGE CO",
       "PLDT TELESCOOP",
-      "SHELFMATE",
+      "MANDOM",
       "ENGKANTO",
-      "ROYAL CANIN PHILS.",
+      "DEL MONTE",
       "SPX EXPRESS",
       "UNION GALVASTEEL CO",
     ],
@@ -159,6 +160,7 @@ export default function Admin() {
       "UNIVERSAL HARVESTER DAIRY FARM INC",
       "LONG TABLE GROUP INC.- MASAJIRO",
       "J-GYU INC",
+      "COSMETIQUE ASIA",
     ],
   };
 
@@ -350,7 +352,7 @@ export default function Admin() {
       );
 
       const headers = [
-        "#",
+        // "#",
         "Company",
         "Client",
         "EmployeeNo",
@@ -382,6 +384,7 @@ export default function Admin() {
       XLSX.utils.sheet_add_json(ws, newData, {
         origin: "A2",
         skipHeader: true,
+        header: headers,
       });
 
       // Auto width

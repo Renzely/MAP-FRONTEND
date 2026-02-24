@@ -408,9 +408,9 @@ export default function ViewClientProfileEnhanced() {
                     label="Filter by Company"
                     sx={{ borderRadius: 2 }}
                   >
-                    <MenuItem value="">
+                    {/* <MenuItem value="">
                       <em>All Companies</em>
-                    </MenuItem>
+                    </MenuItem> */}
                     <MenuItem value="UNFILTERED">All Companies</MenuItem>
                     <MenuItem value="BMPOWER HUMAN RESOURCES CORPORATION">
                       BMPOWER HUMAN RESOURCES CORPORATION

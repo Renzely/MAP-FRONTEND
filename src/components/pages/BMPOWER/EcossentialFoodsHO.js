@@ -40,6 +40,8 @@ import Topbar from "../../topbar/Topbar";
 import Sidebar from "../../sidebar/Sidebar";
 import dayjs from "dayjs";
 
+import EFClogo from "../../Images/Bmpower_Logo/BMP - EFC.jpg";
+
 export default function BmpowerHO() {
   const XLSX = require("sheetjs-style");
   const [accounts, setAccounts] = useState([]);
@@ -152,8 +154,33 @@ export default function BmpowerHO() {
   };
 
   const handleSaveChanges = async (updatedEmployee) => {
+    // 🔹 DIGIT VALIDATION FIRST
+    if (updatedEmployee.sss && updatedEmployee.sss.length !== 10) {
+      alert("SSS must be exactly 10 digits.");
+      return;
+    }
+
+    if (
+      updatedEmployee.philhealth &&
+      updatedEmployee.philhealth.length !== 12
+    ) {
+      alert("PhilHealth must be exactly 12 digits.");
+      return;
+    }
+
+    if (updatedEmployee.hdmf && updatedEmployee.hdmf.length !== 12) {
+      alert("HDMF must be exactly 12 digits.");
+      return;
+    }
+
+    if (updatedEmployee.tin && updatedEmployee.tin.length !== 12) {
+      alert("TIN must be exactly 12 digits.");
+      return;
+    }
+
     try {
       const adminFullName = localStorage.getItem("adminFullName");
+
       const payload = {
         ...updatedEmployee,
         updatedBy: adminFullName || "Unknown",
@@ -188,7 +215,7 @@ export default function BmpowerHO() {
             acc.company?.toUpperCase() ===
               "BMPOWER HUMAN RESOURCES CORPORATION" &&
             acc.clientAssigned?.toUpperCase() ===
-              "ECOSSENTIAL FOODS CORP-COORDINATORS",
+              "ECOSSENTIAL FOODS CORP-HEAD OFFICE",
         );
 
         setAccounts(bmpowerAccounts);
@@ -207,12 +234,12 @@ export default function BmpowerHO() {
         "https://api-map.bmphrc.com/export-merch-accounts",
         {
           remarks: selectedRemarks,
-          clientAssigned: "ECOSSENTIAL FOODS CORP-COORDINATORS",
+          clientAssigned: "ECOSSENTIAL FOODS CORP-HEAD OFFICE",
         },
       );
 
       const headers = [
-        "#",
+        // "#",
         "Company",
         "Client",
         "EmployeeNo",
@@ -243,6 +270,7 @@ export default function BmpowerHO() {
       XLSX.utils.sheet_add_json(ws, newData, {
         origin: "A2",
         skipHeader: true,
+        header: headers,
       });
 
       ws["!cols"] = headers.map((h) => ({
@@ -322,25 +350,25 @@ export default function BmpowerHO() {
     { field: "lastName", headerName: "Last Name", width: 150 },
     { field: "firstName", headerName: "First Name", width: 150 },
     { field: "middleName", headerName: "Middle Name", width: 150 },
-    // {
-    //   field: "birthday",
-    //   headerName: "Birthday",
-    //   width: 120,
-    //   valueGetter: (value, row) => {
-    //     const raw = row?.birthday;
-    //     const dateValue =
-    //       typeof raw === "object" && raw?.$date
-    //         ? raw.$date
-    //         : typeof raw === "string"
-    //           ? raw
-    //           : null;
-    //     return dateValue;
-    //   },
-    //   valueFormatter: (value) => {
-    //     if (!value) return "";
-    //     return dayjs(value).format("DD-MMM-YY");
-    //   },
-    // },
+    {
+      field: "birthday",
+      headerName: "Birthday",
+      width: 120,
+      valueGetter: (value, row) => {
+        const raw = row?.birthday;
+        const dateValue =
+          typeof raw === "object" && raw?.$date
+            ? raw.$date
+            : typeof raw === "string"
+              ? raw
+              : null;
+        return dateValue;
+      },
+      valueFormatter: (value) => {
+        if (!value) return "";
+        return dayjs(value).format("DD-MMM-YY");
+      },
+    },
     // {
     //   field: "age",
     //   headerName: "Age",
@@ -501,10 +529,14 @@ export default function BmpowerHO() {
           >
             <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
               <Avatar
+                src={EFClogo}
+                alt="EFC Logo"
                 sx={{
-                  bgcolor: "rgba(255, 255, 255, 0.2)",
-                  width: 56,
-                  height: 56,
+                  width: 86,
+                  height: 86,
+                  "& img": {
+                    objectFit: "contain", // or "contain"
+                  },
                 }}
               >
                 <BusinessIcon sx={{ fontSize: 32, color: "white" }} />
@@ -526,7 +558,7 @@ export default function BmpowerHO() {
                     color: "rgba(255, 255, 255, 0.9)",
                   }}
                 >
-                  ECOSSENTIAL FOODS CORP-COORDINATORS
+                  ECOSSENTIAL FOODS CORP-HEAD OFFICE
                 </Typography>
               </Box>
             </Box>
@@ -1109,11 +1141,9 @@ export default function BmpowerHO() {
                                     PLDT TELESCOOP
                                   </MenuItem>
                                   <MenuItem value="RC">RC SALES AGENT</MenuItem>
-                                  <MenuItem value="ROYAL CANIN PHILS.">
-                                    ROYAL CANIN PHILS.
-                                  </MenuItem>
-                                  <MenuItem value="SHELFMATE">
-                                    SHELFMATE
+                                  <MenuItem value="MANDOM">MANDOM</MenuItem>
+                                  <MenuItem value="DEL MONTE">
+                                    DEL MONTE
                                   </MenuItem>
                                   <MenuItem value="SPX EXPRESS">
                                     SPX EXPRESS
@@ -1123,6 +1153,9 @@ export default function BmpowerHO() {
                                   </MenuItem>
                                   <MenuItem value="UNION GALVASTEEL CO.">
                                     UNION GALVASTEEL CO.
+                                  </MenuItem>
+                                  <MenuItem value="COSMETIQUE ASIA">
+                                    COSMETIQUE ASIA
                                   </MenuItem>
                                 </Select>
                               </FormControl>
@@ -1226,12 +1259,16 @@ export default function BmpowerHO() {
                               label="SSS No."
                               fullWidth
                               value={selectedEmployee.sss || ""}
-                              onChange={(e) =>
-                                setSelectedEmployee({
-                                  ...selectedEmployee,
-                                  sss: e.target.value,
-                                })
-                              }
+                              onChange={(e) => {
+                                const value = e.target.value.replace(/\D/g, ""); // remove non-digits
+                                if (value.length <= 10) {
+                                  setSelectedEmployee({
+                                    ...selectedEmployee,
+                                    sss: value,
+                                  });
+                                }
+                              }}
+                              inputProps={{ maxLength: 10 }}
                               InputProps={{ readOnly: !isEditing }}
                             />
                           </Grid>
@@ -1240,12 +1277,16 @@ export default function BmpowerHO() {
                               label="PHIC No."
                               fullWidth
                               value={selectedEmployee.philhealth || ""}
-                              onChange={(e) =>
-                                setSelectedEmployee({
-                                  ...selectedEmployee,
-                                  philhealth: e.target.value,
-                                })
-                              }
+                              onChange={(e) => {
+                                const value = e.target.value.replace(/\D/g, "");
+                                if (value.length <= 12) {
+                                  setSelectedEmployee({
+                                    ...selectedEmployee,
+                                    philhealth: value,
+                                  });
+                                }
+                              }}
+                              inputProps={{ maxLength: 12 }}
                               InputProps={{ readOnly: !isEditing }}
                             />
                           </Grid>
@@ -1254,12 +1295,16 @@ export default function BmpowerHO() {
                               label="HDMF No."
                               fullWidth
                               value={selectedEmployee.hdmf || ""}
-                              onChange={(e) =>
-                                setSelectedEmployee({
-                                  ...selectedEmployee,
-                                  hdmf: e.target.value,
-                                })
-                              }
+                              onChange={(e) => {
+                                const value = e.target.value.replace(/\D/g, "");
+                                if (value.length <= 12) {
+                                  setSelectedEmployee({
+                                    ...selectedEmployee,
+                                    hdmf: value,
+                                  });
+                                }
+                              }}
+                              inputProps={{ maxLength: 12 }}
                               InputProps={{ readOnly: !isEditing }}
                             />
                           </Grid>
@@ -1268,12 +1313,16 @@ export default function BmpowerHO() {
                               label="TIN No."
                               fullWidth
                               value={selectedEmployee.tin || ""}
-                              onChange={(e) =>
-                                setSelectedEmployee({
-                                  ...selectedEmployee,
-                                  tin: e.target.value,
-                                })
-                              }
+                              onChange={(e) => {
+                                const value = e.target.value.replace(/\D/g, "");
+                                if (value.length <= 12) {
+                                  setSelectedEmployee({
+                                    ...selectedEmployee,
+                                    tin: value,
+                                  });
+                                }
+                              }}
+                              inputProps={{ maxLength: 12 }}
                               InputProps={{ readOnly: !isEditing }}
                             />
                           </Grid>

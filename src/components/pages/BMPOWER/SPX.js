@@ -40,6 +40,8 @@ import Topbar from "../../topbar/Topbar";
 import Sidebar from "../../sidebar/Sidebar";
 import dayjs from "dayjs";
 
+import spxlogo from "../../Images/Bmpower_Logo/BMP - SPX.jpg";
+
 export default function BmpowerHO() {
   const XLSX = require("sheetjs-style");
   const [accounts, setAccounts] = useState([]);
@@ -53,6 +55,117 @@ export default function BmpowerHO() {
   const [viewRequirements, setViewRequirements] = useState([]);
   const [newUploads, setNewUploads] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const HUBS_BY_REGION = {
+    "NCR 1 South": [
+      "Apelo Hub",
+      "Arnaiz Hub",
+      "Bagumbayan Hub",
+      "CAA Hub",
+      "Cupang Hub",
+      "Dasa Hub",
+      "FTI Hub",
+      "Las Pinas Hub",
+      "Makati Hub",
+      "Makati-Magallanes Hub",
+      "Manuyo Uno Hub",
+      "Marcelo Green Hub",
+      "Pasay Hub",
+      "Tambo Hub",
+      "Tunasan Hub",
+    ],
+
+    "NCR 2 East": [
+      "Angono Hub",
+      "Antipolo Hub",
+      "Baltao Hub",
+      "Baras Hub",
+      "Binangonan Hub",
+      "Cainta Hub",
+      "Mambugan Hub",
+      "Morong Rizal Hub",
+      "Q Plaza Hub",
+      "Redgold Hub",
+      "Rodriguez Hub",
+      "San Isidro Rodriguez Hub",
+      "San Mateo Hub",
+      "Tanay Hub",
+      "Taytay Hub",
+      "Teresa Rizal Hub",
+      "Upper Antipolo Hub",
+      "Payatas Hub",
+      "Cubao Hub",
+      "Lower QC Hub",
+      "Tandang Sora Hub",
+      "West QC Hub",
+      "Batasan Hub",
+      "Culiat Hub",
+      "East QC Hub",
+      "Holy Spirit Hub",
+      "M.Balara Hub",
+      "Wack Wack Hub",
+      "San Juan Hub",
+    ],
+
+    "NCR 3 Central": [
+      "Escoda Hub",
+      "Jaboneros Hub",
+      "Paco Hub",
+      "Palanca Hub",
+      "Pandacan Hub",
+      "Tondo Hub",
+      "Vitas Tondo Hub",
+      "Mandaluyong Hub",
+      "Malaya Ibaba Hub",
+      "Daanghari Navotas Hub",
+      "MINI Hub Lavezares",
+      "Navotas Hub",
+      "Second Avenue Hub",
+      "Marikina Hub",
+      "Upper Marikina Hub",
+      "Pasig Hub",
+      "Pasig-Rosario Hub",
+      "Maybunga Hub",
+      "Amang Rodriguez Hub",
+      "Bambang Pasig Hub",
+      "Congressional Hub",
+      "Del Monte Ave Hub",
+      "Reliance Hub",
+    ],
+
+    "NCR 4 North": [
+      "North East Caloocan Hub",
+      "Upper QC Hub",
+      "West Grace Park Hub",
+      "M Lozada",
+      "Pateros Hub",
+      "Ruhale Hub",
+      "Camanava Hub",
+      "Canumay East Hub",
+      "Caybiga Hub",
+      "Coloong Hub",
+      "Malabon Hub",
+      "South Caloocan Hub",
+      "Tinajeros Hub",
+      "Valenzuela Hub",
+      "Viente Reales Hub",
+      "Balingasa Hub",
+      "Amparo Hub",
+      "Bagumbong Hub",
+      "Caloocan Hub",
+      "Northwest Caloocan Hub",
+      "Tala Hub",
+    ],
+  };
+  const POSITIONS_SPX = {
+    "SPX EXPRESS": [
+      "Backroom Personnel",
+      "2-Wheel Delivery Rider",
+      "3-Wheel Delivery Rider",
+      "4-Wheel Delivery Rider",
+      "Walker",
+    ],
+  };
 
   // Listen to sidebar state from localStorage
   useEffect(() => {
@@ -152,8 +265,33 @@ export default function BmpowerHO() {
   };
 
   const handleSaveChanges = async (updatedEmployee) => {
+    // 🔹 DIGIT VALIDATION FIRST
+    if (updatedEmployee.sss && updatedEmployee.sss.length !== 10) {
+      alert("SSS must be exactly 10 digits.");
+      return;
+    }
+
+    if (
+      updatedEmployee.philhealth &&
+      updatedEmployee.philhealth.length !== 12
+    ) {
+      alert("PhilHealth must be exactly 12 digits.");
+      return;
+    }
+
+    if (updatedEmployee.hdmf && updatedEmployee.hdmf.length !== 12) {
+      alert("HDMF must be exactly 12 digits.");
+      return;
+    }
+
+    if (updatedEmployee.tin && updatedEmployee.tin.length !== 12) {
+      alert("TIN must be exactly 12 digits.");
+      return;
+    }
+
     try {
       const adminFullName = localStorage.getItem("adminFullName");
+
       const payload = {
         ...updatedEmployee,
         updatedBy: adminFullName || "Unknown",
@@ -211,7 +349,7 @@ export default function BmpowerHO() {
       );
 
       const headers = [
-        "#",
+        // "#",
         "Company",
         "Client",
         "EmployeeNo",
@@ -219,6 +357,8 @@ export default function BmpowerHO() {
         "Status",
         "Remarks",
         "Position",
+        "Region",
+        "Outlet",
         "Contact",
         "Email",
         "Birthday",
@@ -242,6 +382,7 @@ export default function BmpowerHO() {
       XLSX.utils.sheet_add_json(ws, newData, {
         origin: "A2",
         skipHeader: true,
+        header: headers,
       });
 
       ws["!cols"] = headers.map((h) => ({
@@ -321,25 +462,25 @@ export default function BmpowerHO() {
     { field: "lastName", headerName: "Last Name", width: 150 },
     { field: "firstName", headerName: "First Name", width: 150 },
     { field: "middleName", headerName: "Middle Name", width: 150 },
-    // {
-    //   field: "birthday",
-    //   headerName: "Birthday",
-    //   width: 120,
-    //   valueGetter: (value, row) => {
-    //     const raw = row?.birthday;
-    //     const dateValue =
-    //       typeof raw === "object" && raw?.$date
-    //         ? raw.$date
-    //         : typeof raw === "string"
-    //           ? raw
-    //           : null;
-    //     return dateValue;
-    //   },
-    //   valueFormatter: (value) => {
-    //     if (!value) return "";
-    //     return dayjs(value).format("DD-MMM-YY");
-    //   },
-    // },
+    {
+      field: "birthday",
+      headerName: "Birthday",
+      width: 120,
+      valueGetter: (value, row) => {
+        const raw = row?.birthday;
+        const dateValue =
+          typeof raw === "object" && raw?.$date
+            ? raw.$date
+            : typeof raw === "string"
+              ? raw
+              : null;
+        return dateValue;
+      },
+      valueFormatter: (value) => {
+        if (!value) return "";
+        return dayjs(value).format("DD-MMM-YY");
+      },
+    },
     // {
     //   field: "age",
     //   headerName: "Age",
@@ -500,10 +641,14 @@ export default function BmpowerHO() {
           >
             <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
               <Avatar
+                src={spxlogo}
+                alt="SPX Logo"
                 sx={{
-                  bgcolor: "rgba(255, 255, 255, 0.2)",
-                  width: 56,
-                  height: 56,
+                  width: 86,
+                  height: 86,
+                  "& img": {
+                    objectFit: "contain", // or "contain"
+                  },
                 }}
               >
                 <BusinessIcon sx={{ fontSize: 32, color: "white" }} />
@@ -1040,18 +1185,36 @@ export default function BmpowerHO() {
                             )}
                           </Grid>
                           <Grid item xs={12} sm={6}>
-                            <TextField
-                              label="Position"
-                              fullWidth
-                              value={selectedEmployee.position || ""}
-                              onChange={(e) =>
-                                setSelectedEmployee({
-                                  ...selectedEmployee,
-                                  position: e.target.value,
-                                })
-                              }
-                              InputProps={{ readOnly: !isEditing }}
-                            />
+                            {isEditing ? (
+                              <FormControl fullWidth>
+                                <InputLabel>Position</InputLabel>
+                                <Select
+                                  value={selectedEmployee.position || ""}
+                                  label="Position"
+                                  onChange={(e) =>
+                                    setSelectedEmployee({
+                                      ...selectedEmployee,
+                                      position: e.target.value,
+                                    })
+                                  }
+                                >
+                                  {(POSITIONS_SPX["SPX EXPRESS"] || []).map(
+                                    (pos) => (
+                                      <MenuItem key={pos} value={pos}>
+                                        {pos}
+                                      </MenuItem>
+                                    ),
+                                  )}
+                                </Select>
+                              </FormControl>
+                            ) : (
+                              <TextField
+                                label="Position"
+                                fullWidth
+                                value={selectedEmployee.position || ""}
+                                InputProps={{ readOnly: true }}
+                              />
+                            )}
                           </Grid>
                           <Grid item xs={12} sm={6}>
                             {isEditing ? (
@@ -1108,11 +1271,9 @@ export default function BmpowerHO() {
                                     PLDT TELESCOOP
                                   </MenuItem>
                                   <MenuItem value="RC">RC SALES AGENT</MenuItem>
-                                  <MenuItem value="ROYAL CANIN PHILS.">
-                                    ROYAL CANIN PHILS.
-                                  </MenuItem>
-                                  <MenuItem value="SHELFMATE">
-                                    SHELFMATE
+                                  <MenuItem value="MANDOM">MANDOM</MenuItem>
+                                  <MenuItem value="DEL MONTE">
+                                    DEL MONTE
                                   </MenuItem>
                                   <MenuItem value="SPX EXPRESS">
                                     SPX EXPRESS
@@ -1123,6 +1284,9 @@ export default function BmpowerHO() {
                                   <MenuItem value="UNION GALVASTEEL CO.">
                                     UNION GALVASTEEL CO.
                                   </MenuItem>
+                                  <MenuItem value="COSMETIQUE ASIA">
+                                    COSMETIQUE ASIA
+                                  </MenuItem>
                                 </Select>
                               </FormControl>
                             ) : (
@@ -1130,6 +1294,75 @@ export default function BmpowerHO() {
                                 label="Client Assigned"
                                 fullWidth
                                 value={selectedEmployee.clientAssigned || ""}
+                                InputProps={{ readOnly: true }}
+                              />
+                            )}
+                          </Grid>
+                          <Grid item xs={12} sm={6}>
+                            {isEditing ? (
+                              <FormControl fullWidth>
+                                <InputLabel>Region</InputLabel>
+                                <Select
+                                  value={selectedEmployee.region || ""}
+                                  label="Region"
+                                  onChange={(e) => {
+                                    const newRegion = e.target.value;
+
+                                    setSelectedEmployee({
+                                      ...selectedEmployee,
+                                      region: newRegion,
+                                      outlet: "", // 🔥 reset hub when region changes
+                                    });
+                                  }}
+                                >
+                                  {Object.keys(HUBS_BY_REGION).map((region) => (
+                                    <MenuItem key={region} value={region}>
+                                      {region}
+                                    </MenuItem>
+                                  ))}
+                                </Select>
+                              </FormControl>
+                            ) : (
+                              <TextField
+                                label="Region"
+                                fullWidth
+                                value={selectedEmployee.region || ""}
+                                InputProps={{ readOnly: true }}
+                              />
+                            )}
+                          </Grid>
+                          <Grid item xs={12} sm={6}>
+                            {isEditing ? (
+                              <FormControl
+                                fullWidth
+                                disabled={!selectedEmployee.region}
+                              >
+                                <InputLabel>Hub</InputLabel>
+                                <Select
+                                  value={selectedEmployee.outlet || ""}
+                                  label="Hub"
+                                  onChange={(e) =>
+                                    setSelectedEmployee({
+                                      ...selectedEmployee,
+                                      outlet: e.target.value,
+                                    })
+                                  }
+                                >
+                                  {(
+                                    HUBS_BY_REGION[selectedEmployee.region] ||
+                                    []
+                                  ).map((hub) => (
+                                    <MenuItem key={hub} value={hub}>
+                                      {hub}
+                                    </MenuItem>
+                                  ))}
+                                </Select>
+                              </FormControl>
+                            ) : (
+                              <TextField
+                                label="Hub"
+                                fullWidth
+                                value={selectedEmployee.outlet || ""}
                                 InputProps={{ readOnly: true }}
                               />
                             )}
@@ -1225,12 +1458,16 @@ export default function BmpowerHO() {
                               label="SSS No."
                               fullWidth
                               value={selectedEmployee.sss || ""}
-                              onChange={(e) =>
-                                setSelectedEmployee({
-                                  ...selectedEmployee,
-                                  sss: e.target.value,
-                                })
-                              }
+                              onChange={(e) => {
+                                const value = e.target.value.replace(/\D/g, ""); // remove non-digits
+                                if (value.length <= 10) {
+                                  setSelectedEmployee({
+                                    ...selectedEmployee,
+                                    sss: value,
+                                  });
+                                }
+                              }}
+                              inputProps={{ maxLength: 10 }}
                               InputProps={{ readOnly: !isEditing }}
                             />
                           </Grid>
@@ -1239,12 +1476,16 @@ export default function BmpowerHO() {
                               label="PHIC No."
                               fullWidth
                               value={selectedEmployee.philhealth || ""}
-                              onChange={(e) =>
-                                setSelectedEmployee({
-                                  ...selectedEmployee,
-                                  philhealth: e.target.value,
-                                })
-                              }
+                              onChange={(e) => {
+                                const value = e.target.value.replace(/\D/g, "");
+                                if (value.length <= 12) {
+                                  setSelectedEmployee({
+                                    ...selectedEmployee,
+                                    philhealth: value,
+                                  });
+                                }
+                              }}
+                              inputProps={{ maxLength: 12 }}
                               InputProps={{ readOnly: !isEditing }}
                             />
                           </Grid>
@@ -1253,12 +1494,16 @@ export default function BmpowerHO() {
                               label="HDMF No."
                               fullWidth
                               value={selectedEmployee.hdmf || ""}
-                              onChange={(e) =>
-                                setSelectedEmployee({
-                                  ...selectedEmployee,
-                                  hdmf: e.target.value,
-                                })
-                              }
+                              onChange={(e) => {
+                                const value = e.target.value.replace(/\D/g, "");
+                                if (value.length <= 12) {
+                                  setSelectedEmployee({
+                                    ...selectedEmployee,
+                                    hdmf: value,
+                                  });
+                                }
+                              }}
+                              inputProps={{ maxLength: 12 }}
                               InputProps={{ readOnly: !isEditing }}
                             />
                           </Grid>
@@ -1267,12 +1512,16 @@ export default function BmpowerHO() {
                               label="TIN No."
                               fullWidth
                               value={selectedEmployee.tin || ""}
-                              onChange={(e) =>
-                                setSelectedEmployee({
-                                  ...selectedEmployee,
-                                  tin: e.target.value,
-                                })
-                              }
+                              onChange={(e) => {
+                                const value = e.target.value.replace(/\D/g, "");
+                                if (value.length <= 12) {
+                                  setSelectedEmployee({
+                                    ...selectedEmployee,
+                                    tin: value,
+                                  });
+                                }
+                              }}
+                              inputProps={{ maxLength: 12 }}
                               InputProps={{ readOnly: !isEditing }}
                             />
                           </Grid>

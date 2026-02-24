@@ -4,25 +4,14 @@ import {
   Dashboard,
   AssignmentInd,
   ManageAccounts,
-  Logout,
   SupervisorAccount,
   ExpandLess,
   ExpandMore,
   ListAlt,
 } from "@mui/icons-material";
 import WarehouseIcon from "@mui/icons-material/Warehouse";
-import {
-  Avatar,
-  Typography,
-  IconButton,
-  Collapse,
-  List,
-  ListItemButton,
-  ListItemText,
-  Tooltip,
-} from "@mui/material";
+import { IconButton, Collapse, Tooltip } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
-import AutoDeleteIcon from "@mui/icons-material/AutoDelete";
 import "./sidebar.css";
 
 export default function Sidebar() {
@@ -126,13 +115,11 @@ export default function Sidebar() {
             }
           >
             <ManageAccounts className="sidebar-icon" />
-            {isOpen && (
-              <span className="menu-text">Employee Account Creation</span>
-            )}
+            {isOpen && <span className="menu-text">Employee Registration</span>}
           </li>
         </NavLink>
 
-        {["MIS", "HR HEAD", "HR OFFICER"].includes(roleAccount) && (
+        {["MIS", "HR HEAD"].includes(roleAccount) && (
           <NavLink
             to="/view-admin-accounts"
             onClick={() => handleItemClick("/view-admin-accounts")}
@@ -154,7 +141,7 @@ export default function Sidebar() {
           </NavLink>
         )}
 
-        {["MIS", "HR HEAD"].includes(roleAccount) && (
+        {["MIS", "HR HEAD", "EXECUTIVE DIRECTOR"].includes(roleAccount) && (
           <NavLink
             to="/view-recent-activity"
             onClick={() => handleItemClick("/view-recent-activity")}
@@ -177,74 +164,82 @@ export default function Sidebar() {
         )}
 
         {/* CLIENT PROFILES MENU */}
-        <Tooltip
-          title={!isOpen ? "Client Profiles" : ""}
-          placement="right"
-          arrow
-        >
-          <li
-            onClick={handleToggleClientProfiles}
-            className="menu-with-submenu"
+        {["MIS", "HR HEAD", "EXECUTIVE DIRECTOR"].includes(roleAccount) && (
+          <Tooltip
+            title={!isOpen ? "Client Profiles" : ""}
+            placement="right"
+            arrow
           >
-            <ManageAccounts className="sidebar-icon" />
-            {isOpen && (
-              <>
-                <span className="menu-text">Client Profiles</span>
-                <span className="expand-icon">
-                  {openClientProfiles ? <ExpandLess /> : <ExpandMore />}
-                </span>
-              </>
-            )}
-          </li>
-        </Tooltip>
+            <li
+              onClick={handleToggleClientProfiles}
+              className="menu-with-submenu"
+            >
+              <ManageAccounts className="sidebar-icon" />
+              {isOpen && (
+                <>
+                  <span className="menu-text">Client Profiles</span>
+                  <span className="expand-icon">
+                    {openClientProfiles ? <ExpandLess /> : <ExpandMore />}
+                  </span>
+                </>
+              )}
+            </li>
+          </Tooltip>
+        )}
 
-        <Collapse
-          in={openClientProfiles && isOpen}
-          timeout="auto"
-          unmountOnExit
-        >
-          <div className="sidebar-submenu-scroll">
-            <ul className="sidebar-submenu">
-              <NavLink
-                to="/view-AccountCreationProfileclient"
-                onClick={() =>
-                  handleItemClick("/view-AccountCreationProfileclient")
-                }
-              >
-                <li
-                  className={
-                    activeItem === "/view-AccountCreationProfileclient"
-                      ? "active"
-                      : ""
+        {["MIS", "HR HEAD"].includes(roleAccount) && (
+          <Collapse
+            in={openClientProfiles && isOpen}
+            timeout="auto"
+            unmountOnExit
+          >
+            <div className="sidebar-submenu-scroll">
+              <ul className="sidebar-submenu">
+                <NavLink
+                  to="/view-AccountCreationProfileclient"
+                  onClick={() =>
+                    handleItemClick("/view-AccountCreationProfileclient")
                   }
                 >
-                  <ManageAccounts className="sidebar-icon" />
-                  {isOpen && (
-                    <span className="menu-text">Client Profile Creation</span>
-                  )}
-                </li>
-              </NavLink>
+                  <li
+                    className={
+                      activeItem === "/view-AccountCreationProfileclient"
+                        ? "active"
+                        : ""
+                    }
+                  >
+                    <ManageAccounts className="sidebar-icon" />
+                    {isOpen && (
+                      <span className="menu-text">
+                        Client Profile Registration
+                      </span>
+                    )}
+                  </li>
+                </NavLink>
 
-              <NavLink
-                to="/view-clientProfile"
-                onClick={() => handleItemClick("/view-clientProfile")}
-              >
-                <li
-                  className={
-                    activeItem === "/view-clientProfile" ? "active" : ""
-                  }
+                <NavLink
+                  to="/view-clientProfile"
+                  onClick={() => handleItemClick("/view-clientProfile")}
                 >
-                  <ManageAccounts className="sidebar-icon" />
-                  {isOpen && <span className="menu-text">Client Profile</span>}
-                </li>
-              </NavLink>
-            </ul>
-          </div>
-        </Collapse>
+                  <li
+                    className={
+                      activeItem === "/view-clientProfile" ? "active" : ""
+                    }
+                  >
+                    <ManageAccounts className="sidebar-icon" />
+                    {isOpen && (
+                      <span className="menu-text">Client Profile</span>
+                    )}
+                  </li>
+                </NavLink>
+              </ul>
+            </div>
+          </Collapse>
+        )}
 
         {/* ACCOUNT MANAGEMENT MENU */}
         <Tooltip
-          title={!isOpen ? "Account Management" : ""}
+          title={!isOpen ? "Employee Management" : ""}
           placement="right"
           arrow
         >
@@ -255,7 +250,7 @@ export default function Sidebar() {
             <ManageAccounts className="sidebar-icon" />
             {isOpen && (
               <>
-                <span className="menu-text">Account Management</span>
+                <span className="menu-text">Employee Management</span>
                 <span className="expand-icon">
                   {openAccountManagement ? <ExpandLess /> : <ExpandMore />}
                 </span>
@@ -322,20 +317,6 @@ export default function Sidebar() {
                           <span className="menu-text">
                             Asian Streak Brokerage CO
                           </span>
-                        )}
-                      </li>
-                    </NavLink>
-
-                    <NavLink
-                      to="/view-cvs"
-                      onClick={() => handleItemClick("/view-cvs")}
-                    >
-                      <li
-                        className={activeItem === "/view-cvs" ? "active" : ""}
-                      >
-                        <AssignmentInd className="sidebar-icon" />
-                        {isOpen && (
-                          <span className="menu-text">Convience Store</span>
                         )}
                       </li>
                     </NavLink>
@@ -457,36 +438,6 @@ export default function Sidebar() {
                     </NavLink>
 
                     <NavLink
-                      to="/view-royalcanin"
-                      onClick={() => handleItemClick("/view-royalcanin")}
-                    >
-                      <li
-                        className={
-                          activeItem === "/view-royalcanin" ? "active" : ""
-                        }
-                      >
-                        <AssignmentInd className="sidebar-icon" />
-                        {isOpen && (
-                          <span className="menu-text">Royal Canin Phils.</span>
-                        )}
-                      </li>
-                    </NavLink>
-
-                    <NavLink
-                      to="/view-shelfmate"
-                      onClick={() => handleItemClick("/view-shelfmate")}
-                    >
-                      <li
-                        className={
-                          activeItem === "/view-shelfmate" ? "active" : ""
-                        }
-                      >
-                        <AssignmentInd className="sidebar-icon" />
-                        {isOpen && <span className="menu-text">Shelfmate</span>}
-                      </li>
-                    </NavLink>
-
-                    <NavLink
                       to="/view-spx"
                       onClick={() => handleItemClick("/view-spx")}
                     >
@@ -497,6 +448,34 @@ export default function Sidebar() {
                         {isOpen && (
                           <span className="menu-text">SPX Express</span>
                         )}
+                      </li>
+                    </NavLink>
+
+                    <NavLink
+                      to="/view-delmonte"
+                      onClick={() => handleItemClick("/view-delmonte")}
+                    >
+                      <li
+                        className={
+                          activeItem === "/view-delmonte" ? "active" : ""
+                        }
+                      >
+                        <AssignmentInd className="sidebar-icon" />
+                        {isOpen && <span className="menu-text">Del Monte</span>}
+                      </li>
+                    </NavLink>
+
+                    <NavLink
+                      to="/view-mandom"
+                      onClick={() => handleItemClick("/view-mandom")}
+                    >
+                      <li
+                        className={
+                          activeItem === "/view-mandom" ? "active" : ""
+                        }
+                      >
+                        <AssignmentInd className="sidebar-icon" />
+                        {isOpen && <span className="menu-text">Mandom</span>}
                       </li>
                     </NavLink>
 
@@ -659,6 +638,21 @@ export default function Sidebar() {
                       >
                         <AssignmentInd className="sidebar-icon" />
                         {isOpen && <span className="menu-text">J-GYU INC</span>}
+                      </li>
+                    </NavLink>
+                    <NavLink
+                      to="/view-cosmetic"
+                      onClick={() => handleItemClick("/view-cosmetic")}
+                    >
+                      <li
+                        className={
+                          activeItem === "/view-cosmetic" ? "active" : ""
+                        }
+                      >
+                        <AssignmentInd className="sidebar-icon" />
+                        {isOpen && (
+                          <span className="menu-text">Cosmetique Asia</span>
+                        )}
                       </li>
                     </NavLink>
                   </ul>

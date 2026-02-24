@@ -26,6 +26,9 @@ const Path = () => {
       case "/view-admin-accounts":
       case "/view-dashboard":
       case "/view-recent-activity":
+
+      // BMPOWER
+
       case "/view-bmpowerHO":
       case "/view-asianstreak":
       case "/view-cvs":
@@ -36,10 +39,12 @@ const Path = () => {
       case "/view-magis":
       case "/view-mckenzie":
       case "/view-pldt":
-      case "/view-royalcanin":
-      case "/view-shelfmate":
       case "/view-spx":
+      case "/view-delmonte":
+      case "/view-mandom":
       case "/view-galvasteel":
+
+      // MARABOU
 
       case "/view-marabouHO":
       case "/view-longtable":
@@ -48,6 +53,7 @@ const Path = () => {
       case "/view-metropacificfresh":
       case "/view-universalharvester":
       case "/view-jgyu":
+      case "/view-cosmetic":
         return <Outlet />;
       default:
         console.log("Unknown path, redirecting to default route.");
