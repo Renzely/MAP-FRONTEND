@@ -362,6 +362,7 @@ export default function BmpowerHO() {
         "Contact",
         "Email",
         "Birthday",
+        "Age",
         "DateHired",
         "DateResigned",
         "HomeAddress",
