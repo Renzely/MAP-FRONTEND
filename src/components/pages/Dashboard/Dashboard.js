@@ -256,7 +256,7 @@ export default function Admin() {
 
         setMonthlyData([]);
 
-        let url = `https://api-map.bmphrc.com//get-merch-accounts-dashboard`;
+        let url = `https://api-map.bmphrc.com/get-merch-accounts-dashboard`;
         const params = [];
 
         if (company !== "All") {
@@ -344,7 +344,7 @@ export default function Admin() {
   const getExportData = async () => {
     try {
       const response = await axios.post(
-        "https://api-map.bmphrc.com//export-merch-accounts",
+        "https://api-map.bmphrc.com/export-merch-accounts",
         {
           //remarks: selectedRemarks, // optional filter
           // clientAssigned: "CARMENS BEST",
