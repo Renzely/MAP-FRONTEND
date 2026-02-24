@@ -85,7 +85,7 @@ export default function Login() {
 
     try {
       const response = await axios.post(
-        "https://api-map.bmphrc.com/login-admin",
+        "https://api-map.bmphrc.com//login-admin",
         {
           emailAddress: email,
           password: password,

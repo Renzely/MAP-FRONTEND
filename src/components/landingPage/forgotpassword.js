@@ -79,7 +79,7 @@ export default function ForgotPassword() {
 
     try {
       const response = await axios.post(
-        "https://api-map.bmphrc.com/send-otp-forgotpassword",
+        "https://api-map.bmphrc.com//send-otp-forgotpassword",
         { emailAddress: emailAddress },
       );
       const res = response.data;
@@ -153,7 +153,7 @@ export default function ForgotPassword() {
 
     try {
       const response = await axios.put(
-        "https://api-map.bmphrc.com/forgot-password-reset",
+        "https://api-map.bmphrc.com//forgot-password-reset",
         body,
       );
       const res = response.data;

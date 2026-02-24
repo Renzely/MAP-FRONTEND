@@ -204,7 +204,7 @@ export default function ViewClientProfileEnhanced() {
   const fetchEmployeeCounts = async () => {
     try {
       const response = await axios.get(
-        "https://api-map.bmphrc.com/get-employee-counts-by-client",
+        "https://api-map.bmphrc.com//get-employee-counts-by-client",
       );
 
       const countsMap = {};
@@ -222,7 +222,7 @@ export default function ViewClientProfileEnhanced() {
   const handleSaveChanges = async () => {
     try {
       const response = await axios.put(
-        `https://api-map.bmphrc.com/update-client-profile/${selectedClient._id}`,
+        `https://api-map.bmphrc.com//update-client-profile/${selectedClient._id}`,
         editFormData,
       );
 
@@ -263,7 +263,7 @@ export default function ViewClientProfileEnhanced() {
     const fetchAccounts = async () => {
       try {
         const response = await axios.get(
-          "https://api-map.bmphrc.com/get-client-profiles",
+          "https://api-map.bmphrc.com//get-client-profiles",
         );
         setAccounts(response.data);
         setFilteredAccounts(response.data);

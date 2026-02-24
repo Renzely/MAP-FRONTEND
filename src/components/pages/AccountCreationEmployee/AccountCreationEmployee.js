@@ -447,6 +447,16 @@ export default function AccountCreationEnhanced() {
 
   const isApplicant = formData.status === "Applicant";
 
+  const CLIENT_VALIDATION = {
+    "SPX EXPRESS": { region: true, outlet: true, outletLabel: "Hub" },
+    "ECOSSENTIAL FOODS CORP": {
+      region: false,
+      outlet: false,
+      outletLabel: "Outlet",
+    },
+    // Add future clients here
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -483,51 +493,31 @@ export default function AccountCreationEnhanced() {
 
     const errors = {};
 
+    // ---------------- Required Fields ----------------
     requiredFields.forEach((field) => {
-      if (field === "accountNumber" && formData.modeOfDisbursement === "TBA") {
+      if (field === "accountNumber" && formData.modeOfDisbursement === "TBA")
         return;
-      }
 
       if (!formData[field] || formData[field].toString().trim() === "") {
         errors[field] = "This field is required";
       }
     });
 
-    // if (isOutletClient && !formData.account) {
-    //   errors.account = "Please select an account";
-    // }
-
-    if (isHubClient && !formData.region) {
-      errors.region = "Please select a region";
+    // ---------------- SPX Specific Validation ----------------
+    if (formData.clientAssigned === "SPX EXPRESS") {
+      if (!formData.region) errors.region = "Please select a region";
+      if (!formData.outlet) errors.outlet = "Please select a hub";
     }
 
-    // 🆕 Add outlet validation for ECOSSENTIAL FOODS CORP and SPX EXPRESS
-    if (
-      formData.clientAssigned === "SPX EXPRESS" &&
-      (!formData.outlet || formData.outlet.trim() === "")
-    ) {
-      errors.outlet = "Please select a hub";
-    }
-
-    // if (
-    //   formData.clientAssigned === "ECOSSENTIAL FOODS CORP" &&
-    //   (!formData.outlet || formData.outlet.trim() === "")
-    // ) {
-    //   errors.outlet = "Please select an outlet";
-    // }
-
-    if (!errors.contact) {
-      if (formData.contact.length !== 11) {
-        errors.contact = "Contact number must be exactly 11 digits";
-      }
+    // ---------------- Other Validations ----------------
+    if (!errors.contact && formData.contact.length !== 11) {
+      errors.contact = "Contact number must be exactly 11 digits";
     }
 
     if (formData.email && !errors.email) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-      if (!emailRegex.test(formData.email)) {
+      if (!emailRegex.test(formData.email))
         errors.email = "Invalid email address";
-      }
     }
 
     if (formData.remarks === "Resign" && !formData.dateResigned) {
@@ -565,7 +555,6 @@ export default function AccountCreationEnhanced() {
     }
 
     setFormErrors(errors);
-
     if (Object.keys(errors).length > 0) {
       setSnackbar({
         open: true,
@@ -575,9 +564,10 @@ export default function AccountCreationEnhanced() {
       return;
     }
 
+    // ---------------- Duplicate Checks ----------------
     try {
       const duplicateCheck = await axios.post(
-        "https://api-map.bmphrc.com/check-duplicate-ids",
+        "http://192.168.68.51:3001/check-duplicate-ids",
         {
           sss: formData.sss,
           philhealth: formData.philhealth,
@@ -589,7 +579,11 @@ export default function AccountCreationEnhanced() {
       if (duplicateCheck.status === 409) {
         const dupErrors = duplicateCheck.data.duplicates || {};
         setFormErrors(dupErrors);
-        alert("Duplicate numbers found. Please check highlighted fields.");
+        setSnackbar({
+          open: true,
+          message: "Duplicate numbers found. Please check highlighted fields.",
+          severity: "error",
+        });
         return;
       }
     } catch (error) {
@@ -605,20 +599,22 @@ export default function AccountCreationEnhanced() {
       }
     }
 
+    // ---------------- Prepare Data for Backend ----------------
     const formattedData = {
       ...formData,
       createdBy: adminFullName,
       employeeNo: isApplicant ? null : formData.employeeNo,
-      accountNumber: isApplicant ? null : formData.accountNumber,
+      accountNumber:
+        isApplicant || formData.modeOfDisbursement === "TBA"
+          ? null
+          : formData.accountNumber,
       dateHired: isApplicant ? null : formData.dateHired,
       silBalance: isApplicant ? null : formData.silBalance,
       region: formData.region || null,
-      accountNumber:
-        formData.modeOfDisbursement === "TBA" ? null : formData.accountNumber,
+      outlet: formData.outlet || null,
       requirementsImages: uploadedImageUrls.map((file) =>
         typeof file === "string" ? file : file.url,
       ),
-      outlet: formData.outlet || null, // 🆕 Include outlet field
       birthday: formData.birthday
         ? dayjs(formData.birthday).toDate().toISOString()
         : null,
@@ -630,9 +626,10 @@ export default function AccountCreationEnhanced() {
         : null,
     };
 
+    // ---------------- Submit to Backend ----------------
     try {
       const response = await axios.post(
-        "https://api-map.bmphrc.com/create-merch-account",
+        "http://192.168.68.51:3001/create-merch-account",
         formattedData,
       );
 
@@ -716,7 +713,7 @@ export default function AccountCreationEnhanced() {
       const uniqueFileName = `${timestamp}_${file.name}`;
 
       const response = await axios.post(
-        "https://api-map.bmphrc.com/save-requirements-images",
+        "http://192.168.68.51:3001/save-requirements-images",
         {
           fileName: uniqueFileName,
           fileType: file.type,
