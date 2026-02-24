@@ -18,7 +18,6 @@ import Path from "./path/Path";
 
 import BmpowerHO from "./components/pages/BMPOWER/BmpowerHO";
 import AsianStreak from "./components/pages/BMPOWER/AsianStreak";
-import CVS from "./components/pages/BMPOWER/CVS";
 import EcossentialFoods from "./components/pages/BMPOWER/EcossentialFoods";
 import EcossentialFoodsHO from "./components/pages/BMPOWER/EcossentialFoodsHO";
 import EcossentialfoodsCOORS from "./components/pages/BMPOWER/EcossentialFoodsCOORS";
@@ -26,10 +25,10 @@ import Engkanto from "./components/pages/BMPOWER/Engkanto";
 import Magis from "./components/pages/BMPOWER/Magis";
 import Mckenzie from "./components/pages/BMPOWER/Mckenzie";
 import PLDT from "./components/pages/BMPOWER/PLDT";
-import RoyalCanin from "./components/pages/BMPOWER/RoyalCanin";
-import Shelfmate from "./components/pages/BMPOWER/Shelfmate";
 import SPX from "./components/pages/BMPOWER/SPX";
 import UnionGalvasteel from "./components/pages/BMPOWER/UnionGalvasteel";
+import Mandom from "./components/pages/BMPOWER/Mandom";
+import DelMonte from "./components/pages/BMPOWER/DelMonte";
 
 import MarabouHO from "./components/pages/MARABOU/MarabouHO";
 import Longtable from "./components/pages/MARABOU/LongTable";
@@ -38,6 +37,8 @@ import MetroPacific from "./components/pages/MARABOU/MetroPacific";
 import MetroPacificFresh from "./components/pages/MARABOU/MetroPacificFresh";
 import UniversalHarvester from "./components/pages/MARABOU/UniversalHarvester";
 import Jgyu from "./components/pages/MARABOU/J-GYU";
+import Cosmetic from "./components/pages/MARABOU/CosmeticAsia";
+
 import AccountCreationEmployee from "./components/pages/AccountCreationEmployee/AccountCreationEmployee";
 import AccountCreationProfile from "./components/pages/AccountCreationProfileclient/AccountCreationProfileclient";
 import ViewClientProfile from "./components/pages/ViewClientProfile/ViewClientProfile";
@@ -47,7 +48,11 @@ function App() {
     <div>
       <Routes>
         <Route element={<Path />}>
+          {/* LOGIN */}
+
           <Route path="/" element={<Login />} />
+          <Route path="/forgotpassword" element={<ForgotPassword />} />
+
           <Route path="/view-dashboard" element={<Dashboard />} />
           <Route path="/view-admin-accounts" element={<Admin />} />
           <Route path="/view-recent-activity" element={<RecentActivity />} />
@@ -60,11 +65,11 @@ function App() {
             element={<AccountCreationProfile />}
           />
           <Route path="/view-clientProfile" element={<ViewClientProfile />} />
-          <Route path="/forgotpassword" element={<ForgotPassword />} />
+
+          {/* BMPOWER */}
 
           <Route path="/view-bmpowerHO" element={<BmpowerHO />} />
           <Route path="/view-asianstreak" element={<AsianStreak />} />
-          <Route path="/view-cvs" element={<CVS />} />
           <Route path="/view-ecossentialfoods" element={<EcossentialFoods />} />
           <Route
             path="/view-ecossentialfoodsHO"
@@ -78,10 +83,12 @@ function App() {
           <Route path="/view-magis" element={<Magis />} />
           <Route path="/view-mckenzie" element={<Mckenzie />} />
           <Route path="/view-pldt" element={<PLDT />} />
-          <Route path="/view-royalcanin" element={<RoyalCanin />} />
-          <Route path="/view-shelfmate" element={<Shelfmate />} />
           <Route path="/view-spx" element={<SPX />} />
+          <Route path="/view-delmonte" element={<DelMonte />} />
+          <Route path="/view-mandom" element={<Mandom />} />
           <Route path="/view-galvasteel" element={<UnionGalvasteel />} />
+
+          {/* MARABOU */}
 
           <Route path="/view-marabouHO" element={<MarabouHO />} />
           <Route path="/view-longtable" element={<Longtable />} />
@@ -96,6 +103,7 @@ function App() {
             element={<UniversalHarvester />}
           />
           <Route path="/view-jgyu" element={<Jgyu />} />
+          <Route path="/view-cosmetic" element={<Cosmetic />} />
         </Route>
       </Routes>
     </div>

@@ -68,28 +68,239 @@ export default function AccountCreationEnhanced() {
     };
   }, []);
 
-  // const OUTLET_CLIENT = "ECOSSENTIAL FOODS CORP";
-  // const HUB_CLIENT = "SPX EXPRESS";
+  const OUTLET_CLIENT = "ECOSSENTIAL FOODS CORP";
+  const HUB_CLIENT = "SPX EXPRESS";
 
-  // const OUTLETS = [
-  //   "WALTERMART SUPERMARKET INC. - SUCAT",
-  //   "WALTERMART SUPERMARKET INC. - BICUTAN",
-  //   "WALTERMART SUPERMARKET INC. - MUNTINLUPA WEST",
-  //   "LANDMARK - ALABANG",
-  //   "TROPICAL HUT - FTI",
-  //   "TROPICAL HUT - PANAY",
-  //   "SOUTH - GROCERS BF",
-  //   "ULTRAMEGA - TAGUIG",
-  // ];
+  const ACCOUNT_TYPES = ["WALTERMART", "BALANCE"];
+  const REGION_TYPES = [
+    "NCR 1 South",
+    "NCR 2 East",
+    "NCR 3 Central",
+    "NCR 4 North",
+  ];
 
-  // const HUBS = [
-  //   "Surigao Downtown Hub",
-  //   "San Juan Hub",
-  //   "Mb Malimono",
-  //   "Cabadbaran Hub",
-  //   "Mb Lingig",
-  //   "Mb Crossing",
-  // ];
+  const OUTLETS_BY_ACCOUNT = {
+    WALTERMART: [
+      "WALTERMART SUPERMARKET INC. - SUCAT",
+      "WALTERMART SUPERMARKET INC. - BICUTAN",
+      "WALTERMART SUPERMARKET INC. - MUNTINLUPA WEST",
+    ],
+    BALANCE: [
+      "LANDMARK - ALABANG",
+      "TROPICAL HUT - FTI",
+      "TROPICAL HUT - PANAY",
+      "SOUTH - GROCERS BF",
+      "ULTRAMEGA - TAGUIG",
+    ],
+  };
+
+  const OUTLETS = [
+    ...OUTLETS_BY_ACCOUNT.WALTERMART,
+    ...OUTLETS_BY_ACCOUNT.BALANCE,
+  ];
+
+  const HUBS_BY_REGION = {
+    "NCR 1 South": [
+      "Apelo Hub",
+      "Arnaiz Hub",
+      "Bagumbayan Hub",
+      "CAA Hub",
+      "Cupang Hub",
+      "Dasa Hub",
+      "FTI Hub",
+      "Las Pinas Hub",
+      "Makati Hub",
+      "Makati-Magallanes Hub",
+      "Manuyo Uno Hub",
+      "Marcelo Green Hub",
+      "Pasay Hub",
+      "Tambo Hub",
+      "Tunasan Hub",
+    ],
+
+    "NCR 2 East": [
+      "Angono Hub",
+      "Antipolo Hub",
+      "Baltao Hub",
+      "Baras Hub",
+      "Binangonan Hub",
+      "Cainta Hub",
+      "Mambugan Hub",
+      "Morong Rizal Hub",
+      "Q Plaza Hub",
+      "Redgold Hub",
+      "Rodriguez Hub",
+      "San Isidro Rodriguez Hub",
+      "San Mateo Hub",
+      "Tanay Hub",
+      "Taytay Hub",
+      "Teresa Rizal Hub",
+      "Upper Antipolo Hub",
+      "Payatas Hub",
+      "Cubao Hub",
+      "Lower QC Hub",
+      "Tandang Sora Hub",
+      "West QC Hub",
+      "Batasan Hub",
+      "Culiat Hub",
+      "East QC Hub",
+      "Holy Spirit Hub",
+      "M.Balara Hub",
+      "Wack Wack Hub",
+      "San Juan Hub",
+    ],
+
+    "NCR 3 Central": [
+      "Escoda Hub",
+      "Jaboneros Hub",
+      "Paco Hub",
+      "Palanca Hub",
+      "Pandacan Hub",
+      "Tondo Hub",
+      "Vitas Tondo Hub",
+      "Mandaluyong Hub",
+      "Malaya Ibaba Hub",
+      "Daanghari Navotas Hub",
+      "MINI Hub Lavezares",
+      "Navotas Hub",
+      "Second Avenue Hub",
+      "Marikina Hub",
+      "Upper Marikina Hub",
+      "Pasig Hub",
+      "Pasig-Rosario Hub",
+      "Maybunga Hub",
+      "Amang Rodriguez Hub",
+      "Bambang Pasig Hub",
+      "Congressional Hub",
+      "Del Monte Ave Hub",
+      "Reliance Hub",
+    ],
+
+    "NCR 4 North": [
+      "North East Caloocan Hub",
+      "Upper QC Hub",
+      "West Grace Park Hub",
+      "M Lozada",
+      "Pateros Hub",
+      "Ruhale Hub",
+      "Camanava Hub",
+      "Canumay East Hub",
+      "Caybiga Hub",
+      "Coloong Hub",
+      "Malabon Hub",
+      "South Caloocan Hub",
+      "Tinajeros Hub",
+      "Valenzuela Hub",
+      "Viente Reales Hub",
+      "Balingasa Hub",
+      "Amparo Hub",
+      "Bagumbong Hub",
+      "Caloocan Hub",
+      "Northwest Caloocan Hub",
+      "Tala Hub",
+    ],
+  };
+
+  const POSITIONS_BY_CLIENT = {
+    // BMPower Clients
+    "BMPOWER HUMAN RESOURCES CORPORATION": [
+      "Executive Director",
+      "Operation Director",
+      "Operation Head",
+      "Account Supervisor",
+      "Operations Admin",
+      "Data Analyst",
+      "Utility",
+      "Treasury Head",
+      "Treasury Officer",
+      "Treasury Assistant",
+      "Billing Officer",
+      "Billing Specialist",
+      "Payroll Specialist",
+      "Assistant Payroll Specialist",
+      "HR Officer",
+      "HR Coordinator",
+      "Recruitment Specialist",
+      "SPX Head",
+      "Agency Coordinator",
+    ],
+
+    "ECOSSENTIAL FOODS CORP": ["Merchandiser", "CVS Merchandiser", "Repacker"],
+    "ECOSSENTIAL FOODS CORP-COORDINATORS": [
+      "Tactical Coordinator",
+      "Account Coordinator",
+    ],
+    "ECOSSENTIAL FOODS CORP-HEAD OFFICE": ["MHE Operator", "Fleet Operator"],
+    "MCKENZIE DISTRIBUTION CO.": [
+      "Merchandiser",
+      "Account Coordinator",
+      "Brand Ambassador",
+      "Tactical Coordinator",
+      "Encoder",
+    ],
+    "UNION GALVASTEEL CO": [
+      "Project In-Charge",
+      "Rigger",
+      "Telehandler Operator",
+      "Crane Operator",
+      "Welder",
+      "Sales Assistant",
+      "Machine Operator",
+      "Utility",
+      "Data Encoder",
+    ],
+    "MAGIS DISTRIBUTION INC.": [
+      "Saturator Salesman",
+      "Driver",
+      "Van Route Salesman – Junior",
+      "Van Route Salesman – Senior",
+      "Beverage Developer",
+    ],
+    MANDOM: ["Brand Ambassador"],
+    ENGKANTO: ["Tactical Coordinator"],
+    "ASIAN STREAK BROKERAGE CO": [
+      "Messenger",
+      "Driver",
+      "Shipping Coordinator",
+      "Accountant",
+      "Declarant",
+    ],
+    "PLDT TELESCOOP": ["Utility"],
+    "SPX EXPRESS": [
+      "Backroom Personnel",
+      "2-Wheel Delivery Rider",
+      "3-Wheel Delivery Rider",
+      "4-Wheel Delivery Rider",
+      "Walker",
+    ],
+    "DEL MONTE": ["Push Girl", "Cook", "Helper", "Coordinator", "Team Leader"],
+    // Marabou Clients
+    "MARABOU EVERGREEN RESOURCES INC": [
+      "Software Engineer",
+      "Payroll Specialist",
+      "Assistant Payroll Specialist",
+      "Hub Coordinator",
+      "HR Officer",
+      "HR Coordinator",
+      "Recruitment Specialist",
+    ],
+    "LONG TABLE GROUP INC.- MASAJIRO": [
+      "Dining Staff / Cashier",
+      "Kitchen Staff",
+      "Baker",
+      "Kitchen Supervisor / Cashier",
+      "Utility / Messenger",
+      "Admin Officer",
+      "Finance Officer",
+      "FOH Team Leader",
+    ],
+    "J-GYU INC": ["Admin Officer / Purchasing Staff", "Production Staff"],
+    "CARMENS BEST": ["Tactical Coordinator", "Account Coordinator"],
+    "METRO PACIFIC FRESH FARM": ["General Farmer"],
+    "METRO PACIFIC DAIRY FARM": ["Feeder"],
+    "UNIVERSAL HARVESTER DAIRY FARM INC": ["Tactical Coordinator"],
+    "COSMETIQUE ASIA": ["Brand Ambassador", "Account Coordinator"],
+  };
 
   const [formData, setFormData] = useState({
     company: "",
@@ -115,13 +326,19 @@ export default function AccountCreationEnhanced() {
     homeAddress: "",
     silBalance: "",
     clientAssigned: "",
+    region: "",
+    account: "",
     outlet: "",
   });
 
   // const isOutletClient = formData.clientAssigned === OUTLET_CLIENT;
-  // const isHubClient = formData.clientAssigned === HUB_CLIENT;
+  const isHubClient = formData.clientAssigned === HUB_CLIENT;
 
-  // const outletHubOptions = isOutletClient ? OUTLETS : isHubClient ? HUBS : [];
+  const outletHubOptions =
+    //  isOutletClient
+    //   ? OUTLETS_BY_ACCOUNT[formData.account] || []
+    //   :
+    isHubClient ? HUBS_BY_REGION[formData.region] || [] : [];
 
   const accountMaxLengths = {
     "AUB (Hello Money)": 12,
@@ -181,6 +398,17 @@ export default function AccountCreationEnhanced() {
 
       if (field === "clientAssigned") {
         // Always reset outlet/hub when client changes
+        updated.outlet = "";
+        updated.account = "";
+        updated.region = "";
+        updated.position = "";
+      }
+
+      if (field === "account") {
+        updated.outlet = "";
+      }
+
+      if (field === "region") {
         updated.outlet = "";
       }
 
@@ -265,15 +493,27 @@ export default function AccountCreationEnhanced() {
       }
     });
 
+    // if (isOutletClient && !formData.account) {
+    //   errors.account = "Please select an account";
+    // }
+
+    if (isHubClient && !formData.region) {
+      errors.region = "Please select a region";
+    }
+
     // 🆕 Add outlet validation for ECOSSENTIAL FOODS CORP and SPX EXPRESS
+    if (
+      formData.clientAssigned === "SPX EXPRESS" &&
+      (!formData.outlet || formData.outlet.trim() === "")
+    ) {
+      errors.outlet = "Please select a hub";
+    }
+
     // if (
-    //   (formData.clientAssigned === "ECOSSENTIAL FOODS CORP" ||
-    //     formData.clientAssigned === "SPX EXPRESS") &&
+    //   formData.clientAssigned === "ECOSSENTIAL FOODS CORP" &&
     //   (!formData.outlet || formData.outlet.trim() === "")
     // ) {
-    //   errors.outlet = isOutletClient
-    //     ? "Please select at least one outlet"
-    //     : "Please select a hub";
+    //   errors.outlet = "Please select an outlet";
     // }
 
     if (!errors.contact) {
@@ -372,6 +612,7 @@ export default function AccountCreationEnhanced() {
       accountNumber: isApplicant ? null : formData.accountNumber,
       dateHired: isApplicant ? null : formData.dateHired,
       silBalance: isApplicant ? null : formData.silBalance,
+      region: formData.region || null,
       accountNumber:
         formData.modeOfDisbursement === "TBA" ? null : formData.accountNumber,
       requirementsImages: uploadedImageUrls.map((file) =>
@@ -425,7 +666,8 @@ export default function AccountCreationEnhanced() {
           homeAddress: "",
           silBalance: "",
           clientAssigned: "",
-          // outlet: "", // LATER UPDATE
+          region: "",
+          outlet: "",
         });
         setFormErrors({});
         setUploadedImageUrls([]);
@@ -526,15 +768,14 @@ export default function AccountCreationEnhanced() {
       "BMPOWER HUMAN RESOURCES CORPORATION",
       "ECOSSENTIAL FOODS CORP",
       "ECOSSENTIAL FOODS CORP-COORDINATORS",
-      "MCKENZIE DISTRIBUTION CO.",
       "ECOSSENTIAL FOODS CORP-HEAD OFFICE",
+      "MCKENZIE DISTRIBUTION CO.",
       "MAGIS DISTRIBUTION INC.",
       "ASIAN STREAK BROKERAGE CO",
-      "CONVIENCE STORE",
       "PLDT TELESCOOP",
-      "SHELFMATE",
+      "MANDOM",
       "ENGKANTO",
-      "ROYAL CANIN PHILS.",
+      "DEL MONTE",
       "SPX EXPRESS",
       "UNION GALVASTEEL CO",
     ],
@@ -546,6 +787,7 @@ export default function AccountCreationEnhanced() {
       "UNIVERSAL HARVESTER DAIRY FARM INC",
       "LONG TABLE GROUP INC.- MASAJIRO",
       "J-GYU INC",
+      "COSMETIQUE ASIA",
     ],
   };
 
@@ -929,19 +1171,34 @@ export default function AccountCreationEnhanced() {
                     </Grid>
 
                     <Grid item xs={12} md={3}>
-                      <TextField
-                        label="Position *"
-                        fullWidth
-                        size="small"
-                        value={formData.position}
-                        onChange={(e) =>
-                          handleChange("position", e.target.value)
-                        }
-                        error={!!formErrors.position}
-                        helperText={formErrors.position}
-                      />
+                      <FormControl fullWidth size="small">
+                        <InputLabel>Position *</InputLabel>
+                        <Select
+                          value={formData.position}
+                          label="Position *"
+                          onChange={(e) =>
+                            handleChange("position", e.target.value)
+                          }
+                          disabled={!formData.clientAssigned}
+                          error={!!formErrors.position}
+                        >
+                          {(
+                            POSITIONS_BY_CLIENT[formData.clientAssigned] || []
+                          ).map((pos) => (
+                            <MenuItem key={pos} value={pos}>
+                              {pos}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                        <FormHelperText error={!!formErrors.position}>
+                          {formErrors.position
+                            ? formErrors.position
+                            : !formData.clientAssigned
+                              ? "Select a Client first"
+                              : ""}
+                        </FormHelperText>
+                      </FormControl>
                     </Grid>
-
                     <Grid item xs={12} md={12}>
                       <TextField
                         label="Home Address *"
@@ -1201,6 +1458,7 @@ export default function AccountCreationEnhanced() {
                     <Grid item xs={12} md={3}>
                       <TextField
                         label="SIL Balance *"
+                        type="number"
                         disabled={isApplicant}
                         fullWidth
                         size="small"
@@ -1210,27 +1468,119 @@ export default function AccountCreationEnhanced() {
                         }
                         error={!!formErrors.silBalance}
                         helperText={formErrors.silBalance}
+                        inputProps={{
+                          min: 0,
+                          inputMode: "numeric",
+                        }}
                       />
                     </Grid>
+
+                    {/* Region dropdown - only for SPX EXPRESS */}
+                    {isHubClient && (
+                      <Grid item xs={12} md={3}>
+                        <FormControl
+                          fullWidth
+                          size="small"
+                          disabled={isApplicant}
+                        >
+                          <InputLabel>Region *</InputLabel>
+                          <Select
+                            value={formData.region}
+                            label="Region *"
+                            onChange={(e) =>
+                              handleChange("region", e.target.value)
+                            }
+                            error={!!formErrors.region}
+                          >
+                            {REGION_TYPES.map((type) => (
+                              <MenuItem key={type} value={type}>
+                                {type}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                          {formErrors.region && (
+                            <FormHelperText error>
+                              {formErrors.region}
+                            </FormHelperText>
+                          )}
+                        </FormControl>
+                      </Grid>
+                    )}
+
+                    {/* Hub dropdown - shown once a Region is selected */}
+                    {isHubClient && (
+                      <Grid item xs={12} md={3}>
+                        <Autocomplete
+                          disabled={isApplicant || !formData.region}
+                          options={outletHubOptions}
+                          value={formData.outlet || null}
+                          onChange={(event, newValue) => {
+                            handleChange("outlet", newValue || "");
+                          }}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              label="Hub *"
+                              size="small"
+                              error={!!formErrors.outlet}
+                              helperText={
+                                !formData.region
+                                  ? "Select a Region first"
+                                  : formErrors.outlet
+                              }
+                            />
+                          )}
+                        />
+                      </Grid>
+                    )}
+
+                    {/* {isOutletClient && (
+                      <Grid item xs={12} md={3}>
+                        <FormControl
+                          fullWidth
+                          size="small"
+                          disabled={isApplicant}
+                        >
+                          <InputLabel>Account *</InputLabel>
+                          <Select
+                            value={formData.account}
+                            label="Account *"
+                            onChange={(e) =>
+                              handleChange("account", e.target.value)
+                            }
+                            error={!!formErrors.account}
+                          >
+                            {ACCOUNT_TYPES.map((type) => (
+                              <MenuItem key={type} value={type}>
+                                {type}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                          {formErrors.account && (
+                            <FormHelperText error>
+                              {formErrors.account}
+                            </FormHelperText>
+                          )}
+                        </FormControl>
+                      </Grid>
+                    )} */}
 
                     {/* {isOutletClient && (
                       <Grid item xs={12} md={3}>
                         <Autocomplete
                           multiple
-                          disabled={isApplicant}
-                          options={OUTLETS}
+                          disabled={isApplicant || !formData.account}
+                          options={outletHubOptions}
                           value={
                             formData.outlet
                               ? formData.outlet.split(", ").filter((v) => v)
                               : []
                           }
                           onChange={(event, newValue) => {
-                            // Remove duplicates just in case
                             const uniqueValues = [...new Set(newValue)];
                             handleChange("outlet", uniqueValues.join(", "));
                           }}
                           getOptionDisabled={(option) => {
-                            // Disable options that are already selected
                             const currentValues = formData.outlet
                               ? formData.outlet.split(", ").filter((v) => v)
                               : [];
@@ -1245,7 +1595,11 @@ export default function AccountCreationEnhanced() {
                               label="Outlets *"
                               size="small"
                               error={!!formErrors.outlet}
-                              helperText={formErrors.outlet}
+                              helperText={
+                                !formData.account
+                                  ? "Select an Account first"
+                                  : formErrors.outlet
+                              }
                             />
                           )}
                           renderTags={(value, getTagProps) =>
@@ -1259,9 +1613,7 @@ export default function AccountCreationEnhanced() {
                                   color: "white",
                                   "& .MuiChip-deleteIcon": {
                                     color: "rgba(255, 255, 255, 0.7)",
-                                    "&:hover": {
-                                      color: "white",
-                                    },
+                                    "&:hover": { color: "white" },
                                   },
                                 }}
                               />
@@ -1294,42 +1646,22 @@ export default function AccountCreationEnhanced() {
                       </Grid>
                     )} */}
 
-                    {/* Hub (Single-select for SPX EXPRESS) */}
-                    {/* {isHubClient && (
-                      <Grid item xs={12} md={3}>
-                        <Autocomplete
-                          disabled={isApplicant}
-                          options={HUBS}
-                          value={formData.outlet || null}
-                          onChange={(event, newValue) => {
-                            handleChange("outlet", newValue || "");
-                          }}
-                          renderInput={(params) => (
-                            <TextField
-                              {...params}
-                              label="Hub *"
-                              size="small"
-                              error={!!formErrors.outlet}
-                              helperText={formErrors.outlet}
-                            />
-                          )}
-                        />
-                      </Grid>
-                    )} */}
-
                     {/* Placeholder for other clients */}
-                    {/* {!isOutletClient && !isHubClient && (
-                      <Grid item xs={12} md={3}>
-                        <TextField
-                          label="Outlet / Hub"
-                          fullWidth
-                          size="small"
-                          disabled
-                          value=""
-                          helperText="Select ECOSSENTIAL FOODS CORP or SPX EXPRESS"
-                        />
-                      </Grid>
-                    )} */}
+                    {
+                      // !isOutletClient &&
+                      !isHubClient && (
+                        <Grid item xs={12} md={3}>
+                          <TextField
+                            label="Outlet / Hub"
+                            fullWidth
+                            size="small"
+                            disabled
+                            value=""
+                            helperText="Select ECOSSENTIAL FOODS CORP or SPX EXPRESS"
+                          />
+                        </Grid>
+                      )
+                    }
                   </Grid>
                 </CardContent>
               </Card>
