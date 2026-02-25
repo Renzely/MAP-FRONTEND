@@ -187,7 +187,7 @@ export default function Sidebar() {
           </Tooltip>
         )}
 
-        {["MIS", "HR HEAD"].includes(roleAccount) && (
+        {["MIS", "HR HEAD", "EXECUTIVE DIRECTOR"].includes(roleAccount) && (
           <Collapse
             in={openClientProfiles && isOpen}
             timeout="auto"
