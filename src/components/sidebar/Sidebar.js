@@ -9,7 +9,12 @@ import {
   ExpandMore,
   ListAlt,
 } from "@mui/icons-material";
-import WarehouseIcon from "@mui/icons-material/Warehouse";
+import GroupsIcon from "@mui/icons-material/Groups";
+import StoreIcon from "@mui/icons-material/Store";
+import ContactPhoneIcon from "@mui/icons-material/ContactPhone";
+import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import ContactPageIcon from "@mui/icons-material/ContactPage";
 import { IconButton, Collapse, Tooltip } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import "./sidebar.css";
@@ -104,20 +109,29 @@ export default function Sidebar() {
             </li>
           </Tooltip>
         </NavLink>
-
-        <NavLink
-          to="/view-AccountCreationEmployee"
-          onClick={() => handleItemClick("/view-AccountCreationEmployee")}
-        >
-          <li
-            className={
-              activeItem === "/view-AccountCreationEmployee" ? "active" : ""
-            }
+        {[
+          "HR HEAD",
+          "HR SPECIALIST",
+          "HR COMPENSATION AND BENEFITS",
+          "HR COORDINATOR SPECIALIST",
+          "MIS",
+        ].includes(roleAccount) && (
+          <NavLink
+            to="/view-AccountCreationEmployee"
+            onClick={() => handleItemClick("/view-AccountCreationEmployee")}
           >
-            <ManageAccounts className="sidebar-icon" />
-            {isOpen && <span className="menu-text">Employee Registration</span>}
-          </li>
-        </NavLink>
+            <li
+              className={
+                activeItem === "/view-AccountCreationEmployee" ? "active" : ""
+              }
+            >
+              <PersonAddIcon className="sidebar-icon" />
+              {isOpen && (
+                <span className="menu-text">Employee Registration</span>
+              )}
+            </li>
+          </NavLink>
+        )}
 
         {["MIS", "HR HEAD"].includes(roleAccount) && (
           <NavLink
@@ -134,7 +148,7 @@ export default function Sidebar() {
                   activeItem === "/view-admin-accounts" ? "active" : ""
                 }
               >
-                <SupervisorAccount className="sidebar-icon" />
+                <AdminPanelSettingsIcon className="sidebar-icon" />
                 {isOpen && <span className="menu-text">Admin Accounts</span>}
               </li>
             </Tooltip>
@@ -164,7 +178,15 @@ export default function Sidebar() {
         )}
 
         {/* CLIENT PROFILES MENU */}
-        {["MIS", "HR HEAD", "EXECUTIVE DIRECTOR"].includes(roleAccount) && (
+        {[
+          "MIS",
+          "HR HEAD",
+          "HR SPECIALIST",
+          "HR COMPENSATION AND BENEFITS",
+          "HR COORDINATOR SPECIALIST",
+          "EXECUTIVE DIRECTOR",
+          "OPERATION",
+        ].includes(roleAccount) && (
           <Tooltip
             title={!isOpen ? "Client Profiles" : ""}
             placement="right"
@@ -174,7 +196,7 @@ export default function Sidebar() {
               onClick={handleToggleClientProfiles}
               className="menu-with-submenu"
             >
-              <ManageAccounts className="sidebar-icon" />
+              <ContactPageIcon className="sidebar-icon" />
               {isOpen && (
                 <>
                   <span className="menu-text">Client Profiles</span>
@@ -187,7 +209,15 @@ export default function Sidebar() {
           </Tooltip>
         )}
 
-        {["MIS", "HR HEAD", "EXECUTIVE DIRECTOR"].includes(roleAccount) && (
+        {[
+          "MIS",
+          "HR HEAD",
+          "HR SPECIALIST",
+          "HR COMPENSATION AND BENEFITS",
+          "HR COORDINATOR SPECIALIST",
+          "EXECUTIVE DIRECTOR",
+          "OPERATION",
+        ].includes(roleAccount) && (
           <Collapse
             in={openClientProfiles && isOpen}
             timeout="auto"
@@ -195,47 +225,71 @@ export default function Sidebar() {
           >
             <div className="sidebar-submenu-scroll">
               <ul className="sidebar-submenu">
-                <NavLink
-                  to="/view-AccountCreationProfileclient"
-                  onClick={() =>
-                    handleItemClick("/view-AccountCreationProfileclient")
-                  }
-                >
-                  <li
-                    className={
-                      activeItem === "/view-AccountCreationProfileclient"
-                        ? "active"
-                        : ""
+                {["MIS", "EXECUTIVE DIRECTOR", "OPERATION"].includes(
+                  roleAccount,
+                ) && (
+                  <NavLink
+                    to="/view-AccountCreationProfileclient"
+                    onClick={() =>
+                      handleItemClick("/view-AccountCreationProfileclient")
                     }
                   >
-                    <ManageAccounts className="sidebar-icon" />
-                    {isOpen && (
-                      <span className="menu-text">
-                        Client Profile Registration
-                      </span>
-                    )}
-                  </li>
-                </NavLink>
+                    <li
+                      className={
+                        activeItem === "/view-AccountCreationProfileclient"
+                          ? "active"
+                          : ""
+                      }
+                    >
+                      <ManageAccounts className="sidebar-icon" />
+                      {isOpen && (
+                        <span className="menu-text">
+                          Client Profile Registration
+                        </span>
+                      )}
+                    </li>
+                  </NavLink>
+                )}
 
-                <NavLink
-                  to="/view-clientProfile"
-                  onClick={() => handleItemClick("/view-clientProfile")}
-                >
-                  <li
-                    className={
-                      activeItem === "/view-clientProfile" ? "active" : ""
-                    }
+                {[
+                  "HR HEAD",
+                  "HR SPECIALIST",
+                  "HR COMPENSATION AND BENEFITS",
+                  "HR COORDINATOR SPECIALIST",
+                  "MIS",
+                  "EXECUTIVE DIRECTOR",
+                  "OPERATION",
+                ].includes(roleAccount) && (
+                  <NavLink
+                    to="/view-clientProfile"
+                    onClick={() => handleItemClick("/view-clientProfile")}
                   >
-                    <ManageAccounts className="sidebar-icon" />
-                    {isOpen && (
-                      <span className="menu-text">Client Profile</span>
-                    )}
-                  </li>
-                </NavLink>
+                    <li
+                      className={
+                        activeItem === "/view-clientProfile" ? "active" : ""
+                      }
+                    >
+                      <ContactPhoneIcon className="sidebar-icon" />
+                      {isOpen && (
+                        <span className="menu-text">Client Profile</span>
+                      )}
+                    </li>
+                  </NavLink>
+                )}
               </ul>
             </div>
           </Collapse>
         )}
+
+        <NavLink
+          to="/view-Outletlist"
+          onClick={() => handleItemClick("/view-Outletlist")}
+        >
+          <li className={activeItem === "/view-Outletlist" ? "active" : ""}>
+            <StoreIcon className="sidebar-icon" />
+            {isOpen && <span className="menu-text">Outlet List</span>}
+          </li>
+        </NavLink>
 
         {/* ACCOUNT MANAGEMENT MENU */}
         <Tooltip
@@ -247,7 +301,7 @@ export default function Sidebar() {
             onClick={handleToggleAccountManagement}
             className="menu-with-submenu"
           >
-            <ManageAccounts className="sidebar-icon" />
+            <GroupsIcon className="sidebar-icon" />
             {isOpen && (
               <>
                 <span className="menu-text">Employee Management</span>

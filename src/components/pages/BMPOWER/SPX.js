@@ -527,22 +527,40 @@ export default function BmpowerHO() {
       sortable: false,
       headerAlign: "center",
       align: "center",
-      renderCell: (params) => (
-        <Tooltip title="Edit Employee">
-          <IconButton
-            color="primary"
-            size="small"
-            onClick={() => handleEdit(params.row)}
-            sx={{
-              "&:hover": {
-                backgroundColor: "rgba(46, 99, 133, 0.1)",
-              },
-            }}
-          >
-            <EditIcon />
-          </IconButton>
-        </Tooltip>
-      ),
+      renderCell: (params) => {
+        const role = localStorage.getItem("roleAccount");
+        const allowedRoles = [
+          "HR HEAD",
+          "HR SPECIALIST",
+          "HR COMPENSATION AND BENEFITS",
+          "HR COORDINATOR SPECIALIST",
+          "MIS",
+        ];
+        const canEdit = allowedRoles.includes(role);
+
+        return (
+          <Tooltip title={canEdit ? "Edit Employee" : "No Permission"}>
+            <span>
+              <IconButton
+                color="primary"
+                size="small"
+                onClick={() => handleEdit(params.row)}
+                disabled={!canEdit}
+                sx={{
+                  "&:hover": {
+                    backgroundColor: canEdit
+                      ? "rgba(46, 99, 133, 0.1)"
+                      : "transparent",
+                  },
+                  "&.Mui-disabled": { color: "#b0bec5" },
+                }}
+              >
+                <EditIcon />
+              </IconButton>
+            </span>
+          </Tooltip>
+        );
+      },
     },
     // { field: "employeeNo", headerName: "Employee No.", width: 120 },
     // {

@@ -42,6 +42,7 @@ import Cosmetic from "./components/pages/MARABOU/CosmeticAsia";
 import AccountCreationEmployee from "./components/pages/AccountCreationEmployee/AccountCreationEmployee";
 import AccountCreationProfile from "./components/pages/AccountCreationProfileclient/AccountCreationProfileclient";
 import ViewClientProfile from "./components/pages/ViewClientProfile/ViewClientProfile";
+import OutletList from "./components/pages/Outlets/Outletlist";
 
 function App() {
   return (
@@ -52,7 +53,6 @@ function App() {
 
           <Route path="/" element={<Login />} />
           <Route path="/forgotpassword" element={<ForgotPassword />} />
-
           <Route path="/view-dashboard" element={<Dashboard />} />
           <Route path="/view-admin-accounts" element={<Admin />} />
           <Route path="/view-recent-activity" element={<RecentActivity />} />
@@ -65,6 +65,7 @@ function App() {
             element={<AccountCreationProfile />}
           />
           <Route path="/view-clientProfile" element={<ViewClientProfile />} />
+          <Route path="/view-Outletlist" element={<OutletList />} />
 
           {/* BMPOWER */}
 

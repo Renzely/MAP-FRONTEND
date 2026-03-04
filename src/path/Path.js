@@ -26,6 +26,7 @@ const Path = () => {
       case "/view-admin-accounts":
       case "/view-dashboard":
       case "/view-recent-activity":
+      case "/view-Outletlist":
 
       // BMPOWER
 
