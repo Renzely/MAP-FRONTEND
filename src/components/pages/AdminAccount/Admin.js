@@ -73,6 +73,7 @@ export default function Admin() {
   const [openStatusDialog, setOpenStatusDialog] = useState(false);
   const [openViewModal, setOpenViewModal] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [dateResignedError, setDateResignedError] = useState(false);
 
   const [updateStatus, setUpdateStatus] = useState("");
   const [userEmail, setUserEmail] = useState("");

@@ -26,6 +26,7 @@ export default function RecentActivity() {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [dateResignedError, setDateResignedError] = useState(false);
   const itemsPerPage = 6; // Show 6 cards per page
 
   // Listen to sidebar state from localStorage

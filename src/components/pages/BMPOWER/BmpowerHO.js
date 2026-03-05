@@ -54,6 +54,7 @@ export default function BmpowerHO() {
   const [viewRequirements, setViewRequirements] = useState([]);
   const [newUploads, setNewUploads] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [dateResignedError, setDateResignedError] = useState(false);
 
   // Listen to sidebar state from localStorage
   useEffect(() => {
@@ -177,6 +178,16 @@ export default function BmpowerHO() {
       return;
     }
 
+    const resignationRemarks = ["Resign", "Terminate", "End of Contract"];
+
+    if (
+      resignationRemarks.includes(updatedEmployee.remarks) &&
+      !updatedEmployee.dateResigned
+    ) {
+      setDateResignedError(true); // triggers error display
+      return; // stop saving
+    }
+
     try {
       const adminFullName = localStorage.getItem("adminFullName");
 
@@ -193,6 +204,7 @@ export default function BmpowerHO() {
       );
 
       alert("Employee details updated successfully!");
+      setDateResignedError(false);
       setOpenEditModal(false);
       setIsEditing(false);
       window.location.reload();
@@ -893,9 +905,13 @@ export default function BmpowerHO() {
                                 })
                               }
                               InputProps={{ readOnly: !isEditing }}
+                              inputProps={{
+                                onKeyDown: (e) => e.preventDefault(),
+                              }}
                               InputLabelProps={{ shrink: true }}
                             />
                           </Grid>
+
                           <Grid item xs={12} sm={6}>
                             <TextField
                               label="Age"
@@ -1205,6 +1221,9 @@ export default function BmpowerHO() {
                                 })
                               }
                               InputProps={{ readOnly: !isEditing }}
+                              inputProps={{
+                                onKeyDown: (e) => e.preventDefault(),
+                              }}
                               InputLabelProps={{ shrink: true }}
                             />
                           </Grid>
@@ -1220,14 +1239,39 @@ export default function BmpowerHO() {
                                     )
                                   : ""
                               }
-                              onChange={(e) =>
+                              onChange={(e) => {
                                 setSelectedEmployee({
                                   ...selectedEmployee,
                                   dateResigned: e.target.value,
-                                })
-                              }
-                              InputProps={{ readOnly: !isEditing }}
+                                });
+                                if (e.target.value) setDateResignedError(false);
+                              }}
+                              InputProps={{
+                                readOnly: !isEditing,
+                              }}
+                              inputProps={{
+                                shrink: true,
+                                onKeyDown: (e) => e.preventDefault(), // blocks all keyboard input
+                              }}
                               InputLabelProps={{ shrink: true }}
+                              error={
+                                dateResignedError &&
+                                [
+                                  "Resign",
+                                  "Terminate",
+                                  "End of Contract",
+                                ].includes(selectedEmployee.remarks)
+                              }
+                              helperText={
+                                dateResignedError &&
+                                [
+                                  "Resign",
+                                  "Terminate",
+                                  "End of Contract",
+                                ].includes(selectedEmployee.remarks)
+                                  ? "Date Resigned is required for this remarks status."
+                                  : ""
+                              }
                             />
                           </Grid>
                           <Grid item xs={12} sm={4}>

@@ -16,6 +16,7 @@ import "./topbar.css";
 
 export default function Topbar() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [dateResignedError, setDateResignedError] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
 
   const fullName = localStorage.getItem("adminFullName");
