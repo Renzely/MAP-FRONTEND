@@ -1294,6 +1294,7 @@ export default function BmpowerHO() {
                                   <MenuItem value="BMPOWER HUMAN RESOURCES CORPORATION">
                                     BMPOWER HUMAN RESOURCES CORPORATION
                                   </MenuItem>
+                                  <MenuItem value="BROLLE">BROLLE</MenuItem>
                                   <MenuItem value="CARMENS BEST">
                                     CARMENS BEST
                                   </MenuItem>

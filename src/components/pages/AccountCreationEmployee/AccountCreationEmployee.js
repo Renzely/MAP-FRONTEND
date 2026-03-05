@@ -261,6 +261,7 @@ export default function AccountCreationEnhanced() {
       "Tactical Coordinator",
       "Encoder",
     ],
+    BROLLE: ["Merchandiser", "CVS Merchandiser", "Repacker"],
     "UNION GALVASTEEL CO": [
       "Project In-Charge",
       "Rigger",
@@ -590,7 +591,7 @@ export default function AccountCreationEnhanced() {
     // ---------------- Duplicate Checks ----------------
     try {
       const duplicateCheck = await axios.post(
-        "https://api-map.bmphrc.com/check-duplicate-ids",
+        "http://192.168.68.51:3001/check-duplicate-ids",
         {
           sss: formData.sss,
           philhealth: formData.philhealth,
@@ -652,7 +653,7 @@ export default function AccountCreationEnhanced() {
     // ---------------- Submit to Backend ----------------
     try {
       const response = await axios.post(
-        "https://api-map.bmphrc.com/create-merch-account",
+        "http://192.168.68.51:3001/create-merch-account",
         formattedData,
       );
 
@@ -736,7 +737,7 @@ export default function AccountCreationEnhanced() {
       const uniqueFileName = `${timestamp}_${file.name}`;
 
       const response = await axios.post(
-        "https://api-map.bmphrc.com/save-requirements-images",
+        "http://192.168.68.51:3001/save-requirements-images",
         {
           fileName: uniqueFileName,
           fileType: file.type,
@@ -786,6 +787,7 @@ export default function AccountCreationEnhanced() {
   const clientsByCompany = {
     "BMPOWER HUMAN RESOURCES CORPORATION": [
       "BMPOWER HUMAN RESOURCES CORPORATION",
+      "BROLLE",
       "ECOSSENTIAL FOODS CORP",
       "ECOSSENTIAL FOODS CORP-COORDINATORS",
       "ECOSSENTIAL FOODS CORP-HEAD OFFICE",
