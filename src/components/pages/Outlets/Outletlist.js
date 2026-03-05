@@ -2660,6 +2660,7 @@ export default function OutletList() {
   const [selectedOutlet, setSelectedOutlet] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [dateResignedError, setDateResignedError] = useState(false);
 
   // ── Sidebar listener ──────────────────────────────────────────────────────
   useEffect(() => {

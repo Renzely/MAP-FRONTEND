@@ -37,6 +37,7 @@ import Sidebar from "../../sidebar/Sidebar";
 export default function ClientProfileCreationEnhanced() {
   const adminFullName = localStorage.getItem("adminFullName");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [dateResignedError, setDateResignedError] = useState(false);
 
   const [formErrors, setFormErrors] = useState({});
   const [openModal, setOpenModal] = useState(false);

@@ -39,6 +39,7 @@ import "./AccountCreationEmployee.css";
 export default function AccountCreationEnhanced() {
   const adminFullName = localStorage.getItem("adminFullName");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [dateResignedError, setDateResignedError] = useState(false);
   const [formErrors, setFormErrors] = useState({});
   const [openModal, setOpenModal] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState([]);
@@ -77,6 +78,7 @@ export default function AccountCreationEnhanced() {
     "NCR 2 East",
     "NCR 3 Central",
     "NCR 4 North",
+    "MIN 2 Caraga",
   ];
 
   const OUTLETS_BY_ACCOUNT = {
@@ -198,6 +200,27 @@ export default function AccountCreationEnhanced() {
       "Caloocan Hub",
       "Northwest Caloocan Hub",
       "Tala Hub",
+    ],
+
+    "MIN 2 Caraga": [
+      "Surigao Downtown Hub",
+      "Surigao Del Norte Hub",
+      "Mainit Hub",
+      "Cantilan Hub ",
+      "Butuan Hub",
+      "Ampayon Hub",
+      "Ambago Hub",
+      "Buenavista Hub",
+      "Cabadbaran Hub",
+      "Bayugan Hub",
+      "San Francisco Hub",
+      "Buenavista Hub",
+      "Taganaan Mobile Hub",
+      "Placer Mobile Hub",
+      "Malimono Mobile Hub",
+      "Hinatuan Mobile Hub",
+      "Lingig Mobile Hub",
+      "Kitcharao Mobile Hub",
     ],
   };
 
@@ -1151,6 +1174,11 @@ export default function AccountCreationEnhanced() {
                               fullWidth: true,
                               error: !!formErrors.birthday,
                               helperText: formErrors.birthday,
+                              onKeyDown: (e) => e.preventDefault(), // on the wrapper
+                              inputProps: {
+                                onKeyDown: (e) => e.preventDefault(), // on the input
+                                readOnly: true, // prevents mobile keyboard popup too
+                              },
                             },
                           }}
                         />
@@ -1425,6 +1453,11 @@ export default function AccountCreationEnhanced() {
                               fullWidth: true,
                               error: !!formErrors.dateHired,
                               helperText: formErrors.dateHired,
+                              onKeyDown: (e) => e.preventDefault(),
+                              inputProps: {
+                                onKeyDown: (e) => e.preventDefault(),
+                                readOnly: true,
+                              },
                             },
                           }}
                         />
@@ -1446,6 +1479,11 @@ export default function AccountCreationEnhanced() {
                               fullWidth: true,
                               error: !!formErrors.dateResigned,
                               helperText: formErrors.dateResigned,
+                              onKeyDown: (e) => e.preventDefault(),
+                              inputProps: {
+                                onKeyDown: (e) => e.preventDefault(),
+                                readOnly: true,
+                              },
                             },
                           }}
                         />

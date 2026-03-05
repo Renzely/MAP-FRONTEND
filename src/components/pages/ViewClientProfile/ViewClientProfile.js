@@ -47,6 +47,7 @@ import SearchIcon from "@mui/icons-material/Search";
 
 export default function ViewClientProfileEnhanced() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [dateResignedError, setDateResignedError] = useState(false);
   const [accounts, setAccounts] = useState([]);
   const [selectedRemarks, setSelectedRemarks] = useState("");
   const [filteredAccounts, setFilteredAccounts] = useState([]);

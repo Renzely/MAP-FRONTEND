@@ -41,6 +41,7 @@ export default function Admin() {
   const [modalData, setModalData] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [dateResignedError, setDateResignedError] = useState(false);
 
   // Listen to sidebar state from localStorage
   useEffect(() => {
