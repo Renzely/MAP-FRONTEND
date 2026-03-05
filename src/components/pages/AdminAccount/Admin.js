@@ -171,7 +171,7 @@ export default function Admin() {
     }
   };
 
-  const outlets = ["BMPOWER OFFICE"];
+  const outlets = ["BMPOWER OFFICE", "BMPOWER CEBU OFFICE"];
 
   const handleRoleChange = (event) => {
     setSelectedRole(event.target.value);

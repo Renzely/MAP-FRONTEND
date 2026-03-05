@@ -36,6 +36,7 @@ const Path = () => {
       case "/view-ecossentialfoods":
       case "/view-ecossentialfoodsCOORS":
       case "/view-ecossentialfoodsHO":
+      case "/view-brolle":
       case "/view-engkanto":
       case "/view-magis":
       case "/view-mckenzie":

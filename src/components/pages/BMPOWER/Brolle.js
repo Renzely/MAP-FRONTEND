@@ -226,8 +226,7 @@ export default function BmpowerHO() {
           (acc) =>
             acc.company?.toUpperCase() ===
               "BMPOWER HUMAN RESOURCES CORPORATION" &&
-            acc.clientAssigned?.toUpperCase() ===
-              "ECOSSENTIAL FOODS CORP-COORDINATORS",
+            acc.clientAssigned?.toUpperCase() === "BROLLE",
         );
 
         setAccounts(bmpowerAccounts);
@@ -246,7 +245,7 @@ export default function BmpowerHO() {
         "https://api-map.bmphrc.com/export-merch-accounts",
         {
           remarks: selectedRemarks,
-          clientAssigned: "ECOSSENTIAL FOODS CORP-COORDINATORS",
+          clientAssigned: "BROLLE",
         },
       );
 
@@ -313,7 +312,7 @@ export default function BmpowerHO() {
 
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
-      link.download = `MASTERLIST_EFC-COORS_${
+      link.download = `MASTERLIST_BROLLE_${
         new Date().toISOString().split("T")[0]
       }.xlsx`;
       link.click();
@@ -588,7 +587,7 @@ export default function BmpowerHO() {
                     color: "rgba(255, 255, 255, 0.9)",
                   }}
                 >
-                  ECOSSENTIAL FOODS CORP-COORDINATORS
+                  BROLLE
                 </Typography>
               </Box>
             </Box>
@@ -1150,6 +1149,7 @@ export default function BmpowerHO() {
                                   <MenuItem value="ECOSSENTIAL FOODS CORP-HEAD OFFICE">
                                     ECOSSENTIAL FOODS CORP-HEAD OFFICE
                                   </MenuItem>
+                                  <MenuItem value="BROLLE">BROLLE</MenuItem>
                                   <MenuItem value="ENGKANTO">ENGKANTO</MenuItem>
                                   <MenuItem value="J-GYU INC">
                                     J-GYU INC

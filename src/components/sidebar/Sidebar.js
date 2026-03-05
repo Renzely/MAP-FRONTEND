@@ -111,6 +111,7 @@ export default function Sidebar() {
         </NavLink>
         {[
           "HR HEAD",
+          "HR OFFICER",
           "HR SPECIALIST",
           "HR COMPENSATION AND BENEFITS",
           "HR COORDINATOR SPECIALIST",
@@ -181,6 +182,7 @@ export default function Sidebar() {
         {[
           "MIS",
           "HR HEAD",
+          "HR OFFICER",
           "HR SPECIALIST",
           "HR COMPENSATION AND BENEFITS",
           "HR COORDINATOR SPECIALIST",
@@ -212,6 +214,7 @@ export default function Sidebar() {
         {[
           "MIS",
           "HR HEAD",
+          "HR OFFICER",
           "HR SPECIALIST",
           "HR COMPENSATION AND BENEFITS",
           "HR COORDINATOR SPECIALIST",
@@ -253,6 +256,7 @@ export default function Sidebar() {
 
                 {[
                   "HR HEAD",
+                  "HR OFFICER",
                   "HR SPECIALIST",
                   "HR COMPENSATION AND BENEFITS",
                   "HR COORDINATOR SPECIALIST",
@@ -434,6 +438,20 @@ export default function Sidebar() {
                             Ecossential Foods HO
                           </span>
                         )}
+                      </li>
+                    </NavLink>
+
+                    <NavLink
+                      to="/view-brolle"
+                      onClick={() => handleItemClick("/view-brolle")}
+                    >
+                      <li
+                        className={
+                          activeItem === "/view-brolle" ? "active" : ""
+                        }
+                      >
+                        <AssignmentInd className="sidebar-icon" />
+                        {isOpen && <span className="menu-text">Brolle</span>}
                       </li>
                     </NavLink>
 
