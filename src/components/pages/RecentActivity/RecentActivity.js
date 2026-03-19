@@ -27,6 +27,18 @@ export default function RecentActivity() {
   const [currentPage, setCurrentPage] = useState(1);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [dateResignedError, setDateResignedError] = useState(false);
+
+  const role = localStorage.getItem("roleAccount");
+
+  const allowedRoles = [
+    "HR HEAD",
+    "HR SPECIALIST",
+    "HR COMPENSATION AND BENEFITS",
+    "HR COORDINATOR SPECIALIST",
+    "MIS",
+  ];
+
+  const canEdit = allowedRoles.includes(role);
   const itemsPerPage = 6; // Show 6 cards per page
 
   // Listen to sidebar state from localStorage

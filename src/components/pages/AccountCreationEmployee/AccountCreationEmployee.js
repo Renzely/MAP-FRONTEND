@@ -40,6 +40,18 @@ export default function AccountCreationEnhanced() {
   const adminFullName = localStorage.getItem("adminFullName");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [dateResignedError, setDateResignedError] = useState(false);
+
+  const role = localStorage.getItem("roleAccount");
+
+  const allowedRoles = [
+    "HR HEAD",
+    "HR SPECIALIST",
+    "HR COMPENSATION AND BENEFITS",
+    "HR COORDINATOR SPECIALIST",
+    "MIS",
+  ];
+
+  const canEdit = allowedRoles.includes(role);
   const [formErrors, setFormErrors] = useState({});
   const [openModal, setOpenModal] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState([]);
@@ -221,6 +233,8 @@ export default function AccountCreationEnhanced() {
       "Hinatuan Mobile Hub",
       "Lingig Mobile Hub",
       "Kitcharao Mobile Hub",
+      "MB Crossing Hub",
+      "RC Hub",
     ],
   };
 
@@ -230,26 +244,41 @@ export default function AccountCreationEnhanced() {
       "Executive Director",
       "Operation Director",
       "Operation Head",
+      "Sr. Account Supervisor",
+      "Jr. Account Supervisor",
       "Account Supervisor",
-      "Operations Admin",
+      "Operation Officer",
+      "Operation Admin",
       "Data Analyst",
       "Utility",
       "Treasury Head",
+      "OIC Treasury",
       "Treasury Officer",
       "Treasury Assistant",
+      "OIC Payroll and Billing",
       "Billing Officer",
+      "Payroll Officer",
+      "Payroll and Billing Officer",
       "Billing Specialist",
+      "Billing Assistant",
       "Payroll Specialist",
-      "Assistant Payroll Specialist",
+      "HR Head",
       "HR Officer",
       "HR Coordinator",
-      "Recruitment Specialist",
-      "SPX Head",
+      "HR Admin",
+      "HR Liaison",
+      "HR Recruitment Specialist",
+      "HR Compensastion & Benefits Specialist",
+      "Logistic Head",
       "Agency Coordinator",
+      "Software Engineer",
+      "Tech Support",
     ],
 
-    "ECOSSENTIAL FOODS CORP": ["Merchandiser", "CVS Merchandiser", "Repacker"],
-    "ECOSSENTIAL FOODS CORP-COORDINATORS": [
+    "ECOSSENTIAL FOODS CORP": [
+      "Merchandiser",
+      "CVS Merchandiser",
+      "Repacker",
       "Tactical Coordinator",
       "Account Coordinator",
     ],
@@ -261,7 +290,7 @@ export default function AccountCreationEnhanced() {
       "Tactical Coordinator",
       "Encoder",
     ],
-    BROLLE: ["Merchandiser", "CVS Merchandiser", "Repacker"],
+    "BROLLEE EXCLUSIVE": ["Merchandiser"],
     "UNION GALVASTEEL CO": [
       "Project In-Charge",
       "Rigger",
@@ -279,6 +308,9 @@ export default function AccountCreationEnhanced() {
       "Van Route Salesman – Junior",
       "Van Route Salesman – Senior",
       "Beverage Developer",
+      "Delivery Helper",
+      "PMS Booking",
+      "HBR JR",
     ],
     MANDOM: ["Brand Ambassador"],
     ENGKANTO: ["Tactical Coordinator"],
@@ -288,8 +320,9 @@ export default function AccountCreationEnhanced() {
       "Shipping Coordinator",
       "Accountant",
       "Declarant",
+      "Processor",
     ],
-    "PLDT TELESCOOP": ["Utility"],
+    "PLDT TELESCOOP": ["Utility", "Office Staff"],
     "SPX EXPRESS": [
       "Backroom Personnel",
       "2-Wheel Delivery Rider",
@@ -300,13 +333,38 @@ export default function AccountCreationEnhanced() {
     "DEL MONTE": ["Push Girl", "Cook", "Helper", "Coordinator", "Team Leader"],
     // Marabou Clients
     "MARABOU EVERGREEN RESOURCES INC": [
-      "Software Engineer",
+      "Executive Director",
+      "Operation Director",
+      "Operation Head",
+      "Sr. Account Supervisor",
+      "Jr. Account Supervisor",
+      "Account Supervisor",
+      "Operation Officer",
+      "Operation Admin",
+      "Data Analyst",
+      "Utility",
+      "Treasury Head",
+      "OIC Treasury",
+      "Treasury Officer",
+      "Treasury Assistant",
+      "OIC Payroll and Billing",
+      "Billing Officer",
+      "Payroll Officer",
+      "Payroll and Billing Officer",
+      "Billing Specialist",
+      "Billing Assistant",
       "Payroll Specialist",
-      "Assistant Payroll Specialist",
-      "Hub Coordinator",
+      "HR Head",
       "HR Officer",
       "HR Coordinator",
-      "Recruitment Specialist",
+      "HR Admin",
+      "HR Liaison",
+      "HR Recruitment Specialist",
+      "HR Compensastion & Benefits Specialist",
+      "Logistic Head",
+      "Agency Coordinator",
+      "Software Engineer",
+      "Tech Support",
     ],
     "LONG TABLE GROUP INC.- MASAJIRO": [
       "Dining Staff / Cashier",
@@ -317,6 +375,7 @@ export default function AccountCreationEnhanced() {
       "Admin Officer",
       "Finance Officer",
       "FOH Team Leader",
+      "Utility / Helper",
     ],
     "J-GYU INC": ["Admin Officer / Purchasing Staff", "Production Staff"],
     "CARMENS BEST": ["Tactical Coordinator", "Account Coordinator"],
@@ -501,7 +560,7 @@ export default function AccountCreationEnhanced() {
           "company",
           "status",
           "remarks",
-          "employeeNo",
+          //"employeeNo",
           "firstName",
           "lastName",
           "modeOfDisbursement",
@@ -787,9 +846,8 @@ export default function AccountCreationEnhanced() {
   const clientsByCompany = {
     "BMPOWER HUMAN RESOURCES CORPORATION": [
       "BMPOWER HUMAN RESOURCES CORPORATION",
-      "BROLLE",
+      "BROLLEE EXCLUSIVE",
       "ECOSSENTIAL FOODS CORP",
-      "ECOSSENTIAL FOODS CORP-COORDINATORS",
       "ECOSSENTIAL FOODS CORP-HEAD OFFICE",
       "MCKENZIE DISTRIBUTION CO.",
       "MAGIS DISTRIBUTION INC.",
@@ -1023,7 +1081,7 @@ export default function AccountCreationEnhanced() {
 
                     <Grid item xs={12} md={2}>
                       <TextField
-                        label="Employee No. *"
+                        label="Employee No. (Optional)"
                         disabled={isApplicant}
                         fullWidth
                         size="small"
@@ -1091,7 +1149,7 @@ export default function AccountCreationEnhanced() {
 
                     <Grid item xs={12} md={3}>
                       <TextField
-                        label="Middle Name *"
+                        label="Middle Name"
                         fullWidth
                         size="small"
                         value={formData.middleName}

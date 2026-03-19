@@ -75,6 +75,18 @@ export default function Admin() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [dateResignedError, setDateResignedError] = useState(false);
 
+  const role = localStorage.getItem("roleAccount");
+
+  const allowedRoles = [
+    "HR HEAD",
+    "HR SPECIALIST",
+    "HR COMPENSATION AND BENEFITS",
+    "HR COORDINATOR SPECIALIST",
+    "MIS",
+  ];
+
+  const canEdit = allowedRoles.includes(role);
+
   const [updateStatus, setUpdateStatus] = useState("");
   const [userEmail, setUserEmail] = useState("");
 
@@ -1077,6 +1089,12 @@ export default function Admin() {
                     >
                       <MenuItem value="EXECUTIVE DIRECTOR">
                         EXECUTIVE DIRECTOR
+                      </MenuItem>
+                      <MenuItem value="OPERATION DIRECTOR">
+                        OPERATION DIRECTOR
+                      </MenuItem>
+                      <MenuItem value="ACCOUNT SUPERVISOR">
+                        ACCOUNT SUPERVISOR
                       </MenuItem>
                       <MenuItem value="HR HEAD">HR HEAD</MenuItem>
                       <MenuItem value="HR OFFICER">HR OFFICER</MenuItem>

@@ -48,6 +48,18 @@ import SearchIcon from "@mui/icons-material/Search";
 export default function ViewClientProfileEnhanced() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [dateResignedError, setDateResignedError] = useState(false);
+
+  const role = localStorage.getItem("roleAccount");
+
+  const allowedRoles = [
+    "HR HEAD",
+    "HR SPECIALIST",
+    "HR COMPENSATION AND BENEFITS",
+    "HR COORDINATOR SPECIALIST",
+    "MIS",
+  ];
+
+  const canEdit = allowedRoles.includes(role);
   const [accounts, setAccounts] = useState([]);
   const [selectedRemarks, setSelectedRemarks] = useState("");
   const [filteredAccounts, setFilteredAccounts] = useState([]);

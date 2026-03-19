@@ -187,7 +187,8 @@ export default function Sidebar() {
           "HR COMPENSATION AND BENEFITS",
           "HR COORDINATOR SPECIALIST",
           "EXECUTIVE DIRECTOR",
-          "OPERATION",
+          "ACCOUNT SUPERVISOR DIRECTOR",
+          "ACCOUNT SUPERVISOR",
         ].includes(roleAccount) && (
           <Tooltip
             title={!isOpen ? "Client Profiles" : ""}
@@ -219,7 +220,8 @@ export default function Sidebar() {
           "HR COMPENSATION AND BENEFITS",
           "HR COORDINATOR SPECIALIST",
           "EXECUTIVE DIRECTOR",
-          "OPERATION",
+          "ACCOUNT SUPERVISOR DIRECTOR",
+          "ACCOUNT SUPERVISOR",
         ].includes(roleAccount) && (
           <Collapse
             in={openClientProfiles && isOpen}
@@ -228,9 +230,12 @@ export default function Sidebar() {
           >
             <div className="sidebar-submenu-scroll">
               <ul className="sidebar-submenu">
-                {["MIS", "EXECUTIVE DIRECTOR", "OPERATION"].includes(
-                  roleAccount,
-                ) && (
+                {[
+                  "MIS",
+                  "EXECUTIVE DIRECTOR",
+                  "ACCOUNT SUPERVISOR DIRECTOR",
+                  "ACCOUNT SUPERVISOR",
+                ].includes(roleAccount) && (
                   <NavLink
                     to="/view-AccountCreationProfileclient"
                     onClick={() =>
@@ -262,7 +267,8 @@ export default function Sidebar() {
                   "HR COORDINATOR SPECIALIST",
                   "MIS",
                   "EXECUTIVE DIRECTOR",
-                  "OPERATION",
+                  "ACCOUNT SUPERVISOR DIRECTOR",
+                  "ACCOUNT SUPERVISOR",
                 ].includes(roleAccount) && (
                   <NavLink
                     to="/view-clientProfile"
@@ -284,16 +290,19 @@ export default function Sidebar() {
             </div>
           </Collapse>
         )}
-
-        <NavLink
-          to="/view-Outletlist"
-          onClick={() => handleItemClick("/view-Outletlist")}
-        >
-          <li className={activeItem === "/view-Outletlist" ? "active" : ""}>
-            <StoreIcon className="sidebar-icon" />
-            {isOpen && <span className="menu-text">Outlet List</span>}
-          </li>
-        </NavLink>
+        {["MIS", "HR HEAD", "HR SPECIALIST", "ACCOUNT SUPERVISOR"].includes(
+          roleAccount,
+        ) && (
+          <NavLink
+            to="/view-Outletlist"
+            onClick={() => handleItemClick("/view-Outletlist")}
+          >
+            <li className={activeItem === "/view-Outletlist" ? "active" : ""}>
+              <StoreIcon className="sidebar-icon" />
+              {isOpen && <span className="menu-text">Outlet List</span>}
+            </li>
+          </NavLink>
+        )}
 
         {/* ACCOUNT MANAGEMENT MENU */}
         <Tooltip
@@ -397,7 +406,7 @@ export default function Sidebar() {
                       </li>
                     </NavLink>
 
-                    <NavLink
+                    {/* <NavLink
                       to="/view-ecossentialfoodsCOORS"
                       onClick={() =>
                         handleItemClick("/view-ecossentialfoodsCOORS")
@@ -417,7 +426,7 @@ export default function Sidebar() {
                           </span>
                         )}
                       </li>
-                    </NavLink>
+                    </NavLink> */}
 
                     <NavLink
                       to="/view-ecossentialfoodsHO"
@@ -442,16 +451,18 @@ export default function Sidebar() {
                     </NavLink>
 
                     <NavLink
-                      to="/view-brolle"
-                      onClick={() => handleItemClick("/view-brolle")}
+                      to="/view-brolleeexlusive"
+                      onClick={() => handleItemClick("/view-brolleeexlusive")}
                     >
                       <li
                         className={
-                          activeItem === "/view-brolle" ? "active" : ""
+                          activeItem === "/view-brolleeexlusive" ? "active" : ""
                         }
                       >
                         <AssignmentInd className="sidebar-icon" />
-                        {isOpen && <span className="menu-text">Brolle</span>}
+                        {isOpen && (
+                          <span className="menu-text">Brollee Exclusive</span>
+                        )}
                       </li>
                     </NavLink>
 

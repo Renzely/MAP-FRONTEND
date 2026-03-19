@@ -28,6 +28,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import { OUTLET_DATA } from "../../pages/Outlets/Outletlist";
 import axios from "axios";
 import dayjs from "dayjs";
 
@@ -42,6 +43,126 @@ export default function Admin() {
   const [employees, setEmployees] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [dateResignedError, setDateResignedError] = useState(false);
+  const [outletSummary, setOutletSummary] = useState({
+    withMerchandiser: 0,
+    withoutMerchandiser: 0,
+  });
+  const role = localStorage.getItem("roleAccount");
+
+  const POSITIONS_BY_CLIENT = {
+    // BMPower Clients
+    "BMPOWER HUMAN RESOURCES CORPORATION": [
+      "Executive Director",
+      "Operation Director",
+      "Operation Head",
+      "Account Supervisor",
+      "Operations Admin",
+      "Data Analyst",
+      "Utility",
+      "Treasury Head",
+      "Treasury Officer",
+      "Treasury Assistant",
+      "Billing Officer",
+      "Billing Specialist",
+      "Payroll Specialist",
+      "Assistant Payroll Specialist",
+      "HR Officer",
+      "HR Coordinator",
+      "Recruitment Specialist",
+      "SPX Head",
+      "Agency Coordinator",
+    ],
+
+    "ECOSSENTIAL FOODS CORP": [
+      "Merchandiser",
+      "CVS Merchandiser",
+      "Repacker",
+      "Tactical Coordinator",
+      "Account Coordinator",
+    ],
+
+    "ECOSSENTIAL FOODS CORP-HEAD OFFICE": ["MHE Operator", "Fleet Operator"],
+    "MCKENZIE DISTRIBUTION CO.": [
+      "Merchandiser",
+      "Account Coordinator",
+      "Brand Ambassador",
+      "Tactical Coordinator",
+      "Encoder",
+    ],
+    BROLLE: ["Merchandiser", "CVS Merchandiser", "Repacker"],
+    "UNION GALVASTEEL CO": [
+      "Project In-Charge",
+      "Rigger",
+      "Telehandler Operator",
+      "Crane Operator",
+      "Welder",
+      "Sales Assistant",
+      "Machine Operator",
+      "Utility",
+      "Data Encoder",
+    ],
+    "MAGIS DISTRIBUTION INC.": [
+      "Saturator Salesman",
+      "Driver",
+      "Van Route Salesman – Junior",
+      "Van Route Salesman – Senior",
+      "Beverage Developer",
+    ],
+    MANDOM: ["Brand Ambassador"],
+    ENGKANTO: ["Tactical Coordinator"],
+    "ASIAN STREAK BROKERAGE CO": [
+      "Messenger",
+      "Driver",
+      "Shipping Coordinator",
+      "Accountant",
+      "Declarant",
+    ],
+    "PLDT TELESCOOP": ["Utility"],
+    "SPX EXPRESS": [
+      "Backroom Personnel",
+      "2-Wheel Delivery Rider",
+      "3-Wheel Delivery Rider",
+      "4-Wheel Delivery Rider",
+      "Walker",
+    ],
+    "DEL MONTE": ["Push Girl", "Cook", "Helper", "Coordinator", "Team Leader"],
+    // Marabou Clients
+    "MARABOU EVERGREEN RESOURCES INC": [
+      "Software Engineer",
+      "Payroll Specialist",
+      "Assistant Payroll Specialist",
+      "Hub Coordinator",
+      "HR Officer",
+      "HR Coordinator",
+      "Recruitment Specialist",
+    ],
+    "LONG TABLE GROUP INC.- MASAJIRO": [
+      "Dining Staff / Cashier",
+      "Kitchen Staff",
+      "Baker",
+      "Kitchen Supervisor / Cashier",
+      "Utility / Messenger",
+      "Admin Officer",
+      "Finance Officer",
+      "FOH Team Leader",
+    ],
+    "J-GYU INC": ["Admin Officer / Purchasing Staff", "Production Staff"],
+    "CARMENS BEST": ["Tactical Coordinator", "Account Coordinator"],
+    "METRO PACIFIC FRESH FARM": ["General Farmer"],
+    "METRO PACIFIC DAIRY FARM": ["Feeder"],
+    "UNIVERSAL HARVESTER DAIRY FARM INC": ["Tactical Coordinator"],
+    "COSMETIQUE ASIA": ["Brand Ambassador", "Account Coordinator"],
+  };
+
+  const allowedRoles = [
+    "HR HEAD",
+    "HR SPECIALIST",
+    "HR COMPENSATION AND BENEFITS",
+    "HR COORDINATOR SPECIALIST",
+    "MIS",
+  ];
+
+  const canEdit = allowedRoles.includes(role);
 
   // Listen to sidebar state from localStorage
   useEffect(() => {
@@ -140,8 +261,8 @@ export default function Admin() {
       "BMPOWER HUMAN RESOURCES CORPORATION",
       "PLDT TELESCOOP",
       "ECOSSENTIAL FOODS CORP",
-      "ECOSSENTIAL FOODS CORP-COORDINATORS",
-      "BROLLE",
+
+      "BROLLEE EXCLUSIVE",
       "MCKENZIE DISTRIBUTION CO.",
       "ECOSSENTIAL FOODS CORP-HEAD OFFICE",
       "MAGIS DISTRIBUTION INC.",
@@ -306,6 +427,22 @@ export default function Admin() {
           endContract: normalizedData.filter(
             (a) => a.remarks === "end of contract",
           ).length,
+        });
+
+        const efcMerchandisers = normalizedData.filter(
+          (emp) =>
+            emp.clientAssigned?.toUpperCase() === "ECOSSENTIAL FOODS CORP" &&
+            emp.remarks === "employed",
+        );
+
+        const assignedOutlets = new Set();
+        efcMerchandisers.forEach((emp) => {
+          emp.outletsAssigned?.forEach((outlet) => assignedOutlets.add(outlet));
+        });
+
+        setOutletSummary({
+          withMerchandiser: assignedOutlets.size,
+          withoutMerchandiser: OUTLET_DATA.length - assignedOutlets.size, // ← always dynamic
         });
 
         // MONTHLY GRAPH
@@ -549,7 +686,7 @@ export default function Admin() {
                   gridTemplateColumns: {
                     xs: "1fr",
                     sm: "repeat(2, 1fr)",
-                    md: "repeat(5, 1fr)",
+                    md: "repeat(7, 1fr)", // ← changed from 5 to 7
                   },
                   gap: 2,
                   mb: 3,
@@ -584,6 +721,20 @@ export default function Admin() {
                   value={summary.endContract}
                   onClick={() => handleOpenModal("End of Contract")}
                   color="#9c27b0"
+                />
+
+                {/* ── NEW: Outlet Summary Cards ── */}
+                <SummaryCard
+                  title="OUTLETS WITH MERCHANDISER"
+                  value={outletSummary.withMerchandiser}
+                  onClick={() => {}} // no modal for now
+                  color="#00897b"
+                />
+                <SummaryCard
+                  title="OUTLETS WITHOUT MERCHANDISER"
+                  value={outletSummary.withoutMerchandiser}
+                  onClick={() => {}} // no modal for now
+                  color="#e53935"
                 />
               </Box>
 

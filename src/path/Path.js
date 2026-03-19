@@ -34,9 +34,9 @@ const Path = () => {
       case "/view-asianstreak":
       case "/view-cvs":
       case "/view-ecossentialfoods":
-      case "/view-ecossentialfoodsCOORS":
+      // case "/view-ecossentialfoodsCOORS":
       case "/view-ecossentialfoodsHO":
-      case "/view-brolle":
+      case "/view-brolleeexlusive":
       case "/view-engkanto":
       case "/view-magis":
       case "/view-mckenzie":

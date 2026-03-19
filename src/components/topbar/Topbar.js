@@ -17,6 +17,18 @@ import "./topbar.css";
 export default function Topbar() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [dateResignedError, setDateResignedError] = useState(false);
+
+  const role = localStorage.getItem("roleAccount");
+
+  const allowedRoles = [
+    "HR HEAD",
+    "HR SPECIALIST",
+    "HR COMPENSATION AND BENEFITS",
+    "HR COORDINATOR SPECIALIST",
+    "MIS",
+  ];
+
+  const canEdit = allowedRoles.includes(role);
   const [anchorEl, setAnchorEl] = useState(null);
 
   const fullName = localStorage.getItem("adminFullName");
