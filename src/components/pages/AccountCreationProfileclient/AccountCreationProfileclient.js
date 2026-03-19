@@ -39,6 +39,18 @@ export default function ClientProfileCreationEnhanced() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [dateResignedError, setDateResignedError] = useState(false);
 
+  const role = localStorage.getItem("roleAccount");
+
+  const allowedRoles = [
+    "HR HEAD",
+    "HR SPECIALIST",
+    "HR COMPENSATION AND BENEFITS",
+    "HR COORDINATOR SPECIALIST",
+    "MIS",
+  ];
+
+  const canEdit = allowedRoles.includes(role);
+
   const [formErrors, setFormErrors] = useState({});
   const [openModal, setOpenModal] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState([]);
@@ -279,7 +291,6 @@ export default function ClientProfileCreationEnhanced() {
     "BMPOWER HUMAN RESOURCES CORPORATION": [
       "BMPOWER HUMAN RESOURCES CORPORATION",
       "ECOSSENTIAL FOODS CORP",
-      "ECOSSENTIAL FOODS CORP-COORDINATORS",
       "MCKENZIE DISTRIBUTION CO.",
       "ECOSSENTIAL FOODS CORP-HEAD OFFICE",
       "MAGIS DISTRIBUTION INC.",

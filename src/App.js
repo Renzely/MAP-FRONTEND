@@ -20,8 +20,8 @@ import BmpowerHO from "./components/pages/BMPOWER/BmpowerHO";
 import AsianStreak from "./components/pages/BMPOWER/AsianStreak";
 import EcossentialFoods from "./components/pages/BMPOWER/EcossentialFoods";
 import EcossentialFoodsHO from "./components/pages/BMPOWER/EcossentialFoodsHO";
-import EcossentialfoodsCOORS from "./components/pages/BMPOWER/EcossentialFoodsCOORS";
-import Brolle from "./components/pages/BMPOWER/Brolle";
+// import EcossentialfoodsCOORS from "./components/pages/BMPOWER/EcossentialFoodsCOORS";
+import BrolleeExclusive from "./components/pages/BMPOWER/BrolleeExclusive";
 import Engkanto from "./components/pages/BMPOWER/Engkanto";
 import Magis from "./components/pages/BMPOWER/Magis";
 import Mckenzie from "./components/pages/BMPOWER/Mckenzie";
@@ -77,11 +77,11 @@ function App() {
             path="/view-ecossentialfoodsHO"
             element={<EcossentialFoodsHO />}
           />
-          <Route
+          {/* <Route
             path="/view-ecossentialfoodsCOORS"
             element={<EcossentialfoodsCOORS />}
-          />
-          <Route path="/view-brolle" element={<Brolle />} />
+          /> */}
+          <Route path="/view-brolleeexlusive" element={<BrolleeExclusive />} />
           <Route path="/view-engkanto" element={<Engkanto />} />
           <Route path="/view-magis" element={<Magis />} />
           <Route path="/view-mckenzie" element={<Mckenzie />} />

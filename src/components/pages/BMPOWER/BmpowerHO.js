@@ -23,6 +23,7 @@ import {
   Avatar,
   Fade,
   Backdrop,
+  FormHelperText,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CloseIcon from "@mui/icons-material/Close";
@@ -35,6 +36,7 @@ import PersonIcon from "@mui/icons-material/Person";
 import BusinessIcon from "@mui/icons-material/Business";
 import BadgeIcon from "@mui/icons-material/Badge";
 import ImageIcon from "@mui/icons-material/Image";
+import ChecklistIcon from "@mui/icons-material/Checklist";
 
 import Topbar from "../../topbar/Topbar";
 import Sidebar from "../../sidebar/Sidebar";
@@ -55,6 +57,123 @@ export default function BmpowerHO() {
   const [newUploads, setNewUploads] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [dateResignedError, setDateResignedError] = useState(false);
+
+  const role = localStorage.getItem("roleAccount");
+
+  const POSITIONS_BY_CLIENT = {
+    // BMPower Clients
+    "BMPOWER HUMAN RESOURCES CORPORATION": [
+      "Executive Director",
+      "Operation Director",
+      "Operation Head",
+      "Account Supervisor",
+      "Operations Admin",
+      "Data Analyst",
+      "Utility",
+      "Treasury Head",
+      "Treasury Officer",
+      "Treasury Assistant",
+      "Billing Officer",
+      "Billing Specialist",
+      "Payroll Specialist",
+      "Assistant Payroll Specialist",
+      "HR Officer",
+      "HR Coordinator",
+      "Recruitment Specialist",
+      "SPX Head",
+      "Agency Coordinator",
+    ],
+
+    "ECOSSENTIAL FOODS CORP": [
+      "Merchandiser",
+      "CVS Merchandiser",
+      "Repacker",
+      "Tactical Coordinator",
+      "Account Coordinator",
+    ],
+
+    "ECOSSENTIAL FOODS CORP-HEAD OFFICE": ["MHE Operator", "Fleet Operator"],
+    "MCKENZIE DISTRIBUTION CO.": [
+      "Merchandiser",
+      "Account Coordinator",
+      "Brand Ambassador",
+      "Tactical Coordinator",
+      "Encoder",
+    ],
+    BROLLE: ["Merchandiser", "CVS Merchandiser", "Repacker"],
+    "UNION GALVASTEEL CO": [
+      "Project In-Charge",
+      "Rigger",
+      "Telehandler Operator",
+      "Crane Operator",
+      "Welder",
+      "Sales Assistant",
+      "Machine Operator",
+      "Utility",
+      "Data Encoder",
+    ],
+    "MAGIS DISTRIBUTION INC.": [
+      "Saturator Salesman",
+      "Driver",
+      "Van Route Salesman – Junior",
+      "Van Route Salesman – Senior",
+      "Beverage Developer",
+    ],
+    MANDOM: ["Brand Ambassador"],
+    ENGKANTO: ["Tactical Coordinator"],
+    "ASIAN STREAK BROKERAGE CO": [
+      "Messenger",
+      "Driver",
+      "Shipping Coordinator",
+      "Accountant",
+      "Declarant",
+    ],
+    "PLDT TELESCOOP": ["Utility"],
+    "SPX EXPRESS": [
+      "Backroom Personnel",
+      "2-Wheel Delivery Rider",
+      "3-Wheel Delivery Rider",
+      "4-Wheel Delivery Rider",
+      "Walker",
+    ],
+    "DEL MONTE": ["Push Girl", "Cook", "Helper", "Coordinator", "Team Leader"],
+    // Marabou Clients
+    "MARABOU EVERGREEN RESOURCES INC": [
+      "Software Engineer",
+      "Payroll Specialist",
+      "Assistant Payroll Specialist",
+      "Hub Coordinator",
+      "HR Officer",
+      "HR Coordinator",
+      "Recruitment Specialist",
+    ],
+    "LONG TABLE GROUP INC.- MASAJIRO": [
+      "Dining Staff / Cashier",
+      "Kitchen Staff",
+      "Baker",
+      "Kitchen Supervisor / Cashier",
+      "Utility / Messenger",
+      "Admin Officer",
+      "Finance Officer",
+      "FOH Team Leader",
+    ],
+    "J-GYU INC": ["Admin Officer / Purchasing Staff", "Production Staff"],
+    "CARMENS BEST": ["Tactical Coordinator", "Account Coordinator"],
+    "METRO PACIFIC FRESH FARM": ["General Farmer"],
+    "METRO PACIFIC DAIRY FARM": ["Feeder"],
+    "UNIVERSAL HARVESTER DAIRY FARM INC": ["Tactical Coordinator"],
+    "COSMETIQUE ASIA": ["Brand Ambassador", "Account Coordinator"],
+  };
+
+  const allowedRoles = [
+    "HR HEAD",
+    "HR SPECIALIST",
+    "HR COMPENSATION AND BENEFITS",
+    "HR COORDINATOR SPECIALIST",
+    // "MIS",
+  ];
+
+  const canEdit = allowedRoles.includes(role);
 
   // Listen to sidebar state from localStorage
   useEffect(() => {
@@ -426,31 +545,17 @@ export default function BmpowerHO() {
       headerAlign: "center",
       align: "center",
       renderCell: (params) => {
-        const role = localStorage.getItem("roleAccount");
-        const allowedRoles = [
-          "HR HEAD",
-          "HR SPECIALIST",
-          "HR COMPENSATION AND BENEFITS",
-          "HR COORDINATOR SPECIALIST",
-          "MIS",
-        ];
-        const canEdit = allowedRoles.includes(role);
-
         return (
-          <Tooltip title={canEdit ? "Edit Employee" : "No Permission"}>
+          <Tooltip title="Edit Employee">
             <span>
               <IconButton
                 color="primary"
                 size="small"
                 onClick={() => handleEdit(params.row)}
-                disabled={!canEdit}
                 sx={{
                   "&:hover": {
-                    backgroundColor: canEdit
-                      ? "rgba(46, 99, 133, 0.1)"
-                      : "transparent",
+                    backgroundColor: "rgba(46, 99, 133, 0.1)",
                   },
-                  "&.Mui-disabled": { color: "#b0bec5" },
                 }}
               >
                 <EditIcon />
@@ -1073,52 +1178,46 @@ export default function BmpowerHO() {
                           <Grid item xs={12} sm={6}>
                             {isEditing ? (
                               <FormControl fullWidth>
-                                <InputLabel>Remarks</InputLabel>
+                                <InputLabel>Position</InputLabel>
                                 <Select
-                                  value={selectedEmployee.remarks || ""}
-                                  label="Remarks"
+                                  value={selectedEmployee.position || ""}
+                                  label="Position"
                                   onChange={(e) =>
                                     setSelectedEmployee({
                                       ...selectedEmployee,
-                                      remarks: e.target.value,
+                                      position: e.target.value,
                                     })
                                   }
+                                  disabled={!selectedEmployee.clientAssigned}
+                                  displayEmpty
                                 >
-                                  <MenuItem value="Applicant">
-                                    Applicant
+                                  <MenuItem value="" disabled>
+                                    <em>Select a position</em>
                                   </MenuItem>
-                                  <MenuItem value="Employed">Employed</MenuItem>
-                                  <MenuItem value="Resign">Resign</MenuItem>
-                                  <MenuItem value="Terminate">
-                                    Terminate
-                                  </MenuItem>
-                                  <MenuItem value="End of Contract">
-                                    End of Contract
-                                  </MenuItem>
+                                  {(
+                                    POSITIONS_BY_CLIENT[
+                                      selectedEmployee.clientAssigned
+                                    ] || []
+                                  ).map((pos) => (
+                                    <MenuItem key={pos} value={pos}>
+                                      {pos}
+                                    </MenuItem>
+                                  ))}
                                 </Select>
+                                {!selectedEmployee.clientAssigned && (
+                                  <FormHelperText>
+                                    Select a Client Assigned first
+                                  </FormHelperText>
+                                )}
                               </FormControl>
                             ) : (
                               <TextField
-                                label="Remarks"
+                                label="Position"
                                 fullWidth
-                                value={selectedEmployee.remarks || ""}
+                                value={selectedEmployee.position || ""}
                                 InputProps={{ readOnly: true }}
                               />
                             )}
-                          </Grid>
-                          <Grid item xs={12} sm={6}>
-                            <TextField
-                              label="Position"
-                              fullWidth
-                              value={selectedEmployee.position || ""}
-                              onChange={(e) =>
-                                setSelectedEmployee({
-                                  ...selectedEmployee,
-                                  position: e.target.value,
-                                })
-                              }
-                              InputProps={{ readOnly: !isEditing }}
-                            />
                           </Grid>
                           <Grid item xs={12} sm={6}>
                             {isEditing ? (
@@ -1131,6 +1230,7 @@ export default function BmpowerHO() {
                                     setSelectedEmployee({
                                       ...selectedEmployee,
                                       clientAssigned: e.target.value,
+                                      position: "",
                                     })
                                   }
                                 >
@@ -1140,7 +1240,9 @@ export default function BmpowerHO() {
                                   <MenuItem value="BMPOWER HUMAN RESOURCES CORPORATION">
                                     BMPOWER HUMAN RESOURCES CORPORATION
                                   </MenuItem>
-                                  <MenuItem value="BROLLE">BROLLE</MenuItem>
+                                  <MenuItem value="BROLLEE EXCLUSIVE">
+                                    BROLLEE EXCLUSIVE
+                                  </MenuItem>
                                   <MenuItem value="CARMENS BEST">
                                     CARMENS BEST
                                   </MenuItem>
@@ -1289,9 +1391,240 @@ export default function BmpowerHO() {
                               InputProps={{ readOnly: !isEditing }}
                             />
                           </Grid>
+                          <Grid item xs={12} sm={6}>
+                            {isEditing ? (
+                              <FormControl fullWidth>
+                                <InputLabel>Reason for Leaving</InputLabel>
+                                <Select
+                                  value={
+                                    selectedEmployee.reasonForLeaving || ""
+                                  }
+                                  label="Reason for Leaving"
+                                  onChange={(e) =>
+                                    setSelectedEmployee({
+                                      ...selectedEmployee,
+                                      reasonForLeaving: e.target.value,
+                                    })
+                                  }
+                                >
+                                  <MenuItem value="End of Contract">
+                                    End of Contract
+                                  </MenuItem>
+                                  <MenuItem value="AWOL">AWOL</MenuItem>
+                                  <MenuItem value="Terminated">
+                                    Terminated
+                                  </MenuItem>
+                                  <MenuItem value="Retrenchment">
+                                    Retrenchment
+                                  </MenuItem>
+                                </Select>
+                              </FormControl>
+                            ) : (
+                              <TextField
+                                label="Reason for Leaving"
+                                fullWidth
+                                value={selectedEmployee.reasonForLeaving || ""}
+                                InputProps={{ readOnly: true }}
+                              />
+                            )}
+                          </Grid>
                         </Grid>
                       </CardContent>
                     </Card>
+                    {["Resign", "Terminate", "End of Contract"].includes(
+                      selectedEmployee?.remarks,
+                    ) &&
+                      selectedEmployee?.dateResigned &&
+                      selectedEmployee?.reasonForLeaving && (
+                        <Card
+                          elevation={0}
+                          sx={{
+                            mb: 3,
+                            border: "1px solid #e0e0e0",
+                            borderRadius: "12px",
+                          }}
+                        >
+                          <CardContent sx={{ p: 3 }}>
+                            <Typography
+                              variant="h6"
+                              sx={{
+                                mb: 3,
+                                fontWeight: 600,
+                                color: "#2e6385ff",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 1,
+                              }}
+                            >
+                              <ChecklistIcon /> Clearance
+                            </Typography>
+                            <Grid container spacing={2.5}>
+                              {/* Date Clearance Started */}
+                              <Grid item xs={12} sm={6}>
+                                <TextField
+                                  label="Date Clearance Started"
+                                  fullWidth
+                                  type="date"
+                                  value={
+                                    selectedEmployee.dateClearance
+                                      ? dayjs(
+                                          selectedEmployee.dateClearance,
+                                        ).format("YYYY-MM-DD")
+                                      : ""
+                                  }
+                                  onChange={(e) =>
+                                    setSelectedEmployee({
+                                      ...selectedEmployee,
+                                      dateClearance: e.target.value,
+                                    })
+                                  }
+                                  InputProps={{ readOnly: !isEditing }}
+                                  inputProps={{
+                                    onKeyDown: (e) => e.preventDefault(),
+                                  }}
+                                  InputLabelProps={{ shrink: true }}
+                                />
+                              </Grid>
+
+                              {/* Clearance Status Dropdown */}
+                              <Grid item xs={12} sm={6}>
+                                {isEditing ? (
+                                  <FormControl fullWidth>
+                                    <InputLabel>Clearance Status</InputLabel>
+                                    <Select
+                                      value={
+                                        selectedEmployee.clearanceStatus ||
+                                        "Processing"
+                                      }
+                                      label="Clearance Status"
+                                      onChange={(e) =>
+                                        setSelectedEmployee({
+                                          ...selectedEmployee,
+                                          clearanceStatus: e.target.value,
+                                        })
+                                      }
+                                    >
+                                      <MenuItem value="Processing">
+                                        Processing
+                                      </MenuItem>
+                                      <MenuItem value="Cleared">
+                                        Cleared
+                                      </MenuItem>
+                                    </Select>
+                                  </FormControl>
+                                ) : (
+                                  <TextField
+                                    label="Clearance Status"
+                                    fullWidth
+                                    value={
+                                      selectedEmployee.clearanceStatus ||
+                                      "Processing"
+                                    }
+                                    InputProps={{ readOnly: true }}
+                                  />
+                                )}
+                              </Grid>
+
+                              {/* Date Cleared */}
+                              <Grid item xs={12} sm={6}>
+                                <TextField
+                                  label="Date Cleared"
+                                  fullWidth
+                                  type="date"
+                                  value={
+                                    selectedEmployee.dateCleared
+                                      ? dayjs(
+                                          selectedEmployee.dateCleared,
+                                        ).format("YYYY-MM-DD")
+                                      : ""
+                                  }
+                                  onChange={(e) => {
+                                    const dateCleared = e.target.value;
+                                    // Auto-calculate Date Last Pay (+2 months)
+                                    const dateLastPay = dateCleared
+                                      ? dayjs(dateCleared)
+                                          .add(2, "month")
+                                          .format("YYYY-MM-DD")
+                                      : "";
+                                    setSelectedEmployee({
+                                      ...selectedEmployee,
+                                      dateCleared,
+                                      dateLastPay,
+                                      // Auto-set verdict to Pending when date cleared is filled
+                                      verdictCalled: dateCleared
+                                        ? selectedEmployee.verdictCalled ||
+                                          "Pending"
+                                        : selectedEmployee.verdictCalled,
+                                    });
+                                  }}
+                                  InputProps={{ readOnly: !isEditing }}
+                                  inputProps={{
+                                    onKeyDown: (e) => e.preventDefault(),
+                                  }}
+                                  InputLabelProps={{ shrink: true }}
+                                />
+                              </Grid>
+
+                              {/* Date Last Pay — auto-calculated, always readonly */}
+                              <Grid item xs={12} sm={6}>
+                                <TextField
+                                  label="Date Last Pay"
+                                  fullWidth
+                                  type="date"
+                                  value={
+                                    selectedEmployee.dateLastPay
+                                      ? dayjs(
+                                          selectedEmployee.dateLastPay,
+                                        ).format("YYYY-MM-DD")
+                                      : ""
+                                  }
+                                  InputProps={{ readOnly: true }}
+                                  InputLabelProps={{ shrink: true }}
+                                  helperText="Automatically set to 2 months after Date Cleared"
+                                />
+                              </Grid>
+
+                              {/* Verdict Called */}
+                              <Grid item xs={12} sm={6}>
+                                {isEditing ? (
+                                  <FormControl fullWidth>
+                                    <InputLabel>Verdict</InputLabel>
+                                    <Select
+                                      value={
+                                        selectedEmployee.verdictCalled ||
+                                        "Pending"
+                                      }
+                                      label="Verdict"
+                                      onChange={(e) =>
+                                        setSelectedEmployee({
+                                          ...selectedEmployee,
+                                          verdictCalled: e.target.value,
+                                        })
+                                      }
+                                    >
+                                      <MenuItem value="Pending">
+                                        Pending
+                                      </MenuItem>
+                                      <MenuItem value="Release">
+                                        Release
+                                      </MenuItem>
+                                    </Select>
+                                  </FormControl>
+                                ) : (
+                                  <TextField
+                                    label="Verdict"
+                                    fullWidth
+                                    value={
+                                      selectedEmployee.verdictCalled || "—"
+                                    }
+                                    InputProps={{ readOnly: true }}
+                                  />
+                                )}
+                              </Grid>
+                            </Grid>
+                          </CardContent>
+                        </Card>
+                      )}
 
                     {/* Government IDs Section */}
                     <Card
@@ -1778,27 +2111,43 @@ export default function BmpowerHO() {
                       }}
                     >
                       {!isEditing ? (
-                        <Button
-                          variant="contained"
-                          startIcon={<EditIcon />}
-                          onClick={() => setIsEditing(true)}
-                          sx={{
-                            backgroundColor: "#2e6385ff",
-                            px: 4,
-                            py: 1.5,
-                            fontSize: "16px",
-                            fontWeight: 600,
-                            borderRadius: "8px",
-                            textTransform: "none",
-                            boxShadow: "0 4px 12px rgba(46, 99, 133, 0.3)",
-                            "&:hover": {
-                              backgroundColor: "#0c2e3fff",
-                              boxShadow: "0 6px 16px rgba(46, 99, 133, 0.4)",
-                            },
-                          }}
+                        <Tooltip
+                          title={canEdit ? "Edit Details" : "No Permission"}
+                          placement="bottom"
                         >
-                          Edit Details
-                        </Button>
+                          <span>
+                            <Button
+                              variant="contained"
+                              startIcon={<EditIcon />}
+                              onClick={() => setIsEditing(true)}
+                              disabled={!canEdit}
+                              sx={{
+                                backgroundColor: "#2e6385ff",
+                                px: 4,
+                                py: 1.5,
+                                fontSize: "16px",
+                                fontWeight: 600,
+                                borderRadius: "8px",
+                                textTransform: "none",
+                                boxShadow: "0 4px 12px rgba(46, 99, 133, 0.3)",
+                                "&:hover": {
+                                  backgroundColor: canEdit
+                                    ? "#0c2e3fff"
+                                    : "#2e6385ff",
+                                  boxShadow: canEdit
+                                    ? "0 6px 16px rgba(46, 99, 133, 0.4)"
+                                    : "0 4px 12px rgba(46, 99, 133, 0.3)",
+                                },
+                                "&.Mui-disabled": {
+                                  backgroundColor: "#90a4ae",
+                                  color: "#eceff1",
+                                },
+                              }}
+                            >
+                              Edit Details
+                            </Button>
+                          </span>
+                        </Tooltip>
                       ) : (
                         <>
                           <Button
