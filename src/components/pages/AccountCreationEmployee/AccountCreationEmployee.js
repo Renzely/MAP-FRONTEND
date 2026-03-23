@@ -270,6 +270,7 @@ export default function AccountCreationEnhanced() {
       "HR Recruitment Specialist",
       "HR Compensastion & Benefits Specialist",
       "Logistic Head",
+      "SPX Coordinator",
       "Agency Coordinator",
       "Software Engineer",
       "Tech Support",
