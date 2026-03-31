@@ -55,22 +55,36 @@ export default function Admin() {
       "Executive Director",
       "Operation Director",
       "Operation Head",
+      "Sr. Account Supervisor",
+      "Jr. Account Supervisor",
       "Account Supervisor",
-      "Operations Admin",
+      "Operation Officer",
+      "Operation Admin",
       "Data Analyst",
       "Utility",
       "Treasury Head",
+      "OIC Treasury",
       "Treasury Officer",
       "Treasury Assistant",
+      "OIC Payroll and Billing",
       "Billing Officer",
+      "Payroll Officer",
+      "Payroll and Billing Officer",
       "Billing Specialist",
+      "Billing Assistant",
       "Payroll Specialist",
-      "Assistant Payroll Specialist",
+      "HR Head",
       "HR Officer",
       "HR Coordinator",
-      "Recruitment Specialist",
-      "SPX Head",
+      "HR Admin",
+      "HR Liaison",
+      "HR Recruitment Specialist",
+      "HR Compensastion & Benefits Specialist",
+      "Logistic Head",
+      "SPX Coordinator",
       "Agency Coordinator",
+      "Software Engineer",
+      "Tech Support",
     ],
 
     "ECOSSENTIAL FOODS CORP": [
@@ -80,7 +94,6 @@ export default function Admin() {
       "Tactical Coordinator",
       "Account Coordinator",
     ],
-
     "ECOSSENTIAL FOODS CORP-HEAD OFFICE": ["MHE Operator", "Fleet Operator"],
     "MCKENZIE DISTRIBUTION CO.": [
       "Merchandiser",
@@ -89,7 +102,7 @@ export default function Admin() {
       "Tactical Coordinator",
       "Encoder",
     ],
-    BROLLE: ["Merchandiser", "CVS Merchandiser", "Repacker"],
+    "BROLLEE EXCLUSIVE": ["Merchandiser"],
     "UNION GALVASTEEL CO": [
       "Project In-Charge",
       "Rigger",
@@ -107,6 +120,9 @@ export default function Admin() {
       "Van Route Salesman – Junior",
       "Van Route Salesman – Senior",
       "Beverage Developer",
+      "Delivery Helper",
+      "PMS Booking",
+      "HBR JR",
     ],
     MANDOM: ["Brand Ambassador"],
     ENGKANTO: ["Tactical Coordinator"],
@@ -116,8 +132,9 @@ export default function Admin() {
       "Shipping Coordinator",
       "Accountant",
       "Declarant",
+      "Processor",
     ],
-    "PLDT TELESCOOP": ["Utility"],
+    "PLDT TELESCOOP": ["Utility", "Office Staff"],
     "SPX EXPRESS": [
       "Backroom Personnel",
       "2-Wheel Delivery Rider",
@@ -128,13 +145,38 @@ export default function Admin() {
     "DEL MONTE": ["Push Girl", "Cook", "Helper", "Coordinator", "Team Leader"],
     // Marabou Clients
     "MARABOU EVERGREEN RESOURCES INC": [
-      "Software Engineer",
+      "Executive Director",
+      "Operation Director",
+      "Operation Head",
+      "Sr. Account Supervisor",
+      "Jr. Account Supervisor",
+      "Account Supervisor",
+      "Operation Officer",
+      "Operation Admin",
+      "Data Analyst",
+      "Utility",
+      "Treasury Head",
+      "OIC Treasury",
+      "Treasury Officer",
+      "Treasury Assistant",
+      "OIC Payroll and Billing",
+      "Billing Officer",
+      "Payroll Officer",
+      "Payroll and Billing Officer",
+      "Billing Specialist",
+      "Billing Assistant",
       "Payroll Specialist",
-      "Assistant Payroll Specialist",
-      "Hub Coordinator",
+      "HR Head",
       "HR Officer",
       "HR Coordinator",
-      "Recruitment Specialist",
+      "HR Admin",
+      "HR Liaison",
+      "HR Recruitment Specialist",
+      "HR Compensastion & Benefits Specialist",
+      "Logistic Head",
+      "Agency Coordinator",
+      "Software Engineer",
+      "Tech Support",
     ],
     "LONG TABLE GROUP INC.- MASAJIRO": [
       "Dining Staff / Cashier",
@@ -145,6 +187,7 @@ export default function Admin() {
       "Admin Officer",
       "Finance Officer",
       "FOH Team Leader",
+      "Utility / Helper",
     ],
     "J-GYU INC": ["Admin Officer / Purchasing Staff", "Production Staff"],
     "CARMENS BEST": ["Tactical Coordinator", "Account Coordinator"],
@@ -230,29 +273,50 @@ export default function Admin() {
           .filter((a) => a.createdAt && isRecent(a.createdAt))
           .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         break;
+
+      // case "outlets with merchandiser":
+      //   filtered = OUTLET_DATA.filter((outlet) => {
+      //     const efcMerchandisers = employees.filter(
+      //       (emp) =>
+      //         emp.clientAssigned?.toUpperCase() === "ECOSSENTIAL FOODS CORP" &&
+      //         emp.remarks === "employed",
+      //     );
+      //     const assignedOutlets = new Set();
+      //     efcMerchandisers.forEach((emp) =>
+      //       emp.outletsAssigned?.forEach((o) => assignedOutlets.add(o)),
+      //     );
+      //     return assignedOutlets.has(
+      //       outlet.outletName || outlet.name || outlet,
+      //     );
+      //   });
+      //   break;
+
+      // case "outlets without merchandiser":
+      //   filtered = OUTLET_DATA.filter((outlet) => {
+      //     const efcMerchandisers = employees.filter(
+      //       (emp) =>
+      //         emp.clientAssigned?.toUpperCase() === "ECOSSENTIAL FOODS CORP" &&
+      //         emp.remarks === "employed",
+      //     );
+      //     const assignedOutlets = new Set();
+      //     efcMerchandisers.forEach((emp) =>
+      //       emp.outletsAssigned?.forEach((o) => assignedOutlets.add(o)),
+      //     );
+      //     return !assignedOutlets.has(
+      //       outlet.outletName || outlet.name || outlet,
+      //     );
+      //   });
+      //   break;
     }
 
     setModalData(filtered);
     setOpenModal(true);
   };
 
-  const [year, setYear] = useState("All");
-  const yearOptions = [
-    "All",
-    "2014",
-    "2015",
-    "2016",
-    "2017",
-    "2018",
-    "2019",
-    "2020",
-    "2021",
-    "2022",
-    "2023",
-    "2024",
-    "2025",
-    "2026",
-  ];
+  const [year, setYear] = useState(new Date().getFullYear().toString());
+  const [yearOptions, setYearOptions] = useState([
+    new Date().getFullYear().toString(),
+  ]);
   const [monthlyData, setMonthlyData] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -415,6 +479,16 @@ export default function Admin() {
 
         setEmployees(normalizedData);
 
+        const years = [
+          ...new Set(
+            normalizedData
+              .filter((a) => a.dateHired instanceof Date && !isNaN(a.dateHired))
+              .map((a) => a.dateHired.getFullYear().toString()),
+          ),
+        ].sort((a, b) => b - a); // descending: newest first
+
+        setYearOptions(["All", ...years]);
+
         // SUMMARY COUNTS
         setSummary({
           employed: normalizedData.filter((a) => a.remarks === "employed")
@@ -501,6 +575,7 @@ export default function Admin() {
         "Contact",
         "Email",
         "Birthday",
+        "Age",
         "DateHired",
         "DateResigned",
         "HomeAddress",
@@ -727,13 +802,16 @@ export default function Admin() {
                 <SummaryCard
                   title="OUTLETS WITH MERCHANDISER"
                   value={outletSummary.withMerchandiser}
-                  onClick={() => {}} // no modal for now
+                  //  onClick={() => handleOpenModal("Outlets With Merchandiser")}
                   color="#00897b"
                 />
                 <SummaryCard
                   title="OUTLETS WITHOUT MERCHANDISER"
                   value={outletSummary.withoutMerchandiser}
-                  onClick={() => {}} // no modal for now
+                  sds
+                  // onClick={() =>
+                  //   handleOpenModal("Outlets Without Merchandiser")
+                  // }
                   color="#e53935"
                 />
               </Box>
@@ -1081,7 +1159,34 @@ export default function Admin() {
                   {modalTitle}
                 </DialogTitle>
                 <DialogContent dividers>
-                  {modalData.length === 0 ? (
+                  {modalTitle === "Outlets With Merchandiser" ||
+                  modalTitle === "Outlets Without Merchandiser" ? (
+                    modalData.length === 0 ? (
+                      <Typography sx={{ textAlign: "center", py: 3 }}>
+                        No outlets found.
+                      </Typography>
+                    ) : (
+                      modalData.map((outlet, i) => (
+                        <Box
+                          key={i}
+                          sx={{
+                            borderBottom: "1px solid #e0e0e0",
+                            py: 1.5,
+                            "&:last-child": { borderBottom: "none" },
+                          }}
+                        >
+                          <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                            {outlet.outletName || outlet.name || outlet}
+                          </Typography>
+                          {outlet.address && (
+                            <Typography variant="body2" sx={{ color: "#666" }}>
+                              {outlet.address}
+                            </Typography>
+                          )}
+                        </Box>
+                      ))
+                    )
+                  ) : modalData.length === 0 ? (
                     <Typography sx={{ textAlign: "center", py: 3 }}>
                       No employees found.
                     </Typography>
@@ -1090,30 +1195,25 @@ export default function Admin() {
                       .slice()
                       .sort((a, b) => {
                         let dateA, dateB;
-
                         switch (modalTitle) {
                           case "Employed":
                           case "Applicants":
                             dateA = a.dateHired;
                             dateB = b.dateHired;
                             break;
-
                           case "Resigned":
                           case "Terminated":
                           case "End of Contract":
                             dateA = a.dateResigned;
                             dateB = b.dateResigned;
                             break;
-
                           case "Recent Employees":
                             dateA = a.createdAt;
                             dateB = b.createdAt;
                             break;
-
                           default:
                             return 0;
                         }
-
                         return new Date(dateB) - new Date(dateA);
                       })
                       .map((emp, i) => (
@@ -1122,9 +1222,7 @@ export default function Admin() {
                           sx={{
                             borderBottom: "1px solid #e0e0e0",
                             py: 2,
-                            "&:last-child": {
-                              borderBottom: "none",
-                            },
+                            "&:last-child": { borderBottom: "none" },
                           }}
                         >
                           <Typography
@@ -1136,8 +1234,6 @@ export default function Admin() {
                           <Typography variant="body2" sx={{ color: "#666" }}>
                             Client Assigned: {emp.clientAssigned}
                           </Typography>
-
-                          {/* EMPLOYED */}
                           {modalTitle === "Employed" && emp.dateHired && (
                             <Typography variant="body2" sx={{ color: "#666" }}>
                               Hired Date:{" "}
@@ -1146,7 +1242,6 @@ export default function Admin() {
                                 .slice(0, 10)}
                             </Typography>
                           )}
-                          {/* RESIGNED */}
                           {modalTitle === "Resigned" && emp.dateResigned && (
                             <Typography variant="body2" sx={{ color: "#666" }}>
                               Resigned Date:{" "}
@@ -1155,7 +1250,6 @@ export default function Admin() {
                                 .slice(0, 10)}
                             </Typography>
                           )}
-                          {/* TERMINATED */}
                           {modalTitle === "Terminated" && emp.dateResigned && (
                             <Typography variant="body2" sx={{ color: "#666" }}>
                               Terminated Date:{" "}
@@ -1164,7 +1258,6 @@ export default function Admin() {
                                 .slice(0, 10)}
                             </Typography>
                           )}
-                          {/* END OF CONTRACT */}
                           {modalTitle === "End of Contract" &&
                             emp.dateResigned && (
                               <Typography
@@ -1177,7 +1270,6 @@ export default function Admin() {
                                   .slice(0, 10)}
                               </Typography>
                             )}
-                          {/* APPLICANTS */}
                           {modalTitle === "Applicants" && emp.dateHired && (
                             <Typography variant="body2" sx={{ color: "#666" }}>
                               Applied Date:{" "}
@@ -1186,7 +1278,6 @@ export default function Admin() {
                                 .slice(0, 10)}
                             </Typography>
                           )}
-                          {/* RECENT EMPLOYEES */}
                           {modalTitle === "Recent Employees" && (
                             <>
                               <Typography

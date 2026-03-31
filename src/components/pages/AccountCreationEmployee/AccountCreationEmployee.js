@@ -50,7 +50,7 @@ export default function AccountCreationEnhanced() {
     "HR COORDINATOR SPECIALIST",
     "MIS",
   ];
-
+  const [showSuffix, setShowSuffix] = useState(false);
   const canEdit = allowedRoles.includes(role);
   const [formErrors, setFormErrors] = useState({});
   const [openModal, setOpenModal] = useState(false);
@@ -392,6 +392,7 @@ export default function AccountCreationEnhanced() {
     remarks: "",
     employeeNo: "",
     firstName: "",
+    suffix: "",
     middleName: "",
     lastName: "",
     modeOfDisbursement: "",
@@ -472,10 +473,17 @@ export default function AccountCreationEnhanced() {
           updated.silBalance = "";
           updated.modeOfDisbursement = "";
           updated.accountNumber = "";
-        } else {
-          // If status is Active/Inactive, keep remarks as is or clear if it was "Applicant"
-          if (prev.remarks === "Applicant") {
-            updated.remarks = ""; // allow user to select new remarks
+        } else if (value === "Active") {
+          // 🔥 ONLY Employed allowed
+          updated.remarks = "Employed";
+        } else if (value === "Inactive") {
+          // 🔥 Clear if invalid
+          if (
+            !["Resign", "Terminated", "End of Contract", "AWOL"].includes(
+              prev.remarks,
+            )
+          ) {
+            updated.remarks = "";
           }
         }
       }
@@ -683,7 +691,6 @@ export default function AccountCreationEnhanced() {
       }
     }
 
-    // ---------------- Prepare Data for Backend ----------------
     const formattedData = {
       ...formData,
       createdBy: adminFullName,
@@ -729,6 +736,7 @@ export default function AccountCreationEnhanced() {
           remarks: "",
           employeeNo: "",
           firstName: "",
+          suffix: "",
           middleName: "",
           lastName: "",
           modeOfDisbursement: "",
@@ -1064,18 +1072,33 @@ export default function AccountCreationEnhanced() {
                         <InputLabel>Remarks *</InputLabel>
                         <Select
                           value={formData.remarks}
-                          disabled={isApplicant} // only disable if status is Applicant
+                          disabled={!formData.status || isApplicant}
                           onChange={(e) =>
                             handleChange("remarks", e.target.value)
                           }
                         >
-                          <MenuItem value="Applicant">Applicant</MenuItem>
-                          <MenuItem value="Employed">Employed</MenuItem>
-                          <MenuItem value="Resign">Resign</MenuItem>
-                          <MenuItem value="Terminate">Terminate</MenuItem>
-                          <MenuItem value="End of Contract">
-                            End of Contract
-                          </MenuItem>
+                          {/* 🔹 Applicant */}
+                          {formData.status === "Applicant" && (
+                            <MenuItem value="Applicant">Applicant</MenuItem>
+                          )}
+
+                          {/* 🔹 Active */}
+                          {formData.status === "Active" && (
+                            <MenuItem value="Employed">Employed</MenuItem>
+                          )}
+
+                          {/* 🔹 Inactive */}
+                          {formData.status === "Inactive" &&
+                            [
+                              "Resign",
+                              "Terminated",
+                              "End of Contract",
+                              "AWOL",
+                            ].map((remark) => (
+                              <MenuItem key={remark} value={remark}>
+                                {remark}
+                              </MenuItem>
+                            ))}
                         </Select>
                       </FormControl>
                     </Grid>
@@ -1132,22 +1155,21 @@ export default function AccountCreationEnhanced() {
                   <Grid container spacing={3}>
                     <Grid item xs={12} md={3}>
                       <TextField
-                        label="First Name *"
+                        label="Last Name *"
                         fullWidth
                         size="small"
-                        value={formData.firstName}
+                        value={formData.lastName}
                         onChange={(e) => {
                           const value = e.target.value.replace(
                             /[^A-Za-z\s-]/g,
                             "",
                           );
-                          handleChange("firstName", value);
+                          handleChange("lastName", value);
                         }}
-                        error={!!formErrors.firstName}
-                        helperText={formErrors.firstName}
+                        error={!!formErrors.lastName}
+                        helperText={formErrors.lastName}
                       />
                     </Grid>
-
                     <Grid item xs={12} md={3}>
                       <TextField
                         label="Middle Name"
@@ -1165,23 +1187,66 @@ export default function AccountCreationEnhanced() {
                         helperText={formErrors.middleName}
                       />
                     </Grid>
-
                     <Grid item xs={12} md={3}>
                       <TextField
-                        label="Last Name *"
+                        label="First Name *"
                         fullWidth
                         size="small"
-                        value={formData.lastName}
+                        value={formData.firstName}
                         onChange={(e) => {
                           const value = e.target.value.replace(
                             /[^A-Za-z\s-]/g,
                             "",
                           );
-                          handleChange("lastName", value);
+                          handleChange("firstName", value);
                         }}
-                        error={!!formErrors.lastName}
-                        helperText={formErrors.lastName}
+                        error={!!formErrors.firstName}
+                        helperText={formErrors.firstName}
                       />
+
+                      {/* Show Button */}
+                      {!showSuffix && (
+                        <Button
+                          size="small"
+                          sx={{ mt: 1 }}
+                          onClick={() => setShowSuffix(true)}
+                        >
+                          + Add Suffix
+                        </Button>
+                      )}
+
+                      {/* Suffix Dropdown (Hidden by default) */}
+                      {showSuffix && (
+                        <FormControl fullWidth size="small" sx={{ mt: 1 }}>
+                          <InputLabel>Suffix (Optional)</InputLabel>
+                          <Select
+                            value={formData.suffix || ""}
+                            label="Suffix (Optional)"
+                            onChange={(e) =>
+                              handleChange("suffix", e.target.value)
+                            }
+                          >
+                            <MenuItem value="">None</MenuItem>
+                            <MenuItem value="Jr.">Jr.</MenuItem>
+                            <MenuItem value="Sr.">Sr.</MenuItem>
+                            <MenuItem value="II">II</MenuItem>
+                            <MenuItem value="III">III</MenuItem>
+                            <MenuItem value="IV">IV</MenuItem>
+                          </Select>
+
+                          {/* Optional: Hide Button */}
+                          <Button
+                            size="small"
+                            sx={{ mt: 1, alignSelf: "flex-start" }}
+                            onClick={() => {
+                              setShowSuffix(false);
+                              handleChange("suffix", "");
+                            }}
+                          >
+                            Remove
+                          </Button>
+                        </FormControl>
+                      )}
                     </Grid>
 
                     <Grid item xs={12} md={3}>

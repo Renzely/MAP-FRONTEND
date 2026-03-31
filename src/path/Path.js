@@ -27,6 +27,7 @@ const Path = () => {
       case "/view-dashboard":
       case "/view-recent-activity":
       case "/view-Outletlist":
+      case "/view-applicants":
 
       // BMPOWER
 
@@ -34,7 +35,6 @@ const Path = () => {
       case "/view-asianstreak":
       case "/view-cvs":
       case "/view-ecossentialfoods":
-      // case "/view-ecossentialfoodsCOORS":
       case "/view-ecossentialfoodsHO":
       case "/view-brolleeexlusive":
       case "/view-engkanto":

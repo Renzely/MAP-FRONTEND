@@ -37,12 +37,11 @@ import BusinessIcon from "@mui/icons-material/Business";
 import BadgeIcon from "@mui/icons-material/Badge";
 import ImageIcon from "@mui/icons-material/Image";
 import ChecklistIcon from "@mui/icons-material/Checklist";
-
 import Topbar from "../../topbar/Topbar";
 import Sidebar from "../../sidebar/Sidebar";
 import dayjs from "dayjs";
 
-import carmenslogo from "../../Images/Marabou_Logo/MARABOU - CARMEN'S BEST.jpg";
+import EFClogo from "../../Images/Bmpower_Logo/BMP - EFC.jpg";
 
 export default function BmpowerHO() {
   const XLSX = require("sheetjs-style");
@@ -58,8 +57,36 @@ export default function BmpowerHO() {
   const [newUploads, setNewUploads] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [dateResignedError, setDateResignedError] = useState(false);
-
+  const [selectedClient, setSelectedClient] = useState("");
   const role = localStorage.getItem("roleAccount");
+
+  const clientsByCompany = {
+    "BMPOWER HUMAN RESOURCES CORPORATION": [
+      "BMPOWER HUMAN RESOURCES CORPORATION",
+      "ECOSSENTIAL FOODS CORP",
+      "MCKENZIE DISTRIBUTION CO.",
+      "ECOSSENTIAL FOODS CORP-HEAD OFFICE",
+      "MAGIS DISTRIBUTION INC.",
+      "ASIAN STREAK BROKERAGE CO",
+      "PLDT TELESCOOP",
+      "MANDOM",
+      "ENGKANTO",
+      "DEL MONTE",
+      "SPX EXPRESS",
+      "UNION GALVASTEEL CO",
+    ],
+    "MARABOU EVERGREEN RESOURCES INC": [
+      "MARABOU EVERGREEN RESOURCES INC",
+      "CARMENS BEST",
+      "METRO PACIFIC DAIRY FARM",
+      "METRO PACIFIC FRESH FARM",
+      "UNIVERSAL HARVESTER DAIRY FARM INC",
+      "LONG TABLE GROUP INC.- MASAJIRO",
+      "J-GYU INC",
+      "COSMETIQUE ASIA",
+    ],
+  };
+  const allClients = Object.values(clientsByCompany).flat();
 
   const POSITIONS_BY_CLIENT = {
     // BMPower Clients
@@ -216,24 +243,16 @@ export default function BmpowerHO() {
     "HR COORDINATOR SPECIALIST",
     "MIS",
   ];
-
   const canEdit = allowedRoles.includes(role);
 
-  // Listen to sidebar state from localStorage
   useEffect(() => {
     const checkSidebarState = () => {
       const isOpen = localStorage.getItem("sidebarOpen") === "true";
       setSidebarOpen(isOpen);
     };
-
     checkSidebarState();
-
-    // Listen for storage changes
     window.addEventListener("storage", checkSidebarState);
-
-    // Poll for changes (since localStorage doesn't trigger storage event in same window)
     const interval = setInterval(checkSidebarState, 100);
-
     return () => {
       window.removeEventListener("storage", checkSidebarState);
       clearInterval(interval);
@@ -257,12 +276,8 @@ export default function BmpowerHO() {
             "& .MuiOutlinedInput-root": {
               backgroundColor: "white",
               borderRadius: "8px",
-              "& fieldset": {
-                borderColor: "#d0d0d0",
-              },
-              "&:hover fieldset": {
-                borderColor: "#2e6385ff",
-              },
+              "& fieldset": { borderColor: "#d0d0d0" },
+              "&:hover fieldset": { borderColor: "#2e6385ff" },
             },
           }}
         />
@@ -283,17 +298,18 @@ export default function BmpowerHO() {
     }
   };
 
-  const handleRemarksChange = (event) => {
+  const handleClientChange = (event) => {
     const value = event.target.value;
-    setSelectedRemarks(value);
+    setSelectedClient(value);
 
     if (value === "" || value === "UNFILTERED") {
       setFilteredAccounts(accounts);
     } else {
-      const filtered = accounts.filter(
-        (acc) => acc.remarks?.toLowerCase() === value.toLowerCase(),
+      setFilteredAccounts(
+        accounts.filter(
+          (acc) => acc.clientAssigned?.toLowerCase() === value.toLowerCase(),
+        ),
       );
-      setFilteredAccounts(filtered);
     }
   };
 
@@ -389,23 +405,16 @@ export default function BmpowerHO() {
           "https://api-map.bmphrc.com/get-merch-accounts",
         );
 
-        const bmpowerAccounts = response.data.filter((acc) => {
-          const isCorrectCompany =
-            acc.company?.toUpperCase() === "MARABOU EVERGREEN RESOURCES INC";
+        const applicantAccounts = response.data.filter((acc) => {
+          const isApplicant =
+            acc.status?.toUpperCase() === "APPLICANT" &&
+            acc.remarks?.toUpperCase() === "APPLICANT";
 
-          const isCorrectClient =
-            acc.clientAssigned?.toUpperCase() === "CARMENS BEST";
-
-          // ❌ EXCLUDE APPLICANTS
-          const isNotApplicant =
-            acc.status?.toUpperCase() !== "APPLICANT" &&
-            acc.remarks?.toUpperCase() !== "APPLICANT";
-
-          return isCorrectCompany && isCorrectClient && isNotApplicant;
+          return isApplicant;
         });
 
-        setAccounts(bmpowerAccounts);
-        setFilteredAccounts(bmpowerAccounts);
+        setAccounts(applicantAccounts);
+        setFilteredAccounts(applicantAccounts);
       } catch (error) {
         console.error("Error fetching accounts:", error);
       }
@@ -416,16 +425,21 @@ export default function BmpowerHO() {
 
   const getExportData = async () => {
     try {
+      const payload = {
+        status: "Applicant",
+        remarks: "Applicant",
+      };
+
+      if (selectedClient && selectedClient !== "UNFILTERED") {
+        payload.clientAssigned = selectedClient;
+      }
+
       const response = await axios.post(
         "https://api-map.bmphrc.com/export-merch-accounts",
-        {
-          remarks: selectedRemarks,
-          clientAssigned: "CARMENS BEST",
-        },
+        payload,
       );
 
       const headers = [
-        // "#",
         "Company",
         "Client",
         "EmployeeNo",
@@ -454,6 +468,7 @@ export default function BmpowerHO() {
       const ws = XLSX.utils.json_to_sheet([]);
 
       XLSX.utils.sheet_add_aoa(ws, [headers], { origin: "A1" });
+
       XLSX.utils.sheet_add_json(ws, newData, {
         origin: "A2",
         skipHeader: true,
@@ -468,29 +483,30 @@ export default function BmpowerHO() {
           ) + 4,
       }));
 
-      headers.forEach((_, col) => {
-        const cell = XLSX.utils.encode_cell({ r: 0, c: col });
-        if (ws[cell])
-          ws[cell].s = {
-            font: { bold: true },
-            alignment: { horizontal: "center", vertical: "center" },
-          };
-      });
-
-      XLSX.utils.book_append_sheet(wb, ws, "Employees");
+      XLSX.utils.book_append_sheet(wb, ws, "Applicants");
 
       const buffer = XLSX.write(wb, { type: "array", bookType: "xlsx" });
+
       const blob = new Blob([buffer], {
         type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       });
 
-      alert(`Successfully exported ${newData.length} records!`);
+      alert(
+        `Successfully exported ${newData.length} applicant records${
+          selectedClient && selectedClient !== "UNFILTERED"
+            ? ` for ${selectedClient}`
+            : ""
+        }!`,
+      );
 
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
-      link.download = `MASTERLIST_BMPower-HO_${
-        new Date().toISOString().split("T")[0]
-      }.xlsx`;
+      link.download = `NEXUS_APPLICANTS_${
+        selectedClient && selectedClient !== "UNFILTERED"
+          ? selectedClient.replace(/\s+/g, "_")
+          : "ALL"
+      }_${new Date().toISOString().split("T")[0]}.xlsx`;
+
       link.click();
     } catch (error) {
       console.error(error);
@@ -498,33 +514,20 @@ export default function BmpowerHO() {
     }
   };
 
-  const getStatusColor = (status) => {
-    switch (status?.toLowerCase()) {
-      case "active":
-        return "success";
-      case "inactive":
-        return "error";
-      default:
-        return "default";
-    }
-  };
-
-  const getRemarksColor = (remarks) => {
-    switch (remarks?.toLowerCase()) {
-      case "employed":
-        return "success";
-      case "applicant":
-        return "info";
-      case "resign":
-        return "warning";
-      case "terminate":
-        return "error";
-      case "end of contract":
-        return "default";
-      default:
-        return "default";
-    }
-  };
+  const getStatusColor = (s) =>
+    s?.toLowerCase() === "active"
+      ? "success"
+      : s?.toLowerCase() === "inactive"
+        ? "error"
+        : "default";
+  const getRemarksColor = (r) =>
+    ({
+      employed: "success",
+      applicant: "info",
+      resign: "warning",
+      terminate: "error",
+      "end of contract": "default",
+    })[r?.toLowerCase()] || "default";
 
   const columns = [
     {
@@ -534,6 +537,7 @@ export default function BmpowerHO() {
       headerAlign: "center",
       align: "center",
     },
+    { field: "clientAssigned", headerName: "Client Assigned", width: 150 },
     { field: "lastName", headerName: "Last Name", width: 150 },
     { field: "firstName", headerName: "First Name", width: 150 },
     { field: "middleName", headerName: "Middle Name", width: 150 },
@@ -543,31 +547,19 @@ export default function BmpowerHO() {
       width: 120,
       valueGetter: (value, row) => {
         const raw = row?.birthday;
-        const dateValue =
-          typeof raw === "object" && raw?.$date
-            ? raw.$date
-            : typeof raw === "string"
-              ? raw
-              : null;
-        return dateValue;
+        return typeof raw === "object" && raw?.$date
+          ? raw.$date
+          : typeof raw === "string"
+            ? raw
+            : null;
       },
-      valueFormatter: (value) => {
-        if (!value) return "";
-        return dayjs(value).format("DD-MMM-YY");
-      },
+      valueFormatter: (value) =>
+        value ? dayjs(value).format("DD-MMM-YY") : "",
     },
-    // {
-    //   field: "age",
-    //   headerName: "Age",
-    //   width: 80,
-    //   headerAlign: "center",
-    //   align: "center",
-    // },
     { field: "sss", headerName: "SSS No.", width: 150 },
     { field: "philhealth", headerName: "PHIC No.", width: 150 },
     { field: "hdmf", headerName: "HDMF No.", width: 150 },
     { field: "tin", headerName: "TIN No.", width: 150 },
-    // { field: "company", headerName: "Company", width: 350 },
     {
       field: "remarks",
       headerName: "Remarks",
@@ -601,84 +593,21 @@ export default function BmpowerHO() {
       sortable: false,
       headerAlign: "center",
       align: "center",
-      renderCell: (params) => {
-        return (
-          <Tooltip title="Edit Employee">
-            <span>
-              <IconButton
-                color="primary"
-                size="small"
-                onClick={() => handleEdit(params.row)}
-                sx={{
-                  "&:hover": {
-                    backgroundColor: "rgba(46, 99, 133, 0.1)",
-                  },
-                }}
-              >
-                <EditIcon />
-              </IconButton>
-            </span>
-          </Tooltip>
-        );
-      },
+      renderCell: (params) => (
+        <Tooltip title="Edit Employee">
+          <span>
+            <IconButton
+              color="primary"
+              size="small"
+              onClick={() => handleEdit(params.row)}
+              sx={{ "&:hover": { backgroundColor: "rgba(46,99,133,0.1)" } }}
+            >
+              <EditIcon />
+            </IconButton>
+          </span>
+        </Tooltip>
+      ),
     },
-    // { field: "employeeNo", headerName: "Employee No.", width: 120 },
-    // {
-    //   field: "modeOfDisbursement",
-    //   headerName: "Mode of Disbursement",
-    //   width: 200,
-    // },
-    // { field: "accountNumber", headerName: "Account Number", width: 200 },
-    // { field: "contact", headerName: "Contact", width: 130 },
-    // { field: "email", headerName: "Email", width: 200 },
-    // { field: "position", headerName: "Position", width: 150 },
-    // {
-    //   field: "dateHired",
-    //   headerName: "Date Hired",
-    //   width: 120,
-    //   valueGetter: (value, row) => {
-    //     const raw = row?.dateHired;
-    //     const dateValue =
-    //       typeof raw === "object" && raw?.$date
-    //         ? raw.$date
-    //         : typeof raw === "string"
-    //           ? raw
-    //           : null;
-    //     return dateValue;
-    //   },
-    //   valueFormatter: (value) => {
-    //     if (!value) return "";
-    //     return dayjs(value).format("DD-MMM-YY");
-    //   },
-    // },
-    // {
-    //   field: "dateResigned",
-    //   headerName: "Date Resigned",
-    //   width: 120,
-    //   valueGetter: (value, row) => {
-    //     const raw = row?.dateResigned;
-    //     const dateValue =
-    //       typeof raw === "object" && raw?.$date
-    //         ? raw.$date
-    //         : typeof raw === "string"
-    //           ? raw
-    //           : null;
-    //     return dateValue;
-    //   },
-    //   valueFormatter: (value) => {
-    //     if (!value) return "";
-    //     return dayjs(value).format("DD-MMM-YY");
-    //   },
-    // },
-    // { field: "homeAddress", headerName: "Home Address", width: 250 },
-    // {
-    //   field: "silBalance",
-    //   headerName: "SIL Balance",
-    //   width: 120,
-    //   headerAlign: "center",
-    //   align: "center",
-    // },
-    // { field: "clientAssigned", headerName: "Client Assigned", width: 200 },
   ];
 
   const rows = filteredAccounts.map((acc, index) => ({
@@ -687,7 +616,6 @@ export default function BmpowerHO() {
     ...acc,
   }));
 
-  // ── Clearance section visibility: show when resigned/terminated AND dateResigned AND reasonForLeaving ──
   const showClearance = (emp) =>
     emp &&
     [
@@ -700,6 +628,7 @@ export default function BmpowerHO() {
     ].includes(emp?.remarks) &&
     emp?.dateResigned &&
     emp?.reasonForLeaving;
+
   return (
     <>
       <Topbar />
@@ -710,17 +639,11 @@ export default function BmpowerHO() {
           transition: "margin-left 0.3s ease",
           minHeight: "100vh",
           backgroundColor: "#f5f7fa",
-          paddingTop: "64px", // Account for fixed topbar
+          paddingTop: "64px",
         }}
       >
-        <Box
-          sx={{
-            p: 3,
-            maxWidth: "1800px",
-            margin: "0 auto",
-          }}
-        >
-          {/* Header Section */}
+        <Box sx={{ p: 3, maxWidth: "1800px", margin: "0 auto" }}>
+          {/* Header */}
           <Paper
             elevation={0}
             sx={{
@@ -733,14 +656,12 @@ export default function BmpowerHO() {
           >
             <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
               <Avatar
-                src={carmenslogo}
-                alt="Carmens Logo"
+                src={EFClogo}
+                alt="EFC Logo"
                 sx={{
                   width: 86,
                   height: 86,
-                  "& img": {
-                    objectFit: "contain", // or "contain"
-                  },
+                  "& img": { objectFit: "contain" },
                 }}
               >
                 <BusinessIcon sx={{ fontSize: 32, color: "white" }} />
@@ -748,27 +669,21 @@ export default function BmpowerHO() {
               <Box>
                 <Typography
                   variant="h4"
-                  sx={{
-                    color: "white",
-                    fontWeight: 700,
-                    mb: 0.5,
-                  }}
+                  sx={{ color: "white", fontWeight: 700, mb: 0.5 }}
                 >
-                  Employee Management
+                  APPLICANTS
                 </Typography>
                 <Typography
                   variant="body1"
-                  sx={{
-                    color: "rgba(255, 255, 255, 0.9)",
-                  }}
+                  sx={{ color: "rgba(255,255,255,0.9)" }}
                 >
-                  CARMENS BEST
+                  APPLICANTS
                 </Typography>
               </Box>
             </Box>
           </Paper>
 
-          {/* Filter and Export Section */}
+          {/* Filter & Export */}
           <Paper
             elevation={0}
             sx={{
@@ -787,30 +702,26 @@ export default function BmpowerHO() {
               }}
             >
               <FormControl sx={{ minWidth: 220 }}>
-                <InputLabel>Filter by Remarks</InputLabel>
+                <InputLabel>Filter by Client</InputLabel>
                 <Select
-                  value={selectedRemarks}
-                  onChange={handleRemarksChange}
-                  label="Filter by Remarks"
-                  sx={{
-                    backgroundColor: "white",
-                    borderRadius: "8px",
-                  }}
+                  value={selectedClient}
+                  onChange={handleClientChange}
+                  label="Filter by Client"
+                  sx={{ backgroundColor: "white", borderRadius: "8px" }}
                 >
                   <MenuItem value="">
-                    <em>Select Remarks</em>
+                    <em>Select Client</em>
                   </MenuItem>
+
                   <MenuItem value="UNFILTERED">All Records</MenuItem>
-                  <MenuItem value="Applicant">Applicant</MenuItem>
-                  <MenuItem value="Employed">Employed</MenuItem>
-                  <MenuItem value="Resign">Resign</MenuItem>
-                  <MenuItem value="End of Contract">End of Contract</MenuItem>
-                  <MenuItem value="Retrenchment">Retrenchment</MenuItem>
-                  <MenuItem value="Terminated">Terminated</MenuItem>
-                  <MenuItem value="AWOL">AWOL</MenuItem>
+
+                  {allClients.map((client) => (
+                    <MenuItem key={client} value={client}>
+                      {client}
+                    </MenuItem>
+                  ))}
                 </Select>
               </FormControl>
-
               <Button
                 onClick={getExportData}
                 variant="contained"
@@ -824,18 +735,13 @@ export default function BmpowerHO() {
                   textTransform: "none",
                   fontSize: "16px",
                   fontWeight: 600,
-                  boxShadow: "0 4px 12px rgba(46, 99, 133, 0.3)",
-                  "&:hover": {
-                    backgroundColor: "#0c2e3fff",
-                    boxShadow: "0 6px 16px rgba(46, 99, 133, 0.4)",
-                  },
+                  boxShadow: "0 4px 12px rgba(46,99,133,0.3)",
+                  "&:hover": { backgroundColor: "#0c2e3fff" },
                 }}
               >
                 Export to Excel
               </Button>
-
               <Box sx={{ flexGrow: 1 }} />
-
               <Chip
                 icon={<PersonIcon />}
                 label={`Total Employees: ${filteredAccounts.length}`}
@@ -850,45 +756,33 @@ export default function BmpowerHO() {
             </Box>
           </Paper>
 
-          {/* DataGrid Section */}
+          {/* DataGrid */}
           <Paper
             elevation={0}
             sx={{
               borderRadius: "12px",
               overflow: "hidden",
               border: "1px solid #e0e0e0",
-              "& .MuiDataGrid-root": {
-                border: "none",
-              },
-              "& .MuiDataGrid-cell": {
-                borderBottom: "1px solid #f0f0f0",
-              },
+              "& .MuiDataGrid-root": { border: "none" },
+              "& .MuiDataGrid-cell": { borderBottom: "1px solid #f0f0f0" },
               "& .MuiDataGrid-columnHeaders": {
                 backgroundColor: "#fafafa",
                 borderBottom: "2px solid #e0e0e0",
                 fontSize: "14px",
                 fontWeight: 600,
               },
-              "& .MuiDataGrid-row:hover": {
-                backgroundColor: "#f8f9fa",
-              },
+              "& .MuiDataGrid-row:hover": { backgroundColor: "#f8f9fa" },
             }}
           >
             <DataGrid
               rows={rows}
               columns={columns}
-              autoHeight // This makes the grid expand to fit all rows
+              autoHeight
               initialState={{
-                pagination: {
-                  paginationModel: { page: 0, pageSize: 10 },
-                },
+                pagination: { paginationModel: { page: 0, pageSize: 10 } },
               }}
               slots={{ toolbar: CustomToolbar }}
-              slotProps={{
-                toolbar: {
-                  showQuickFilter: true,
-                },
-              }}
+              slotProps={{ toolbar: { showQuickFilter: true } }}
               pageSizeOptions={[5, 10, 20, 50]}
               disableRowSelectionOnClick
               disableDensitySelector
@@ -896,7 +790,8 @@ export default function BmpowerHO() {
               disableColumnSelector
             />
           </Paper>
-          {/* Edit Employee Modal */}
+
+          {/* ── EDIT EMPLOYEE MODAL ── */}
           <Modal
             open={openEditModal}
             onClose={handleCloseEditModal}
@@ -904,7 +799,7 @@ export default function BmpowerHO() {
             BackdropComponent={Backdrop}
             BackdropProps={{
               timeout: 500,
-              sx: { backgroundColor: "rgba(0, 0, 0, 0.7)" },
+              sx: { backgroundColor: "rgba(0,0,0,0.7)" },
             }}
           >
             <Fade in={openEditModal}>
@@ -913,16 +808,14 @@ export default function BmpowerHO() {
                   position: "absolute",
                   top: "50%",
                   left: "50%",
-                  transform: "translate(-50%, -50%)",
+                  transform: "translate(-50%,-50%)",
                   width: { xs: "95%", sm: "85%", md: "70%", lg: "60%" },
                   maxHeight: "90vh",
                   overflowY: "auto",
                   bgcolor: "background.paper",
                   borderRadius: "16px",
                   boxShadow: "0 24px 48px rgba(0,0,0,0.2)",
-                  "&::-webkit-scrollbar": {
-                    width: "8px",
-                  },
+                  "&::-webkit-scrollbar": { width: "8px" },
                   "&::-webkit-scrollbar-track": {
                     background: "#f1f1f1",
                     borderRadius: "10px",
@@ -930,9 +823,6 @@ export default function BmpowerHO() {
                   "&::-webkit-scrollbar-thumb": {
                     background: "#888",
                     borderRadius: "10px",
-                    "&:hover": {
-                      background: "#555",
-                    },
                   },
                 }}
               >
@@ -955,7 +845,7 @@ export default function BmpowerHO() {
                   <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                     <Avatar
                       sx={{
-                        bgcolor: "rgba(255, 255, 255, 0.2)",
+                        bgcolor: "rgba(255,255,255,0.2)",
                         width: 48,
                         height: 48,
                       }}
@@ -971,7 +861,7 @@ export default function BmpowerHO() {
                       </Typography>
                       <Typography
                         variant="body2"
-                        sx={{ color: "rgba(255, 255, 255, 0.8)" }}
+                        sx={{ color: "rgba(255,255,255,0.8)" }}
                       >
                         {isEditing ? "Edit Mode" : "View Mode"}
                       </Typography>
@@ -981,19 +871,16 @@ export default function BmpowerHO() {
                     onClick={handleCloseEditModal}
                     sx={{
                       color: "white",
-                      "&:hover": {
-                        backgroundColor: "rgba(255, 255, 255, 0.1)",
-                      },
+                      "&:hover": { backgroundColor: "rgba(255,255,255,0.1)" },
                     }}
                   >
                     <CloseIcon />
                   </IconButton>
                 </Box>
 
-                {/* Modal Body */}
                 {selectedEmployee && (
                   <Box sx={{ p: 4 }}>
-                    {/* Personal Information Section */}
+                    {/* ── Personal Information ── */}
                     <Card
                       elevation={0}
                       sx={{
@@ -1029,7 +916,6 @@ export default function BmpowerHO() {
                                 })
                               }
                               InputProps={{ readOnly: !isEditing }}
-                              variant="outlined"
                             />
                           </Grid>
                           <Grid item xs={12} sm={4}>
@@ -1044,7 +930,6 @@ export default function BmpowerHO() {
                                 })
                               }
                               InputProps={{ readOnly: !isEditing }}
-                              variant="outlined"
                             />
                           </Grid>
                           <Grid item xs={12} sm={4}>
@@ -1059,7 +944,6 @@ export default function BmpowerHO() {
                                 })
                               }
                               InputProps={{ readOnly: !isEditing }}
-                              variant="outlined"
                             />
                           </Grid>
                           <Grid item xs={12} sm={6}>
@@ -1087,7 +971,6 @@ export default function BmpowerHO() {
                               InputLabelProps={{ shrink: true }}
                             />
                           </Grid>
-
                           <Grid item xs={12} sm={6}>
                             <TextField
                               label="Age"
@@ -1150,7 +1033,7 @@ export default function BmpowerHO() {
                       </CardContent>
                     </Card>
 
-                    {/* Employment Information Section */}
+                    {/* ── Employment Information ── */}
                     <Card
                       elevation={0}
                       sx={{
@@ -1235,6 +1118,9 @@ export default function BmpowerHO() {
                                 >
                                   <MenuItem value="Active">Active</MenuItem>
                                   <MenuItem value="Inactive">Inactive</MenuItem>
+                                  <MenuItem value="Applicant">
+                                    Applicant
+                                  </MenuItem>
                                 </Select>
                               </FormControl>
                             ) : (
@@ -1366,9 +1252,7 @@ export default function BmpowerHO() {
                                   <MenuItem value="BMPOWER HUMAN RESOURCES CORPORATION">
                                     BMPOWER HUMAN RESOURCES CORPORATION
                                   </MenuItem>
-                                  <MenuItem value="BROLLEE EXCLUSIVE">
-                                    BROLLEE EXCLUSIVE
-                                  </MenuItem>
+                                  <MenuItem value="BROLLE">BROLLE</MenuItem>
                                   <MenuItem value="CARMENS BEST">
                                     CARMENS BEST
                                   </MenuItem>
@@ -1582,6 +1466,8 @@ export default function BmpowerHO() {
                         </Grid>
                       </CardContent>
                     </Card>
+
+                    {/* ── Clearance Section — shown when resigned + dateResigned + reasonForLeaving ── */}
                     {showClearance(selectedEmployee) && (
                       <Card
                         elevation={0}
@@ -1762,7 +1648,8 @@ export default function BmpowerHO() {
                         </CardContent>
                       </Card>
                     )}
-                    {/* Government IDs Section */}
+
+                    {/* ── Government IDs ── */}
                     <Card
                       elevation={0}
                       sx={{
@@ -1792,13 +1679,12 @@ export default function BmpowerHO() {
                               fullWidth
                               value={selectedEmployee.sss || ""}
                               onChange={(e) => {
-                                const value = e.target.value.replace(/\D/g, ""); // remove non-digits
-                                if (value.length <= 10) {
+                                const v = e.target.value.replace(/\D/g, "");
+                                if (v.length <= 10)
                                   setSelectedEmployee({
                                     ...selectedEmployee,
-                                    sss: value,
+                                    sss: v,
                                   });
-                                }
                               }}
                               inputProps={{ maxLength: 10 }}
                               InputProps={{ readOnly: !isEditing }}
@@ -1810,13 +1696,12 @@ export default function BmpowerHO() {
                               fullWidth
                               value={selectedEmployee.philhealth || ""}
                               onChange={(e) => {
-                                const value = e.target.value.replace(/\D/g, "");
-                                if (value.length <= 12) {
+                                const v = e.target.value.replace(/\D/g, "");
+                                if (v.length <= 12)
                                   setSelectedEmployee({
                                     ...selectedEmployee,
-                                    philhealth: value,
+                                    philhealth: v,
                                   });
-                                }
                               }}
                               inputProps={{ maxLength: 12 }}
                               InputProps={{ readOnly: !isEditing }}
@@ -1828,13 +1713,12 @@ export default function BmpowerHO() {
                               fullWidth
                               value={selectedEmployee.hdmf || ""}
                               onChange={(e) => {
-                                const value = e.target.value.replace(/\D/g, "");
-                                if (value.length <= 12) {
+                                const v = e.target.value.replace(/\D/g, "");
+                                if (v.length <= 12)
                                   setSelectedEmployee({
                                     ...selectedEmployee,
-                                    hdmf: value,
+                                    hdmf: v,
                                   });
-                                }
                               }}
                               inputProps={{ maxLength: 12 }}
                               InputProps={{ readOnly: !isEditing }}
@@ -1846,13 +1730,12 @@ export default function BmpowerHO() {
                               fullWidth
                               value={selectedEmployee.tin || ""}
                               onChange={(e) => {
-                                const value = e.target.value.replace(/\D/g, "");
-                                if (value.length <= 12) {
+                                const v = e.target.value.replace(/\D/g, "");
+                                if (v.length <= 12)
                                   setSelectedEmployee({
                                     ...selectedEmployee,
-                                    tin: value,
+                                    tin: v,
                                   });
-                                }
                               }}
                               inputProps={{ maxLength: 12 }}
                               InputProps={{ readOnly: !isEditing }}
@@ -1862,7 +1745,7 @@ export default function BmpowerHO() {
                       </CardContent>
                     </Card>
 
-                    {/* Banking Information Section */}
+                    {/* ── Banking Information ── */}
                     <Card
                       elevation={0}
                       sx={{
@@ -1874,11 +1757,7 @@ export default function BmpowerHO() {
                       <CardContent sx={{ p: 3 }}>
                         <Typography
                           variant="h6"
-                          sx={{
-                            mb: 3,
-                            fontWeight: 600,
-                            color: "#2e6385ff",
-                          }}
+                          sx={{ mb: 3, fontWeight: 600, color: "#2e6385ff" }}
                         >
                           Banking Information
                         </Typography>
@@ -1892,43 +1771,34 @@ export default function BmpowerHO() {
                                     selectedEmployee.modeOfDisbursement || ""
                                   }
                                   label="Mode of Disbursement"
-                                  onChange={(e) => {
-                                    const value = e.target.value;
+                                  onChange={(e) =>
                                     setSelectedEmployee({
                                       ...selectedEmployee,
-                                      modeOfDisbursement: value,
+                                      modeOfDisbursement: e.target.value,
                                       accountNumber: "",
-                                    });
-                                  }}
+                                    })
+                                  }
                                 >
-                                  <MenuItem value="AUB (Hello Money)">
-                                    AUB (Hello Money)
-                                  </MenuItem>
-                                  <MenuItem value="BDO NETWORK">
-                                    BDO NETWORK
-                                  </MenuItem>
-                                  <MenuItem value="BDO UNIBANK">
-                                    BDO UNIBANK
-                                  </MenuItem>
-                                  <MenuItem value="BPI">BPI</MenuItem>
-                                  <MenuItem value="CEBUANA">CEBUANA</MenuItem>
-                                  <MenuItem value="CHINABANK">
-                                    CHINABANK
-                                  </MenuItem>
-                                  <MenuItem value="EASTWEST">EASTWEST</MenuItem>
-                                  <MenuItem value="GCASH">GCASH</MenuItem>
-                                  <MenuItem value="LANDBANK">LANDBANK</MenuItem>
-                                  <MenuItem value="METROBANK">
-                                    METROBANK
-                                  </MenuItem>
-                                  <MenuItem value="PNB">PNB</MenuItem>
-                                  <MenuItem value="RCBC">RCBC</MenuItem>
-                                  <MenuItem value="SECURITY BANK">
-                                    SECURITY BANK
-                                  </MenuItem>
-                                  <MenuItem value="UNIONBANK">
-                                    UNIONBANK
-                                  </MenuItem>
+                                  {[
+                                    "AUB (Hello Money)",
+                                    "BDO NETWORK",
+                                    "BDO UNIBANK",
+                                    "BPI",
+                                    "CEBUANA",
+                                    "CHINABANK",
+                                    "EASTWEST",
+                                    "GCASH",
+                                    "LANDBANK",
+                                    "METROBANK",
+                                    "PNB",
+                                    "RCBC",
+                                    "SECURITY BANK",
+                                    "UNIONBANK",
+                                  ].map((b) => (
+                                    <MenuItem key={b} value={b}>
+                                      {b}
+                                    </MenuItem>
+                                  ))}
                                 </Select>
                               </FormControl>
                             ) : (
@@ -1972,12 +1842,11 @@ export default function BmpowerHO() {
                                   maxLengths[
                                     selectedEmployee.modeOfDisbursement
                                   ] || 20;
-                                if (value.length <= maxLength) {
+                                if (value.length <= maxLength)
                                   setSelectedEmployee({
                                     ...selectedEmployee,
                                     accountNumber: value,
                                   });
-                                }
                               }}
                               InputProps={{ readOnly: !isEditing }}
                               inputProps={{
@@ -1986,25 +1855,7 @@ export default function BmpowerHO() {
                               }}
                               helperText={
                                 selectedEmployee.modeOfDisbursement
-                                  ? `Must be ${
-                                      {
-                                        GCASH: 11,
-                                        CEBUANA: 11,
-                                        PNB: 12,
-                                        RCBC: 10,
-                                        EASTWEST: 12,
-                                        "AUB (Hello Money)": 12,
-                                        LANDBANK: 10,
-                                        UNIONBANK: 12,
-                                        "BDO NETWORK": 12,
-                                        "BDO UNIBANK": 12,
-                                        BPI: 12,
-                                        "SECURITY BANK": 13,
-                                        METROBANK: 13,
-                                        CHINABANK: 12,
-                                      }[selectedEmployee.modeOfDisbursement] ||
-                                      "up to 20"
-                                    } digits`
+                                  ? `Must be ${{ GCASH: 11, CEBUANA: 11, PNB: 12, RCBC: 10, EASTWEST: 12, "AUB (Hello Money)": 12, LANDBANK: 10, UNIONBANK: 12, "BDO NETWORK": 12, "BDO UNIBANK": 12, BPI: 12, "SECURITY BANK": 13, METROBANK: 13, CHINABANK: 12 }[selectedEmployee.modeOfDisbursement] || "up to 20"} digits`
                                   : "Select Mode of Disbursement first"
                               }
                             />
@@ -2013,7 +1864,7 @@ export default function BmpowerHO() {
                       </CardContent>
                     </Card>
 
-                    {/* Requirements Section */}
+                    {/* ── Requirements ── */}
                     <Card
                       elevation={0}
                       sx={{
@@ -2268,14 +2119,11 @@ export default function BmpowerHO() {
                                 fontWeight: 600,
                                 borderRadius: "8px",
                                 textTransform: "none",
-                                boxShadow: "0 4px 12px rgba(46, 99, 133, 0.3)",
+                                boxShadow: "0 4px 12px rgba(46,99,133,0.3)",
                                 "&:hover": {
                                   backgroundColor: canEdit
                                     ? "#0c2e3fff"
                                     : "#2e6385ff",
-                                  boxShadow: canEdit
-                                    ? "0 6px 16px rgba(46, 99, 133, 0.4)"
-                                    : "0 4px 12px rgba(46, 99, 133, 0.3)",
                                 },
                                 "&.Mui-disabled": {
                                   backgroundColor: "#90a4ae",
@@ -2301,11 +2149,8 @@ export default function BmpowerHO() {
                               fontWeight: 600,
                               borderRadius: "8px",
                               textTransform: "none",
-                              boxShadow: "0 4px 12px rgba(46, 99, 133, 0.3)",
-                              "&:hover": {
-                                backgroundColor: "#0c2e3fff",
-                                boxShadow: "0 6px 16px rgba(46, 99, 133, 0.4)",
-                              },
+                              boxShadow: "0 4px 12px rgba(46,99,133,0.3)",
+                              "&:hover": { backgroundColor: "#0c2e3fff" },
                             }}
                           >
                             Save Changes
@@ -2324,7 +2169,7 @@ export default function BmpowerHO() {
                               borderRadius: "8px",
                               textTransform: "none",
                               "&:hover": {
-                                backgroundColor: "rgba(211, 47, 47, 0.08)",
+                                backgroundColor: "rgba(211,47,47,0.08)",
                                 borderColor: "#c62828",
                               },
                             }}
@@ -2340,7 +2185,7 @@ export default function BmpowerHO() {
             </Fade>
           </Modal>
 
-          {/* View All Requirements Modal */}
+          {/* ── View All Requirements Modal ── */}
           <Modal
             open={viewAllModalOpen}
             onClose={() => setViewAllModalOpen(false)}
@@ -2348,7 +2193,7 @@ export default function BmpowerHO() {
             BackdropComponent={Backdrop}
             BackdropProps={{
               timeout: 500,
-              sx: { backgroundColor: "rgba(0, 0, 0, 0.7)" },
+              sx: { backgroundColor: "rgba(0,0,0,0.7)" },
             }}
           >
             <Fade in={viewAllModalOpen}>
@@ -2357,7 +2202,7 @@ export default function BmpowerHO() {
                   position: "absolute",
                   top: "50%",
                   left: "50%",
-                  transform: "translate(-50%, -50%)",
+                  transform: "translate(-50%,-50%)",
                   width: { xs: "95%", sm: "85%", md: "75%", lg: "65%" },
                   maxHeight: "90vh",
                   bgcolor: "background.paper",
@@ -2366,7 +2211,6 @@ export default function BmpowerHO() {
                   overflow: "hidden",
                 }}
               >
-                {/* Modal Header */}
                 <Box
                   sx={{
                     background:
@@ -2380,7 +2224,7 @@ export default function BmpowerHO() {
                   <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                     <Avatar
                       sx={{
-                        bgcolor: "rgba(255, 255, 255, 0.2)",
+                        bgcolor: "rgba(255,255,255,0.2)",
                         width: 48,
                         height: 48,
                       }}
@@ -2398,35 +2242,17 @@ export default function BmpowerHO() {
                     onClick={() => setViewAllModalOpen(false)}
                     sx={{
                       color: "white",
-                      "&:hover": {
-                        backgroundColor: "rgba(255, 255, 255, 0.1)",
-                      },
+                      "&:hover": { backgroundColor: "rgba(255,255,255,0.1)" },
                     }}
                   >
                     <CloseIcon />
                   </IconButton>
                 </Box>
-
-                {/* Modal Body */}
                 <Box
                   sx={{
                     p: 4,
                     maxHeight: "calc(90vh - 100px)",
                     overflowY: "auto",
-                    "&::-webkit-scrollbar": {
-                      width: "8px",
-                    },
-                    "&::-webkit-scrollbar-track": {
-                      background: "#f1f1f1",
-                      borderRadius: "10px",
-                    },
-                    "&::-webkit-scrollbar-thumb": {
-                      background: "#888",
-                      borderRadius: "10px",
-                      "&:hover": {
-                        background: "#555",
-                      },
-                    },
                   }}
                 >
                   {viewRequirements.length > 0 ? (
@@ -2468,17 +2294,10 @@ export default function BmpowerHO() {
                                   position: "absolute",
                                   top: 8,
                                   right: 8,
-                                  backgroundColor: "rgba(255, 255, 255, 0.95)",
-                                  "&:hover": {
-                                    backgroundColor: "rgba(255, 255, 255, 1)",
-                                  },
+                                  backgroundColor: "rgba(255,255,255,0.95)",
                                 }}
                                 onClick={async () => {
-                                  if (
-                                    window.confirm(
-                                      "Are you sure you want to delete this image?",
-                                    )
-                                  ) {
+                                  if (window.confirm("Delete this image?")) {
                                     setViewRequirements((prev) =>
                                       prev.filter((_, i) => i !== index),
                                     );
@@ -2500,13 +2319,7 @@ export default function BmpowerHO() {
                       ))}
                     </Grid>
                   ) : (
-                    <Box
-                      sx={{
-                        textAlign: "center",
-                        py: 8,
-                        color: "#666",
-                      }}
-                    >
+                    <Box sx={{ textAlign: "center", py: 8, color: "#666" }}>
                       <ImageIcon sx={{ fontSize: 80, color: "#ccc", mb: 2 }} />
                       <Typography variant="h6" gutterBottom>
                         No Requirements Found
@@ -2521,7 +2334,7 @@ export default function BmpowerHO() {
             </Fade>
           </Modal>
 
-          {/* Image Preview Modal */}
+          {/* ── Image Preview Modal ── */}
           <Modal
             open={!!previewImage}
             onClose={() => setPreviewImage(null)}
@@ -2529,7 +2342,7 @@ export default function BmpowerHO() {
             BackdropComponent={Backdrop}
             BackdropProps={{
               timeout: 500,
-              sx: { backgroundColor: "rgba(0, 0, 0, 0.9)" },
+              sx: { backgroundColor: "rgba(0,0,0,0.9)" },
             }}
           >
             <Fade in={!!previewImage}>
@@ -2538,7 +2351,7 @@ export default function BmpowerHO() {
                   position: "absolute",
                   top: "50%",
                   left: "50%",
-                  transform: "translate(-50%, -50%)",
+                  transform: "translate(-50%,-50%)",
                   maxWidth: "95vw",
                   maxHeight: "95vh",
                   outline: "none",
@@ -2551,10 +2364,8 @@ export default function BmpowerHO() {
                     top: -50,
                     right: 0,
                     color: "white",
-                    backgroundColor: "rgba(0, 0, 0, 0.5)",
-                    "&:hover": {
-                      backgroundColor: "rgba(0, 0, 0, 0.7)",
-                    },
+                    backgroundColor: "rgba(0,0,0,0.5)",
+                    "&:hover": { backgroundColor: "rgba(0,0,0,0.7)" },
                   }}
                 >
                   <CloseIcon />

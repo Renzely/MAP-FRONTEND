@@ -67,22 +67,36 @@ export default function BmpowerHO() {
       "Executive Director",
       "Operation Director",
       "Operation Head",
+      "Sr. Account Supervisor",
+      "Jr. Account Supervisor",
       "Account Supervisor",
-      "Operations Admin",
+      "Operation Officer",
+      "Operation Admin",
       "Data Analyst",
       "Utility",
       "Treasury Head",
+      "OIC Treasury",
       "Treasury Officer",
       "Treasury Assistant",
+      "OIC Payroll and Billing",
       "Billing Officer",
+      "Payroll Officer",
+      "Payroll and Billing Officer",
       "Billing Specialist",
+      "Billing Assistant",
       "Payroll Specialist",
-      "Assistant Payroll Specialist",
+      "HR Head",
       "HR Officer",
       "HR Coordinator",
-      "Recruitment Specialist",
-      "SPX Head",
+      "HR Admin",
+      "HR Liaison",
+      "HR Recruitment Specialist",
+      "HR Compensastion & Benefits Specialist",
+      "Logistic Head",
+      "SPX Coordinator",
       "Agency Coordinator",
+      "Software Engineer",
+      "Tech Support",
     ],
 
     "ECOSSENTIAL FOODS CORP": [
@@ -92,7 +106,6 @@ export default function BmpowerHO() {
       "Tactical Coordinator",
       "Account Coordinator",
     ],
-
     "ECOSSENTIAL FOODS CORP-HEAD OFFICE": ["MHE Operator", "Fleet Operator"],
     "MCKENZIE DISTRIBUTION CO.": [
       "Merchandiser",
@@ -101,7 +114,7 @@ export default function BmpowerHO() {
       "Tactical Coordinator",
       "Encoder",
     ],
-    BROLLE: ["Merchandiser", "CVS Merchandiser", "Repacker"],
+    "BROLLEE EXCLUSIVE": ["Merchandiser"],
     "UNION GALVASTEEL CO": [
       "Project In-Charge",
       "Rigger",
@@ -119,6 +132,9 @@ export default function BmpowerHO() {
       "Van Route Salesman – Junior",
       "Van Route Salesman – Senior",
       "Beverage Developer",
+      "Delivery Helper",
+      "PMS Booking",
+      "HBR JR",
     ],
     MANDOM: ["Brand Ambassador"],
     ENGKANTO: ["Tactical Coordinator"],
@@ -128,8 +144,9 @@ export default function BmpowerHO() {
       "Shipping Coordinator",
       "Accountant",
       "Declarant",
+      "Processor",
     ],
-    "PLDT TELESCOOP": ["Utility"],
+    "PLDT TELESCOOP": ["Utility", "Office Staff"],
     "SPX EXPRESS": [
       "Backroom Personnel",
       "2-Wheel Delivery Rider",
@@ -140,13 +157,38 @@ export default function BmpowerHO() {
     "DEL MONTE": ["Push Girl", "Cook", "Helper", "Coordinator", "Team Leader"],
     // Marabou Clients
     "MARABOU EVERGREEN RESOURCES INC": [
-      "Software Engineer",
+      "Executive Director",
+      "Operation Director",
+      "Operation Head",
+      "Sr. Account Supervisor",
+      "Jr. Account Supervisor",
+      "Account Supervisor",
+      "Operation Officer",
+      "Operation Admin",
+      "Data Analyst",
+      "Utility",
+      "Treasury Head",
+      "OIC Treasury",
+      "Treasury Officer",
+      "Treasury Assistant",
+      "OIC Payroll and Billing",
+      "Billing Officer",
+      "Payroll Officer",
+      "Payroll and Billing Officer",
+      "Billing Specialist",
+      "Billing Assistant",
       "Payroll Specialist",
-      "Assistant Payroll Specialist",
-      "Hub Coordinator",
+      "HR Head",
       "HR Officer",
       "HR Coordinator",
-      "Recruitment Specialist",
+      "HR Admin",
+      "HR Liaison",
+      "HR Recruitment Specialist",
+      "HR Compensastion & Benefits Specialist",
+      "Logistic Head",
+      "Agency Coordinator",
+      "Software Engineer",
+      "Tech Support",
     ],
     "LONG TABLE GROUP INC.- MASAJIRO": [
       "Dining Staff / Cashier",
@@ -157,6 +199,7 @@ export default function BmpowerHO() {
       "Admin Officer",
       "Finance Officer",
       "FOH Team Leader",
+      "Utility / Helper",
     ],
     "J-GYU INC": ["Admin Officer / Purchasing Staff", "Production Staff"],
     "CARMENS BEST": ["Tactical Coordinator", "Account Coordinator"],
@@ -227,19 +270,13 @@ export default function BmpowerHO() {
     );
   }
 
-  const fetchSavedRequirements = async (employeeEmail) => {
+  const fetchSavedRequirements = async (employeeId) => {
     try {
       const response = await axios.get(
         "https://api-map.bmphrc.com/get-merch-accounts",
       );
-
-      const employee = response.data.find((emp) => emp._id === employeeEmail);
-
-      if (employee && employee.requirementsImages) {
-        setViewRequirements(employee.requirementsImages);
-      } else {
-        setViewRequirements([]);
-      }
+      const employee = response.data.find((emp) => emp._id === employeeId);
+      setViewRequirements(employee?.requirementsImages || []);
     } catch (err) {
       console.error("Failed to fetch saved requirements:", err);
       setViewRequirements([]);
@@ -274,12 +311,10 @@ export default function BmpowerHO() {
   };
 
   const handleSaveChanges = async (updatedEmployee) => {
-    // 🔹 DIGIT VALIDATION FIRST
     if (updatedEmployee.sss && updatedEmployee.sss.length !== 10) {
       alert("SSS must be exactly 10 digits.");
       return;
     }
-
     if (
       updatedEmployee.philhealth &&
       updatedEmployee.philhealth.length !== 12
@@ -287,42 +322,55 @@ export default function BmpowerHO() {
       alert("PhilHealth must be exactly 12 digits.");
       return;
     }
-
     if (updatedEmployee.hdmf && updatedEmployee.hdmf.length !== 12) {
       alert("HDMF must be exactly 12 digits.");
       return;
     }
-
     if (updatedEmployee.tin && updatedEmployee.tin.length !== 12) {
       alert("TIN must be exactly 12 digits.");
       return;
     }
 
-    const resignationRemarks = ["Resign", "Terminate", "End of Contract"];
+    // Date Hired required only for Employed
+    if (updatedEmployee.remarks === "Employed" && !updatedEmployee.dateHired) {
+      alert("Date Hired is required for Employed status.");
+      return;
+    }
 
+    // Date Resigned required for resignation-type remarks
+    const resignationRemarks = [
+      "Resign",
+      "Terminate",
+      "End of Contract",
+      "Retrenchment",
+      "Terminated",
+      "AWOL",
+    ];
     if (
       resignationRemarks.includes(updatedEmployee.remarks) &&
       !updatedEmployee.dateResigned
     ) {
-      setDateResignedError(true); // triggers error display
-      return; // stop saving
+      setDateResignedError(true);
+      return;
+    }
+    if (
+      resignationRemarks.includes(updatedEmployee.remarks) &&
+      !updatedEmployee.dateResigned
+    ) {
+      setDateResignedError(true);
+      return;
     }
 
     try {
       const adminFullName = localStorage.getItem("adminFullName");
-
       const payload = {
         ...updatedEmployee,
         updatedBy: adminFullName || "Unknown",
       };
-
-      console.log("✅ Sending update with admin:", payload.updatedBy);
-
       await axios.put(
         `https://api-map.bmphrc.com/update-employee/${updatedEmployee._id}`,
         payload,
       );
-
       alert("Employee details updated successfully!");
       setDateResignedError(false);
       setOpenEditModal(false);
@@ -341,12 +389,21 @@ export default function BmpowerHO() {
           "https://api-map.bmphrc.com/get-merch-accounts",
         );
 
-        const bmpowerAccounts = response.data.filter(
-          (acc) =>
+        const bmpowerAccounts = response.data.filter((acc) => {
+          const isCorrectCompany =
             acc.company?.toUpperCase() ===
-              "BMPOWER HUMAN RESOURCES CORPORATION" &&
-            acc.clientAssigned?.toUpperCase() === "UNION GALVASTEEL CO",
-        );
+            "BMPOWER HUMAN RESOURCES CORPORATION";
+
+          const isCorrectClient =
+            acc.clientAssigned?.toUpperCase() === "UNION GALVASTEEL CO";
+
+          // ❌ EXCLUDE APPLICANTS
+          const isNotApplicant =
+            acc.status?.toUpperCase() !== "APPLICANT" &&
+            acc.remarks?.toUpperCase() !== "APPLICANT";
+
+          return isCorrectCompany && isCorrectClient && isNotApplicant;
+        });
 
         setAccounts(bmpowerAccounts);
         setFilteredAccounts(bmpowerAccounts);
@@ -380,6 +437,7 @@ export default function BmpowerHO() {
         "Contact",
         "Email",
         "Birthday",
+        "Age",
         "DateHired",
         "DateResigned",
         "HomeAddress",
@@ -630,6 +688,19 @@ export default function BmpowerHO() {
     ...acc,
   }));
 
+  const showClearance = (emp) =>
+    emp &&
+    [
+      "Resign",
+      "Terminate",
+      "End of Contract",
+      "Retrenchment",
+      "Terminated",
+      "AWOL",
+    ].includes(emp?.remarks) &&
+    emp?.dateResigned &&
+    emp?.reasonForLeaving;
+
   return (
     <>
       <Topbar />
@@ -640,17 +711,11 @@ export default function BmpowerHO() {
           transition: "margin-left 0.3s ease",
           minHeight: "100vh",
           backgroundColor: "#f5f7fa",
-          paddingTop: "64px", // Account for fixed topbar
+          paddingTop: "64px",
         }}
       >
-        <Box
-          sx={{
-            p: 3,
-            maxWidth: "1800px",
-            margin: "0 auto",
-          }}
-        >
-          {/* Header Section */}
+        <Box sx={{ p: 3, maxWidth: "1800px", margin: "0 auto" }}>
+          {/* Header */}
           <Paper
             elevation={0}
             sx={{
@@ -698,7 +763,7 @@ export default function BmpowerHO() {
             </Box>
           </Paper>
 
-          {/* Filter and Export Section */}
+          {/* Filter & Export */}
           <Paper
             elevation={0}
             sx={{
@@ -722,10 +787,7 @@ export default function BmpowerHO() {
                   value={selectedRemarks}
                   onChange={handleRemarksChange}
                   label="Filter by Remarks"
-                  sx={{
-                    backgroundColor: "white",
-                    borderRadius: "8px",
-                  }}
+                  sx={{ backgroundColor: "white", borderRadius: "8px" }}
                 >
                   <MenuItem value="">
                     <em>Select Remarks</em>
@@ -734,11 +796,12 @@ export default function BmpowerHO() {
                   <MenuItem value="Applicant">Applicant</MenuItem>
                   <MenuItem value="Employed">Employed</MenuItem>
                   <MenuItem value="Resign">Resign</MenuItem>
-                  <MenuItem value="Terminate">Terminate</MenuItem>
                   <MenuItem value="End of Contract">End of Contract</MenuItem>
+                  <MenuItem value="Retrenchment">Retrenchment</MenuItem>
+                  <MenuItem value="Terminated">Terminated</MenuItem>
+                  <MenuItem value="AWOL">AWOL</MenuItem>
                 </Select>
               </FormControl>
-
               <Button
                 onClick={getExportData}
                 variant="contained"
@@ -752,18 +815,13 @@ export default function BmpowerHO() {
                   textTransform: "none",
                   fontSize: "16px",
                   fontWeight: 600,
-                  boxShadow: "0 4px 12px rgba(46, 99, 133, 0.3)",
-                  "&:hover": {
-                    backgroundColor: "#0c2e3fff",
-                    boxShadow: "0 6px 16px rgba(46, 99, 133, 0.4)",
-                  },
+                  boxShadow: "0 4px 12px rgba(46,99,133,0.3)",
+                  "&:hover": { backgroundColor: "#0c2e3fff" },
                 }}
               >
                 Export to Excel
               </Button>
-
               <Box sx={{ flexGrow: 1 }} />
-
               <Chip
                 icon={<PersonIcon />}
                 label={`Total Employees: ${filteredAccounts.length}`}
@@ -778,45 +836,33 @@ export default function BmpowerHO() {
             </Box>
           </Paper>
 
-          {/* DataGrid Section */}
+          {/* DataGrid */}
           <Paper
             elevation={0}
             sx={{
               borderRadius: "12px",
               overflow: "hidden",
               border: "1px solid #e0e0e0",
-              "& .MuiDataGrid-root": {
-                border: "none",
-              },
-              "& .MuiDataGrid-cell": {
-                borderBottom: "1px solid #f0f0f0",
-              },
+              "& .MuiDataGrid-root": { border: "none" },
+              "& .MuiDataGrid-cell": { borderBottom: "1px solid #f0f0f0" },
               "& .MuiDataGrid-columnHeaders": {
                 backgroundColor: "#fafafa",
                 borderBottom: "2px solid #e0e0e0",
                 fontSize: "14px",
                 fontWeight: 600,
               },
-              "& .MuiDataGrid-row:hover": {
-                backgroundColor: "#f8f9fa",
-              },
+              "& .MuiDataGrid-row:hover": { backgroundColor: "#f8f9fa" },
             }}
           >
             <DataGrid
               rows={rows}
               columns={columns}
-              autoHeight // This makes the grid expand to fit all rows
+              autoHeight
               initialState={{
-                pagination: {
-                  paginationModel: { page: 0, pageSize: 10 },
-                },
+                pagination: { paginationModel: { page: 0, pageSize: 10 } },
               }}
               slots={{ toolbar: CustomToolbar }}
-              slotProps={{
-                toolbar: {
-                  showQuickFilter: true,
-                },
-              }}
+              slotProps={{ toolbar: { showQuickFilter: true } }}
               pageSizeOptions={[5, 10, 20, 50]}
               disableRowSelectionOnClick
               disableDensitySelector
@@ -824,7 +870,8 @@ export default function BmpowerHO() {
               disableColumnSelector
             />
           </Paper>
-          {/* Edit Employee Modal */}
+
+          {/* ── EDIT EMPLOYEE MODAL ── */}
           <Modal
             open={openEditModal}
             onClose={handleCloseEditModal}
@@ -832,7 +879,7 @@ export default function BmpowerHO() {
             BackdropComponent={Backdrop}
             BackdropProps={{
               timeout: 500,
-              sx: { backgroundColor: "rgba(0, 0, 0, 0.7)" },
+              sx: { backgroundColor: "rgba(0,0,0,0.7)" },
             }}
           >
             <Fade in={openEditModal}>
@@ -841,16 +888,14 @@ export default function BmpowerHO() {
                   position: "absolute",
                   top: "50%",
                   left: "50%",
-                  transform: "translate(-50%, -50%)",
+                  transform: "translate(-50%,-50%)",
                   width: { xs: "95%", sm: "85%", md: "70%", lg: "60%" },
                   maxHeight: "90vh",
                   overflowY: "auto",
                   bgcolor: "background.paper",
                   borderRadius: "16px",
                   boxShadow: "0 24px 48px rgba(0,0,0,0.2)",
-                  "&::-webkit-scrollbar": {
-                    width: "8px",
-                  },
+                  "&::-webkit-scrollbar": { width: "8px" },
                   "&::-webkit-scrollbar-track": {
                     background: "#f1f1f1",
                     borderRadius: "10px",
@@ -858,9 +903,6 @@ export default function BmpowerHO() {
                   "&::-webkit-scrollbar-thumb": {
                     background: "#888",
                     borderRadius: "10px",
-                    "&:hover": {
-                      background: "#555",
-                    },
                   },
                 }}
               >
@@ -883,7 +925,7 @@ export default function BmpowerHO() {
                   <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                     <Avatar
                       sx={{
-                        bgcolor: "rgba(255, 255, 255, 0.2)",
+                        bgcolor: "rgba(255,255,255,0.2)",
                         width: 48,
                         height: 48,
                       }}
@@ -899,7 +941,7 @@ export default function BmpowerHO() {
                       </Typography>
                       <Typography
                         variant="body2"
-                        sx={{ color: "rgba(255, 255, 255, 0.8)" }}
+                        sx={{ color: "rgba(255,255,255,0.8)" }}
                       >
                         {isEditing ? "Edit Mode" : "View Mode"}
                       </Typography>
@@ -909,19 +951,16 @@ export default function BmpowerHO() {
                     onClick={handleCloseEditModal}
                     sx={{
                       color: "white",
-                      "&:hover": {
-                        backgroundColor: "rgba(255, 255, 255, 0.1)",
-                      },
+                      "&:hover": { backgroundColor: "rgba(255,255,255,0.1)" },
                     }}
                   >
                     <CloseIcon />
                   </IconButton>
                 </Box>
 
-                {/* Modal Body */}
                 {selectedEmployee && (
                   <Box sx={{ p: 4 }}>
-                    {/* Personal Information Section */}
+                    {/* ── Personal Information ── */}
                     <Card
                       elevation={0}
                       sx={{
@@ -957,7 +996,6 @@ export default function BmpowerHO() {
                                 })
                               }
                               InputProps={{ readOnly: !isEditing }}
-                              variant="outlined"
                             />
                           </Grid>
                           <Grid item xs={12} sm={4}>
@@ -972,7 +1010,6 @@ export default function BmpowerHO() {
                                 })
                               }
                               InputProps={{ readOnly: !isEditing }}
-                              variant="outlined"
                             />
                           </Grid>
                           <Grid item xs={12} sm={4}>
@@ -987,7 +1024,6 @@ export default function BmpowerHO() {
                                 })
                               }
                               InputProps={{ readOnly: !isEditing }}
-                              variant="outlined"
                             />
                           </Grid>
                           <Grid item xs={12} sm={6}>
@@ -1015,7 +1051,6 @@ export default function BmpowerHO() {
                               InputLabelProps={{ shrink: true }}
                             />
                           </Grid>
-
                           <Grid item xs={12} sm={6}>
                             <TextField
                               label="Age"
@@ -1078,7 +1113,7 @@ export default function BmpowerHO() {
                       </CardContent>
                     </Card>
 
-                    {/* Employment Information Section */}
+                    {/* ── Employment Information ── */}
                     <Card
                       elevation={0}
                       sx={{
@@ -1163,6 +1198,9 @@ export default function BmpowerHO() {
                                 >
                                   <MenuItem value="Active">Active</MenuItem>
                                   <MenuItem value="Inactive">Inactive</MenuItem>
+                                  <MenuItem value="Applicant">
+                                    Applicant
+                                  </MenuItem>
                                 </Select>
                               </FormControl>
                             ) : (
@@ -1170,6 +1208,61 @@ export default function BmpowerHO() {
                                 label="Status"
                                 fullWidth
                                 value={selectedEmployee.status || ""}
+                                InputProps={{ readOnly: true }}
+                              />
+                            )}
+                          </Grid>
+                          <Grid item xs={12} sm={6}>
+                            {isEditing ? (
+                              <FormControl fullWidth>
+                                <InputLabel>Remarks</InputLabel>
+                                <Select
+                                  value={selectedEmployee.remarks || ""}
+                                  label="Remarks"
+                                  onChange={(e) => {
+                                    const newRemarks = e.target.value;
+                                    // Auto-map Remarks → Reason for Leaving
+                                    const leavingRemarks = [
+                                      "Resign",
+                                      "End of Contract",
+                                      "Retrenchment",
+                                      "Terminated",
+                                      "AWOL",
+                                    ];
+                                    const autoReason = leavingRemarks.includes(
+                                      newRemarks,
+                                    )
+                                      ? newRemarks
+                                      : "";
+                                    setSelectedEmployee({
+                                      ...selectedEmployee,
+                                      remarks: newRemarks,
+                                      reasonForLeaving: autoReason,
+                                    });
+                                  }}
+                                >
+                                  <MenuItem value="Applicant">
+                                    Applicant
+                                  </MenuItem>
+                                  <MenuItem value="Employed">Employed</MenuItem>
+                                  <MenuItem value="Resign">Resign</MenuItem>
+                                  <MenuItem value="End of Contract">
+                                    End of Contract
+                                  </MenuItem>
+                                  <MenuItem value="Retrenchment">
+                                    Retrenchment
+                                  </MenuItem>
+                                  <MenuItem value="Terminated">
+                                    Terminated
+                                  </MenuItem>
+                                  <MenuItem value="AWOL">AWOL</MenuItem>
+                                </Select>
+                              </FormControl>
+                            ) : (
+                              <TextField
+                                label="Remarks"
+                                fullWidth
+                                value={selectedEmployee.remarks || ""}
                                 InputProps={{ readOnly: true }}
                               />
                             )}
@@ -1239,9 +1332,7 @@ export default function BmpowerHO() {
                                   <MenuItem value="BMPOWER HUMAN RESOURCES CORPORATION">
                                     BMPOWER HUMAN RESOURCES CORPORATION
                                   </MenuItem>
-                                  <MenuItem value="BROLLEE EXCLUSIVE">
-                                    BROLLEE EXCLUSIVE
-                                  </MenuItem>
+                                  <MenuItem value="BROLLE">BROLLE</MenuItem>
                                   <MenuItem value="CARMENS BEST">
                                     CARMENS BEST
                                   </MenuItem>
@@ -1322,11 +1413,35 @@ export default function BmpowerHO() {
                                   dateHired: e.target.value,
                                 })
                               }
-                              InputProps={{ readOnly: !isEditing }}
+                              // Disabled entirely if Applicant; read-only if not editing
+                              InputProps={{
+                                readOnly:
+                                  !isEditing ||
+                                  selectedEmployee.remarks === "Applicant",
+                              }}
+                              disabled={
+                                isEditing &&
+                                selectedEmployee.remarks === "Applicant"
+                              }
                               inputProps={{
                                 onKeyDown: (e) => e.preventDefault(),
                               }}
                               InputLabelProps={{ shrink: true }}
+                              error={
+                                isEditing &&
+                                selectedEmployee.remarks === "Employed" &&
+                                !selectedEmployee.dateHired
+                              }
+                              helperText={
+                                isEditing &&
+                                selectedEmployee.remarks === "Applicant"
+                                  ? "Not applicable for Applicant"
+                                  : isEditing &&
+                                      selectedEmployee.remarks === "Employed" &&
+                                      !selectedEmployee.dateHired
+                                    ? "Date Hired is required for Employed"
+                                    : ""
+                              }
                             />
                           </Grid>
                           <Grid item xs={12} sm={4}>
@@ -1348,12 +1463,22 @@ export default function BmpowerHO() {
                                 });
                                 if (e.target.value) setDateResignedError(false);
                               }}
+                              // Disabled if Applicant or Employed
                               InputProps={{
-                                readOnly: !isEditing,
+                                readOnly:
+                                  !isEditing ||
+                                  ["Applicant", "Employed"].includes(
+                                    selectedEmployee.remarks,
+                                  ),
                               }}
+                              disabled={
+                                isEditing &&
+                                ["Applicant", "Employed"].includes(
+                                  selectedEmployee.remarks,
+                                )
+                              }
                               inputProps={{
-                                shrink: true,
-                                onKeyDown: (e) => e.preventDefault(), // blocks all keyboard input
+                                onKeyDown: (e) => e.preventDefault(),
                               }}
                               InputLabelProps={{ shrink: true }}
                               error={
@@ -1362,17 +1487,28 @@ export default function BmpowerHO() {
                                   "Resign",
                                   "Terminate",
                                   "End of Contract",
+                                  "Retrenchment",
+                                  "Terminated",
+                                  "AWOL",
                                 ].includes(selectedEmployee.remarks)
                               }
                               helperText={
-                                dateResignedError &&
-                                [
-                                  "Resign",
-                                  "Terminate",
-                                  "End of Contract",
-                                ].includes(selectedEmployee.remarks)
-                                  ? "Date Resigned is required for this remarks status."
-                                  : ""
+                                isEditing &&
+                                ["Applicant", "Employed"].includes(
+                                  selectedEmployee.remarks,
+                                )
+                                  ? "Not applicable for this status"
+                                  : dateResignedError &&
+                                      [
+                                        "Resign",
+                                        "Terminate",
+                                        "End of Contract",
+                                        "Retrenchment",
+                                        "Terminated",
+                                        "AWOL",
+                                      ].includes(selectedEmployee.remarks)
+                                    ? "Date Resigned is required for this remarks status."
+                                    : ""
                               }
                             />
                           </Grid>
@@ -1391,241 +1527,209 @@ export default function BmpowerHO() {
                             />
                           </Grid>
                           <Grid item xs={12} sm={6}>
-                            {isEditing ? (
-                              <FormControl fullWidth>
-                                <InputLabel>Reason for Leaving</InputLabel>
-                                <Select
-                                  value={
-                                    selectedEmployee.reasonForLeaving || ""
-                                  }
-                                  label="Reason for Leaving"
-                                  onChange={(e) =>
-                                    setSelectedEmployee({
-                                      ...selectedEmployee,
-                                      reasonForLeaving: e.target.value,
-                                    })
-                                  }
-                                >
-                                  <MenuItem value="End of Contract">
-                                    End of Contract
-                                  </MenuItem>
-                                  <MenuItem value="AWOL">AWOL</MenuItem>
-                                  <MenuItem value="Terminated">
-                                    Terminated
-                                  </MenuItem>
-                                  <MenuItem value="Retrenchment">
-                                    Retrenchment
-                                  </MenuItem>
-                                </Select>
-                              </FormControl>
-                            ) : (
-                              <TextField
-                                label="Reason for Leaving"
-                                fullWidth
-                                value={selectedEmployee.reasonForLeaving || ""}
-                                InputProps={{ readOnly: true }}
-                              />
-                            )}
+                            {/* Reason for Leaving — always read-only, auto-filled from Remarks */}
+                            <TextField
+                              label="Reason for Leaving"
+                              fullWidth
+                              value={selectedEmployee.reasonForLeaving || ""}
+                              InputProps={{ readOnly: true }}
+                              helperText={
+                                isEditing ? "Auto-filled based on Remarks" : ""
+                              }
+                              sx={{
+                                "& .MuiOutlinedInput-root": {
+                                  backgroundColor: "#fafafa",
+                                },
+                              }}
+                            />
                           </Grid>
                         </Grid>
                       </CardContent>
                     </Card>
-                    {["Resign", "Terminate", "End of Contract"].includes(
-                      selectedEmployee?.remarks,
-                    ) &&
-                      selectedEmployee?.dateResigned &&
-                      selectedEmployee?.reasonForLeaving && (
-                        <Card
-                          elevation={0}
-                          sx={{
-                            mb: 3,
-                            border: "1px solid #e0e0e0",
-                            borderRadius: "12px",
-                          }}
-                        >
-                          <CardContent sx={{ p: 3 }}>
-                            <Typography
-                              variant="h6"
-                              sx={{
-                                mb: 3,
-                                fontWeight: 600,
-                                color: "#2e6385ff",
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 1,
-                              }}
-                            >
-                              <ChecklistIcon /> Clearance
-                            </Typography>
-                            <Grid container spacing={2.5}>
-                              {/* Date Clearance Started */}
-                              <Grid item xs={12} sm={6}>
-                                <TextField
-                                  label="Date Clearance Started"
-                                  fullWidth
-                                  type="date"
-                                  value={
-                                    selectedEmployee.dateClearance
-                                      ? dayjs(
-                                          selectedEmployee.dateClearance,
-                                        ).format("YYYY-MM-DD")
-                                      : ""
-                                  }
-                                  onChange={(e) =>
-                                    setSelectedEmployee({
-                                      ...selectedEmployee,
-                                      dateClearance: e.target.value,
-                                    })
-                                  }
-                                  InputProps={{ readOnly: !isEditing }}
-                                  inputProps={{
-                                    onKeyDown: (e) => e.preventDefault(),
-                                  }}
-                                  InputLabelProps={{ shrink: true }}
-                                />
-                              </Grid>
 
-                              {/* Clearance Status Dropdown */}
-                              <Grid item xs={12} sm={6}>
-                                {isEditing ? (
-                                  <FormControl fullWidth>
-                                    <InputLabel>Clearance Status</InputLabel>
-                                    <Select
-                                      value={
-                                        selectedEmployee.clearanceStatus ||
-                                        "Processing"
-                                      }
-                                      label="Clearance Status"
-                                      onChange={(e) =>
-                                        setSelectedEmployee({
-                                          ...selectedEmployee,
-                                          clearanceStatus: e.target.value,
-                                        })
-                                      }
-                                    >
-                                      <MenuItem value="Processing">
-                                        Processing
-                                      </MenuItem>
-                                      <MenuItem value="Cleared">
-                                        Cleared
-                                      </MenuItem>
-                                    </Select>
-                                  </FormControl>
-                                ) : (
-                                  <TextField
-                                    label="Clearance Status"
-                                    fullWidth
+                    {/* ── Clearance Section — shown when resigned + dateResigned + reasonForLeaving ── */}
+                    {showClearance(selectedEmployee) && (
+                      <Card
+                        elevation={0}
+                        sx={{
+                          mb: 3,
+                          border: "1px solid #e0e0e0",
+                          borderRadius: "12px",
+                        }}
+                      >
+                        <CardContent sx={{ p: 3 }}>
+                          <Typography
+                            variant="h6"
+                            sx={{
+                              mb: 3,
+                              fontWeight: 600,
+                              color: "#2e6385ff",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 1,
+                            }}
+                          >
+                            <ChecklistIcon /> Clearance
+                          </Typography>
+                          <Grid container spacing={2.5}>
+                            {/* Date Clearance Started */}
+                            <Grid item xs={12} sm={6}>
+                              <TextField
+                                label="Date Clearance Started"
+                                fullWidth
+                                type="date"
+                                value={
+                                  selectedEmployee.dateClearance
+                                    ? dayjs(
+                                        selectedEmployee.dateClearance,
+                                      ).format("YYYY-MM-DD")
+                                    : ""
+                                }
+                                onChange={(e) =>
+                                  setSelectedEmployee({
+                                    ...selectedEmployee,
+                                    dateClearance: e.target.value,
+                                  })
+                                }
+                                InputProps={{ readOnly: !isEditing }}
+                                inputProps={{
+                                  onKeyDown: (e) => e.preventDefault(),
+                                }}
+                                InputLabelProps={{ shrink: true }}
+                              />
+                            </Grid>
+
+                            {/* Clearance Status */}
+                            <Grid item xs={12} sm={6}>
+                              {isEditing ? (
+                                <FormControl fullWidth>
+                                  <InputLabel>Clearance Status</InputLabel>
+                                  <Select
                                     value={
                                       selectedEmployee.clearanceStatus ||
                                       "Processing"
                                     }
-                                    InputProps={{ readOnly: true }}
-                                  />
-                                )}
-                              </Grid>
-
-                              {/* Date Cleared */}
-                              <Grid item xs={12} sm={6}>
+                                    label="Clearance Status"
+                                    onChange={(e) =>
+                                      setSelectedEmployee({
+                                        ...selectedEmployee,
+                                        clearanceStatus: e.target.value,
+                                      })
+                                    }
+                                  >
+                                    <MenuItem value="Processing">
+                                      Processing
+                                    </MenuItem>
+                                    <MenuItem value="Cleared">Cleared</MenuItem>
+                                  </Select>
+                                </FormControl>
+                              ) : (
                                 <TextField
-                                  label="Date Cleared"
+                                  label="Clearance Status"
                                   fullWidth
-                                  type="date"
                                   value={
-                                    selectedEmployee.dateCleared
-                                      ? dayjs(
-                                          selectedEmployee.dateCleared,
-                                        ).format("YYYY-MM-DD")
-                                      : ""
-                                  }
-                                  onChange={(e) => {
-                                    const dateCleared = e.target.value;
-                                    // Auto-calculate Date Last Pay (+2 months)
-                                    const dateLastPay = dateCleared
-                                      ? dayjs(dateCleared)
-                                          .add(2, "month")
-                                          .format("YYYY-MM-DD")
-                                      : "";
-                                    setSelectedEmployee({
-                                      ...selectedEmployee,
-                                      dateCleared,
-                                      dateLastPay,
-                                      // Auto-set verdict to Pending when date cleared is filled
-                                      verdictCalled: dateCleared
-                                        ? selectedEmployee.verdictCalled ||
-                                          "Pending"
-                                        : selectedEmployee.verdictCalled,
-                                    });
-                                  }}
-                                  InputProps={{ readOnly: !isEditing }}
-                                  inputProps={{
-                                    onKeyDown: (e) => e.preventDefault(),
-                                  }}
-                                  InputLabelProps={{ shrink: true }}
-                                />
-                              </Grid>
-
-                              {/* Date Last Pay — auto-calculated, always readonly */}
-                              <Grid item xs={12} sm={6}>
-                                <TextField
-                                  label="Date Last Pay"
-                                  fullWidth
-                                  type="date"
-                                  value={
-                                    selectedEmployee.dateLastPay
-                                      ? dayjs(
-                                          selectedEmployee.dateLastPay,
-                                        ).format("YYYY-MM-DD")
-                                      : ""
+                                    selectedEmployee.clearanceStatus ||
+                                    "Processing"
                                   }
                                   InputProps={{ readOnly: true }}
-                                  InputLabelProps={{ shrink: true }}
-                                  helperText="Automatically set to 2 months after Date Cleared"
                                 />
-                              </Grid>
-
-                              {/* Verdict Called */}
-                              <Grid item xs={12} sm={6}>
-                                {isEditing ? (
-                                  <FormControl fullWidth>
-                                    <InputLabel>Verdict</InputLabel>
-                                    <Select
-                                      value={
-                                        selectedEmployee.verdictCalled ||
-                                        "Pending"
-                                      }
-                                      label="Verdict"
-                                      onChange={(e) =>
-                                        setSelectedEmployee({
-                                          ...selectedEmployee,
-                                          verdictCalled: e.target.value,
-                                        })
-                                      }
-                                    >
-                                      <MenuItem value="Pending">
-                                        Pending
-                                      </MenuItem>
-                                      <MenuItem value="Release">
-                                        Release
-                                      </MenuItem>
-                                    </Select>
-                                  </FormControl>
-                                ) : (
-                                  <TextField
-                                    label="Verdict"
-                                    fullWidth
-                                    value={
-                                      selectedEmployee.verdictCalled || "—"
-                                    }
-                                    InputProps={{ readOnly: true }}
-                                  />
-                                )}
-                              </Grid>
+                              )}
                             </Grid>
-                          </CardContent>
-                        </Card>
-                      )}
 
-                    {/* Government IDs Section */}
+                            {/* Date Cleared */}
+                            <Grid item xs={12} sm={6}>
+                              <TextField
+                                label="Date Cleared"
+                                fullWidth
+                                type="date"
+                                value={
+                                  selectedEmployee.dateCleared
+                                    ? dayjs(
+                                        selectedEmployee.dateCleared,
+                                      ).format("YYYY-MM-DD")
+                                    : ""
+                                }
+                                onChange={(e) => {
+                                  const dateCleared = e.target.value;
+                                  const dateLastPay = dateCleared
+                                    ? dayjs(dateCleared)
+                                        .add(2, "month")
+                                        .format("YYYY-MM-DD")
+                                    : "";
+                                  setSelectedEmployee({
+                                    ...selectedEmployee,
+                                    dateCleared,
+                                    dateLastPay,
+                                    verdictCalled: dateCleared
+                                      ? selectedEmployee.verdictCalled ||
+                                        "Pending"
+                                      : selectedEmployee.verdictCalled,
+                                  });
+                                }}
+                                InputProps={{ readOnly: !isEditing }}
+                                inputProps={{
+                                  onKeyDown: (e) => e.preventDefault(),
+                                }}
+                                InputLabelProps={{ shrink: true }}
+                              />
+                            </Grid>
+
+                            {/* Date Last Pay — always read-only, auto-calculated */}
+                            <Grid item xs={12} sm={6}>
+                              <TextField
+                                label="Date Last Pay"
+                                fullWidth
+                                type="date"
+                                value={
+                                  selectedEmployee.dateLastPay
+                                    ? dayjs(
+                                        selectedEmployee.dateLastPay,
+                                      ).format("YYYY-MM-DD")
+                                    : ""
+                                }
+                                InputProps={{ readOnly: true }}
+                                InputLabelProps={{ shrink: true }}
+                                helperText="Automatically set to 2 months after Date Cleared"
+                              />
+                            </Grid>
+
+                            {/* Verdict */}
+                            <Grid item xs={12} sm={6}>
+                              {isEditing ? (
+                                <FormControl fullWidth>
+                                  <InputLabel>Verdict</InputLabel>
+                                  <Select
+                                    value={
+                                      selectedEmployee.verdictCalled ||
+                                      "Pending"
+                                    }
+                                    label="Verdict"
+                                    onChange={(e) =>
+                                      setSelectedEmployee({
+                                        ...selectedEmployee,
+                                        verdictCalled: e.target.value,
+                                      })
+                                    }
+                                  >
+                                    <MenuItem value="Pending">Pending</MenuItem>
+                                    <MenuItem value="Release">Release</MenuItem>
+                                  </Select>
+                                </FormControl>
+                              ) : (
+                                <TextField
+                                  label="Verdict"
+                                  fullWidth
+                                  value={selectedEmployee.verdictCalled || "—"}
+                                  InputProps={{ readOnly: true }}
+                                />
+                              )}
+                            </Grid>
+                          </Grid>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {/* ── Government IDs ── */}
                     <Card
                       elevation={0}
                       sx={{
@@ -1655,13 +1759,12 @@ export default function BmpowerHO() {
                               fullWidth
                               value={selectedEmployee.sss || ""}
                               onChange={(e) => {
-                                const value = e.target.value.replace(/\D/g, ""); // remove non-digits
-                                if (value.length <= 10) {
+                                const v = e.target.value.replace(/\D/g, "");
+                                if (v.length <= 10)
                                   setSelectedEmployee({
                                     ...selectedEmployee,
-                                    sss: value,
+                                    sss: v,
                                   });
-                                }
                               }}
                               inputProps={{ maxLength: 10 }}
                               InputProps={{ readOnly: !isEditing }}
@@ -1673,13 +1776,12 @@ export default function BmpowerHO() {
                               fullWidth
                               value={selectedEmployee.philhealth || ""}
                               onChange={(e) => {
-                                const value = e.target.value.replace(/\D/g, "");
-                                if (value.length <= 12) {
+                                const v = e.target.value.replace(/\D/g, "");
+                                if (v.length <= 12)
                                   setSelectedEmployee({
                                     ...selectedEmployee,
-                                    philhealth: value,
+                                    philhealth: v,
                                   });
-                                }
                               }}
                               inputProps={{ maxLength: 12 }}
                               InputProps={{ readOnly: !isEditing }}
@@ -1691,13 +1793,12 @@ export default function BmpowerHO() {
                               fullWidth
                               value={selectedEmployee.hdmf || ""}
                               onChange={(e) => {
-                                const value = e.target.value.replace(/\D/g, "");
-                                if (value.length <= 12) {
+                                const v = e.target.value.replace(/\D/g, "");
+                                if (v.length <= 12)
                                   setSelectedEmployee({
                                     ...selectedEmployee,
-                                    hdmf: value,
+                                    hdmf: v,
                                   });
-                                }
                               }}
                               inputProps={{ maxLength: 12 }}
                               InputProps={{ readOnly: !isEditing }}
@@ -1709,13 +1810,12 @@ export default function BmpowerHO() {
                               fullWidth
                               value={selectedEmployee.tin || ""}
                               onChange={(e) => {
-                                const value = e.target.value.replace(/\D/g, "");
-                                if (value.length <= 12) {
+                                const v = e.target.value.replace(/\D/g, "");
+                                if (v.length <= 12)
                                   setSelectedEmployee({
                                     ...selectedEmployee,
-                                    tin: value,
+                                    tin: v,
                                   });
-                                }
                               }}
                               inputProps={{ maxLength: 12 }}
                               InputProps={{ readOnly: !isEditing }}
@@ -1725,7 +1825,7 @@ export default function BmpowerHO() {
                       </CardContent>
                     </Card>
 
-                    {/* Banking Information Section */}
+                    {/* ── Banking Information ── */}
                     <Card
                       elevation={0}
                       sx={{
@@ -1737,11 +1837,7 @@ export default function BmpowerHO() {
                       <CardContent sx={{ p: 3 }}>
                         <Typography
                           variant="h6"
-                          sx={{
-                            mb: 3,
-                            fontWeight: 600,
-                            color: "#2e6385ff",
-                          }}
+                          sx={{ mb: 3, fontWeight: 600, color: "#2e6385ff" }}
                         >
                           Banking Information
                         </Typography>
@@ -1755,43 +1851,34 @@ export default function BmpowerHO() {
                                     selectedEmployee.modeOfDisbursement || ""
                                   }
                                   label="Mode of Disbursement"
-                                  onChange={(e) => {
-                                    const value = e.target.value;
+                                  onChange={(e) =>
                                     setSelectedEmployee({
                                       ...selectedEmployee,
-                                      modeOfDisbursement: value,
+                                      modeOfDisbursement: e.target.value,
                                       accountNumber: "",
-                                    });
-                                  }}
+                                    })
+                                  }
                                 >
-                                  <MenuItem value="AUB (Hello Money)">
-                                    AUB (Hello Money)
-                                  </MenuItem>
-                                  <MenuItem value="BDO NETWORK">
-                                    BDO NETWORK
-                                  </MenuItem>
-                                  <MenuItem value="BDO UNIBANK">
-                                    BDO UNIBANK
-                                  </MenuItem>
-                                  <MenuItem value="BPI">BPI</MenuItem>
-                                  <MenuItem value="CEBUANA">CEBUANA</MenuItem>
-                                  <MenuItem value="CHINABANK">
-                                    CHINABANK
-                                  </MenuItem>
-                                  <MenuItem value="EASTWEST">EASTWEST</MenuItem>
-                                  <MenuItem value="GCASH">GCASH</MenuItem>
-                                  <MenuItem value="LANDBANK">LANDBANK</MenuItem>
-                                  <MenuItem value="METROBANK">
-                                    METROBANK
-                                  </MenuItem>
-                                  <MenuItem value="PNB">PNB</MenuItem>
-                                  <MenuItem value="RCBC">RCBC</MenuItem>
-                                  <MenuItem value="SECURITY BANK">
-                                    SECURITY BANK
-                                  </MenuItem>
-                                  <MenuItem value="UNIONBANK">
-                                    UNIONBANK
-                                  </MenuItem>
+                                  {[
+                                    "AUB (Hello Money)",
+                                    "BDO NETWORK",
+                                    "BDO UNIBANK",
+                                    "BPI",
+                                    "CEBUANA",
+                                    "CHINABANK",
+                                    "EASTWEST",
+                                    "GCASH",
+                                    "LANDBANK",
+                                    "METROBANK",
+                                    "PNB",
+                                    "RCBC",
+                                    "SECURITY BANK",
+                                    "UNIONBANK",
+                                  ].map((b) => (
+                                    <MenuItem key={b} value={b}>
+                                      {b}
+                                    </MenuItem>
+                                  ))}
                                 </Select>
                               </FormControl>
                             ) : (
@@ -1835,12 +1922,11 @@ export default function BmpowerHO() {
                                   maxLengths[
                                     selectedEmployee.modeOfDisbursement
                                   ] || 20;
-                                if (value.length <= maxLength) {
+                                if (value.length <= maxLength)
                                   setSelectedEmployee({
                                     ...selectedEmployee,
                                     accountNumber: value,
                                   });
-                                }
                               }}
                               InputProps={{ readOnly: !isEditing }}
                               inputProps={{
@@ -1849,25 +1935,7 @@ export default function BmpowerHO() {
                               }}
                               helperText={
                                 selectedEmployee.modeOfDisbursement
-                                  ? `Must be ${
-                                      {
-                                        GCASH: 11,
-                                        CEBUANA: 11,
-                                        PNB: 12,
-                                        RCBC: 10,
-                                        EASTWEST: 12,
-                                        "AUB (Hello Money)": 12,
-                                        LANDBANK: 10,
-                                        UNIONBANK: 12,
-                                        "BDO NETWORK": 12,
-                                        "BDO UNIBANK": 12,
-                                        BPI: 12,
-                                        "SECURITY BANK": 13,
-                                        METROBANK: 13,
-                                        CHINABANK: 12,
-                                      }[selectedEmployee.modeOfDisbursement] ||
-                                      "up to 20"
-                                    } digits`
+                                  ? `Must be ${{ GCASH: 11, CEBUANA: 11, PNB: 12, RCBC: 10, EASTWEST: 12, "AUB (Hello Money)": 12, LANDBANK: 10, UNIONBANK: 12, "BDO NETWORK": 12, "BDO UNIBANK": 12, BPI: 12, "SECURITY BANK": 13, METROBANK: 13, CHINABANK: 12 }[selectedEmployee.modeOfDisbursement] || "up to 20"} digits`
                                   : "Select Mode of Disbursement first"
                               }
                             />
@@ -1876,7 +1944,7 @@ export default function BmpowerHO() {
                       </CardContent>
                     </Card>
 
-                    {/* Requirements Section */}
+                    {/* ── Requirements ── */}
                     <Card
                       elevation={0}
                       sx={{
@@ -1906,32 +1974,16 @@ export default function BmpowerHO() {
                           >
                             <ImageIcon /> Requirements (Softcopy)
                           </Typography>
-                          <Button
-                            variant="outlined"
-                            startIcon={<VisibilityIcon />}
-                            onClick={() => {
-                              if (selectedEmployee) {
-                                fetchSavedRequirements(selectedEmployee._id);
-                                setViewAllModalOpen(true);
-                              } else {
-                                alert("Please select an employee first.");
-                              }
-                            }}
-                            sx={{
-                              borderColor: "#2e6385ff",
-                              color: "#2e6385ff",
-                              "&:hover": {
-                                backgroundColor: "rgba(46, 99, 133, 0.08)",
-                                borderColor: "#0c2e3fff",
-                              },
-                            }}
-                          >
-                            View All Requirements
-                          </Button>
+                          <Chip
+                            label={`${selectedEmployee?.requirementsImages?.length || 0} file(s)`}
+                            size="small"
+                            color="primary"
+                            sx={{ fontWeight: 600 }}
+                          />
                         </Box>
-
                         <Divider sx={{ mb: 3 }} />
 
+                        {/* Upload button — edit mode only */}
                         {isEditing && (
                           <Box sx={{ mb: 3 }}>
                             <Button
@@ -1946,7 +1998,7 @@ export default function BmpowerHO() {
                                 py: 2,
                                 width: "100%",
                                 "&:hover": {
-                                  backgroundColor: "rgba(46, 99, 133, 0.08)",
+                                  backgroundColor: "rgba(46,99,133,0.08)",
                                   borderColor: "#0c2e3fff",
                                 },
                               }}
@@ -1960,10 +2012,8 @@ export default function BmpowerHO() {
                                 onChange={async (e) => {
                                   const files = Array.from(e.target.files);
                                   if (files.length === 0) return;
-
                                   try {
                                     const uploadedUrls = [];
-
                                     for (const file of files) {
                                       const response = await axios.post(
                                         "https://api-map.bmphrc.com/save-requirements-images",
@@ -1972,17 +2022,13 @@ export default function BmpowerHO() {
                                           fileType: file.type,
                                         },
                                       );
-
-                                      const { url } = response.data;
-
-                                      await axios.put(url, file, {
+                                      await axios.put(response.data.url, file, {
                                         headers: { "Content-Type": file.type },
                                       });
-
-                                      const s3FileUrl = `https://mmp-portal-docs.s3.ap-southeast-1.amazonaws.com/${file.name}`;
-                                      uploadedUrls.push(s3FileUrl);
+                                      uploadedUrls.push(
+                                        `https://mmp-portal-docs.s3.ap-southeast-1.amazonaws.com/${file.name}`,
+                                      );
                                     }
-
                                     setNewUploads((prev) => [
                                       ...prev,
                                       ...uploadedUrls,
@@ -2007,94 +2053,119 @@ export default function BmpowerHO() {
                           </Box>
                         )}
 
-                        {newUploads.length > 0 ? (
+                        {/* ── Show ALL saved images directly (no button needed) ── */}
+                        {selectedEmployee?.requirementsImages?.length > 0 ? (
                           <Grid container spacing={2}>
-                            {newUploads.map((url, index) => (
-                              <Grid item xs={6} sm={4} md={3} key={index}>
-                                <Box
-                                  sx={{
-                                    position: "relative",
-                                    paddingTop: "100%",
-                                    borderRadius: "12px",
-                                    overflow: "hidden",
-                                    border: "2px solid #e0e0e0",
-                                    "&:hover": {
-                                      boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-                                      transform: "translateY(-2px)",
-                                      transition: "all 0.3s ease",
-                                    },
-                                  }}
-                                >
-                                  <img
-                                    src={url}
-                                    alt={`Uploaded ${index + 1}`}
-                                    style={{
-                                      position: "absolute",
-                                      top: 0,
-                                      left: 0,
-                                      width: "100%",
-                                      height: "100%",
-                                      objectFit: "cover",
+                            {selectedEmployee.requirementsImages.map(
+                              (url, index) => (
+                                <Grid item xs={6} sm={4} md={3} key={index}>
+                                  <Box
+                                    sx={{
+                                      position: "relative",
+                                      paddingTop: "100%",
+                                      borderRadius: "12px",
+                                      overflow: "hidden",
+                                      border: "2px solid #e0e0e0",
                                       cursor: "pointer",
+                                      transition: "all 0.3s ease",
+                                      "&:hover": {
+                                        boxShadow:
+                                          "0 4px 12px rgba(0,0,0,0.15)",
+                                        transform: "translateY(-2px)",
+                                        border: "2px solid #2e6385ff",
+                                      },
                                     }}
-                                    onClick={() => setPreviewImage(url)}
-                                  />
-                                  {isEditing && (
-                                    <IconButton
-                                      size="small"
+                                  >
+                                    <img
+                                      src={url}
+                                      alt={`Requirement ${index + 1}`}
+                                      style={{
+                                        position: "absolute",
+                                        top: 0,
+                                        left: 0,
+                                        width: "100%",
+                                        height: "100%",
+                                        objectFit: "cover",
+                                      }}
+                                      onClick={() => setPreviewImage(url)}
+                                    />
+                                    {/* Delete button — edit mode only */}
+                                    {isEditing && (
+                                      <IconButton
+                                        size="small"
+                                        sx={{
+                                          position: "absolute",
+                                          top: 6,
+                                          right: 6,
+                                          backgroundColor:
+                                            "rgba(255,255,255,0.95)",
+                                          "&:hover": {
+                                            backgroundColor: "white",
+                                          },
+                                        }}
+                                        onClick={() => {
+                                          if (
+                                            window.confirm("Remove this image?")
+                                          ) {
+                                            setSelectedEmployee((prev) => ({
+                                              ...prev,
+                                              requirementsImages:
+                                                prev.requirementsImages.filter(
+                                                  (_, i) => i !== index,
+                                                ),
+                                            }));
+                                            setNewUploads((prev) =>
+                                              prev.filter((u) => u !== url),
+                                            );
+                                          }
+                                        }}
+                                      >
+                                        <DeleteIcon
+                                          color="error"
+                                          fontSize="small"
+                                        />
+                                      </IconButton>
+                                    )}
+                                    {/* Image number badge */}
+                                    <Box
                                       sx={{
                                         position: "absolute",
-                                        top: 8,
-                                        right: 8,
-                                        backgroundColor:
-                                          "rgba(255, 255, 255, 0.95)",
-                                        "&:hover": {
-                                          backgroundColor:
-                                            "rgba(255, 255, 255, 1)",
-                                        },
-                                      }}
-                                      onClick={() => {
-                                        if (
-                                          window.confirm(
-                                            "Are you sure you want to remove this image?",
-                                          )
-                                        ) {
-                                          setNewUploads((prev) =>
-                                            prev.filter((img) => img !== url),
-                                          );
-                                          setSelectedEmployee((prev) => ({
-                                            ...prev,
-                                            requirementsImages:
-                                              prev.requirementsImages?.filter(
-                                                (img) => img !== url,
-                                              ) || [],
-                                          }));
-                                        }
+                                        bottom: 6,
+                                        left: 6,
+                                        backgroundColor: "rgba(0,0,0,0.55)",
+                                        color: "white",
+                                        borderRadius: "6px",
+                                        px: 0.8,
+                                        py: 0.2,
+                                        fontSize: "11px",
+                                        fontWeight: 600,
                                       }}
                                     >
-                                      <DeleteIcon color="error" />
-                                    </IconButton>
-                                  )}
-                                </Box>
-                              </Grid>
-                            ))}
+                                      {index + 1}
+                                    </Box>
+                                  </Box>
+                                </Grid>
+                              ),
+                            )}
                           </Grid>
                         ) : (
                           <Box
-                            sx={{
-                              textAlign: "center",
-                              py: 4,
-                              color: "#666",
-                            }}
+                            sx={{ textAlign: "center", py: 4, color: "#666" }}
                           >
                             <ImageIcon
                               sx={{ fontSize: 64, color: "#ccc", mb: 2 }}
                             />
                             <Typography variant="body1">
-                              {isEditing
-                                ? "No new images uploaded yet"
-                                : "No requirements uploaded"}
+                              No requirements uploaded
                             </Typography>
+                            {isEditing && (
+                              <Typography
+                                variant="body2"
+                                sx={{ color: "#aaa", mt: 0.5 }}
+                              >
+                                Use the upload button above to add 201 files
+                              </Typography>
+                            )}
                           </Box>
                         )}
                       </CardContent>
@@ -2128,14 +2199,11 @@ export default function BmpowerHO() {
                                 fontWeight: 600,
                                 borderRadius: "8px",
                                 textTransform: "none",
-                                boxShadow: "0 4px 12px rgba(46, 99, 133, 0.3)",
+                                boxShadow: "0 4px 12px rgba(46,99,133,0.3)",
                                 "&:hover": {
                                   backgroundColor: canEdit
                                     ? "#0c2e3fff"
                                     : "#2e6385ff",
-                                  boxShadow: canEdit
-                                    ? "0 6px 16px rgba(46, 99, 133, 0.4)"
-                                    : "0 4px 12px rgba(46, 99, 133, 0.3)",
                                 },
                                 "&.Mui-disabled": {
                                   backgroundColor: "#90a4ae",
@@ -2161,11 +2229,8 @@ export default function BmpowerHO() {
                               fontWeight: 600,
                               borderRadius: "8px",
                               textTransform: "none",
-                              boxShadow: "0 4px 12px rgba(46, 99, 133, 0.3)",
-                              "&:hover": {
-                                backgroundColor: "#0c2e3fff",
-                                boxShadow: "0 6px 16px rgba(46, 99, 133, 0.4)",
-                              },
+                              boxShadow: "0 4px 12px rgba(46,99,133,0.3)",
+                              "&:hover": { backgroundColor: "#0c2e3fff" },
                             }}
                           >
                             Save Changes
@@ -2184,7 +2249,7 @@ export default function BmpowerHO() {
                               borderRadius: "8px",
                               textTransform: "none",
                               "&:hover": {
-                                backgroundColor: "rgba(211, 47, 47, 0.08)",
+                                backgroundColor: "rgba(211,47,47,0.08)",
                                 borderColor: "#c62828",
                               },
                             }}
@@ -2200,7 +2265,7 @@ export default function BmpowerHO() {
             </Fade>
           </Modal>
 
-          {/* View All Requirements Modal */}
+          {/* ── View All Requirements Modal ── */}
           <Modal
             open={viewAllModalOpen}
             onClose={() => setViewAllModalOpen(false)}
@@ -2208,7 +2273,7 @@ export default function BmpowerHO() {
             BackdropComponent={Backdrop}
             BackdropProps={{
               timeout: 500,
-              sx: { backgroundColor: "rgba(0, 0, 0, 0.7)" },
+              sx: { backgroundColor: "rgba(0,0,0,0.7)" },
             }}
           >
             <Fade in={viewAllModalOpen}>
@@ -2217,7 +2282,7 @@ export default function BmpowerHO() {
                   position: "absolute",
                   top: "50%",
                   left: "50%",
-                  transform: "translate(-50%, -50%)",
+                  transform: "translate(-50%,-50%)",
                   width: { xs: "95%", sm: "85%", md: "75%", lg: "65%" },
                   maxHeight: "90vh",
                   bgcolor: "background.paper",
@@ -2226,7 +2291,6 @@ export default function BmpowerHO() {
                   overflow: "hidden",
                 }}
               >
-                {/* Modal Header */}
                 <Box
                   sx={{
                     background:
@@ -2240,7 +2304,7 @@ export default function BmpowerHO() {
                   <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                     <Avatar
                       sx={{
-                        bgcolor: "rgba(255, 255, 255, 0.2)",
+                        bgcolor: "rgba(255,255,255,0.2)",
                         width: 48,
                         height: 48,
                       }}
@@ -2258,35 +2322,17 @@ export default function BmpowerHO() {
                     onClick={() => setViewAllModalOpen(false)}
                     sx={{
                       color: "white",
-                      "&:hover": {
-                        backgroundColor: "rgba(255, 255, 255, 0.1)",
-                      },
+                      "&:hover": { backgroundColor: "rgba(255,255,255,0.1)" },
                     }}
                   >
                     <CloseIcon />
                   </IconButton>
                 </Box>
-
-                {/* Modal Body */}
                 <Box
                   sx={{
                     p: 4,
                     maxHeight: "calc(90vh - 100px)",
                     overflowY: "auto",
-                    "&::-webkit-scrollbar": {
-                      width: "8px",
-                    },
-                    "&::-webkit-scrollbar-track": {
-                      background: "#f1f1f1",
-                      borderRadius: "10px",
-                    },
-                    "&::-webkit-scrollbar-thumb": {
-                      background: "#888",
-                      borderRadius: "10px",
-                      "&:hover": {
-                        background: "#555",
-                      },
-                    },
                   }}
                 >
                   {viewRequirements.length > 0 ? (
@@ -2328,17 +2374,10 @@ export default function BmpowerHO() {
                                   position: "absolute",
                                   top: 8,
                                   right: 8,
-                                  backgroundColor: "rgba(255, 255, 255, 0.95)",
-                                  "&:hover": {
-                                    backgroundColor: "rgba(255, 255, 255, 1)",
-                                  },
+                                  backgroundColor: "rgba(255,255,255,0.95)",
                                 }}
                                 onClick={async () => {
-                                  if (
-                                    window.confirm(
-                                      "Are you sure you want to delete this image?",
-                                    )
-                                  ) {
+                                  if (window.confirm("Delete this image?")) {
                                     setViewRequirements((prev) =>
                                       prev.filter((_, i) => i !== index),
                                     );
@@ -2360,13 +2399,7 @@ export default function BmpowerHO() {
                       ))}
                     </Grid>
                   ) : (
-                    <Box
-                      sx={{
-                        textAlign: "center",
-                        py: 8,
-                        color: "#666",
-                      }}
-                    >
+                    <Box sx={{ textAlign: "center", py: 8, color: "#666" }}>
                       <ImageIcon sx={{ fontSize: 80, color: "#ccc", mb: 2 }} />
                       <Typography variant="h6" gutterBottom>
                         No Requirements Found
@@ -2381,7 +2414,7 @@ export default function BmpowerHO() {
             </Fade>
           </Modal>
 
-          {/* Image Preview Modal */}
+          {/* ── Image Preview Modal ── */}
           <Modal
             open={!!previewImage}
             onClose={() => setPreviewImage(null)}
@@ -2389,7 +2422,7 @@ export default function BmpowerHO() {
             BackdropComponent={Backdrop}
             BackdropProps={{
               timeout: 500,
-              sx: { backgroundColor: "rgba(0, 0, 0, 0.9)" },
+              sx: { backgroundColor: "rgba(0,0,0,0.9)" },
             }}
           >
             <Fade in={!!previewImage}>
@@ -2398,7 +2431,7 @@ export default function BmpowerHO() {
                   position: "absolute",
                   top: "50%",
                   left: "50%",
-                  transform: "translate(-50%, -50%)",
+                  transform: "translate(-50%,-50%)",
                   maxWidth: "95vw",
                   maxHeight: "95vh",
                   outline: "none",
@@ -2411,10 +2444,8 @@ export default function BmpowerHO() {
                     top: -50,
                     right: 0,
                     color: "white",
-                    backgroundColor: "rgba(0, 0, 0, 0.5)",
-                    "&:hover": {
-                      backgroundColor: "rgba(0, 0, 0, 0.7)",
-                    },
+                    backgroundColor: "rgba(0,0,0,0.5)",
+                    "&:hover": { backgroundColor: "rgba(0,0,0,0.7)" },
                   }}
                 >
                   <CloseIcon />
