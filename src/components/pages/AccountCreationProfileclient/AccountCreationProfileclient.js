@@ -482,9 +482,7 @@ export default function ClientProfileCreationEnhanced() {
                           <MenuItem value="Manufacturing Business">
                             Manufacturing Business
                           </MenuItem>
-                          <MenuItem value="Other Business">
-                            Other Business
-                          </MenuItem>
+                          <MenuItem value="Others">Others</MenuItem>
                         </Select>
                       </FormControl>
                     </Grid>
@@ -803,7 +801,8 @@ export default function ClientProfileCreationEnhanced() {
                           }
                           error={!!formErrors.paymentTerm}
                         >
-                          <MenuItem value="Check">Check</MenuItem>
+                          <MenuItem value="Cash">Cash</MenuItem>
+                          <MenuItem value="Cheque">Cheque</MenuItem>
                           <MenuItem value="Online Payment">
                             Online Payment
                           </MenuItem>

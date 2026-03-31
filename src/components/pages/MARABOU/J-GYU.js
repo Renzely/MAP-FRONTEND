@@ -67,22 +67,36 @@ export default function BmpowerHO() {
       "Executive Director",
       "Operation Director",
       "Operation Head",
+      "Sr. Account Supervisor",
+      "Jr. Account Supervisor",
       "Account Supervisor",
-      "Operations Admin",
+      "Operation Officer",
+      "Operation Admin",
       "Data Analyst",
       "Utility",
       "Treasury Head",
+      "OIC Treasury",
       "Treasury Officer",
       "Treasury Assistant",
+      "OIC Payroll and Billing",
       "Billing Officer",
+      "Payroll Officer",
+      "Payroll and Billing Officer",
       "Billing Specialist",
+      "Billing Assistant",
       "Payroll Specialist",
-      "Assistant Payroll Specialist",
+      "HR Head",
       "HR Officer",
       "HR Coordinator",
-      "Recruitment Specialist",
-      "SPX Head",
+      "HR Admin",
+      "HR Liaison",
+      "HR Recruitment Specialist",
+      "HR Compensastion & Benefits Specialist",
+      "Logistic Head",
+      "SPX Coordinator",
       "Agency Coordinator",
+      "Software Engineer",
+      "Tech Support",
     ],
 
     "ECOSSENTIAL FOODS CORP": [
@@ -92,7 +106,6 @@ export default function BmpowerHO() {
       "Tactical Coordinator",
       "Account Coordinator",
     ],
-
     "ECOSSENTIAL FOODS CORP-HEAD OFFICE": ["MHE Operator", "Fleet Operator"],
     "MCKENZIE DISTRIBUTION CO.": [
       "Merchandiser",
@@ -101,7 +114,7 @@ export default function BmpowerHO() {
       "Tactical Coordinator",
       "Encoder",
     ],
-    BROLLE: ["Merchandiser", "CVS Merchandiser", "Repacker"],
+    "BROLLEE EXCLUSIVE": ["Merchandiser"],
     "UNION GALVASTEEL CO": [
       "Project In-Charge",
       "Rigger",
@@ -119,6 +132,9 @@ export default function BmpowerHO() {
       "Van Route Salesman – Junior",
       "Van Route Salesman – Senior",
       "Beverage Developer",
+      "Delivery Helper",
+      "PMS Booking",
+      "HBR JR",
     ],
     MANDOM: ["Brand Ambassador"],
     ENGKANTO: ["Tactical Coordinator"],
@@ -128,8 +144,9 @@ export default function BmpowerHO() {
       "Shipping Coordinator",
       "Accountant",
       "Declarant",
+      "Processor",
     ],
-    "PLDT TELESCOOP": ["Utility"],
+    "PLDT TELESCOOP": ["Utility", "Office Staff"],
     "SPX EXPRESS": [
       "Backroom Personnel",
       "2-Wheel Delivery Rider",
@@ -140,13 +157,38 @@ export default function BmpowerHO() {
     "DEL MONTE": ["Push Girl", "Cook", "Helper", "Coordinator", "Team Leader"],
     // Marabou Clients
     "MARABOU EVERGREEN RESOURCES INC": [
-      "Software Engineer",
+      "Executive Director",
+      "Operation Director",
+      "Operation Head",
+      "Sr. Account Supervisor",
+      "Jr. Account Supervisor",
+      "Account Supervisor",
+      "Operation Officer",
+      "Operation Admin",
+      "Data Analyst",
+      "Utility",
+      "Treasury Head",
+      "OIC Treasury",
+      "Treasury Officer",
+      "Treasury Assistant",
+      "OIC Payroll and Billing",
+      "Billing Officer",
+      "Payroll Officer",
+      "Payroll and Billing Officer",
+      "Billing Specialist",
+      "Billing Assistant",
       "Payroll Specialist",
-      "Assistant Payroll Specialist",
-      "Hub Coordinator",
+      "HR Head",
       "HR Officer",
       "HR Coordinator",
-      "Recruitment Specialist",
+      "HR Admin",
+      "HR Liaison",
+      "HR Recruitment Specialist",
+      "HR Compensastion & Benefits Specialist",
+      "Logistic Head",
+      "Agency Coordinator",
+      "Software Engineer",
+      "Tech Support",
     ],
     "LONG TABLE GROUP INC.- MASAJIRO": [
       "Dining Staff / Cashier",
@@ -157,6 +199,7 @@ export default function BmpowerHO() {
       "Admin Officer",
       "Finance Officer",
       "FOH Team Leader",
+      "Utility / Helper",
     ],
     "J-GYU INC": ["Admin Officer / Purchasing Staff", "Production Staff"],
     "CARMENS BEST": ["Tactical Coordinator", "Account Coordinator"],
@@ -227,19 +270,13 @@ export default function BmpowerHO() {
     );
   }
 
-  const fetchSavedRequirements = async (employeeEmail) => {
+  const fetchSavedRequirements = async (employeeId) => {
     try {
       const response = await axios.get(
         "https://api-map.bmphrc.com/get-merch-accounts",
       );
-
-      const employee = response.data.find((emp) => emp._id === employeeEmail);
-
-      if (employee && employee.requirementsImages) {
-        setViewRequirements(employee.requirementsImages);
-      } else {
-        setViewRequirements([]);
-      }
+      const employee = response.data.find((emp) => emp._id === employeeId);
+      setViewRequirements(employee?.requirementsImages || []);
     } catch (err) {
       console.error("Failed to fetch saved requirements:", err);
       setViewRequirements([]);
@@ -274,12 +311,10 @@ export default function BmpowerHO() {
   };
 
   const handleSaveChanges = async (updatedEmployee) => {
-    // 🔹 DIGIT VALIDATION FIRST
     if (updatedEmployee.sss && updatedEmployee.sss.length !== 10) {
       alert("SSS must be exactly 10 digits.");
       return;
     }
-
     if (
       updatedEmployee.philhealth &&
       updatedEmployee.philhealth.length !== 12
@@ -287,42 +322,55 @@ export default function BmpowerHO() {
       alert("PhilHealth must be exactly 12 digits.");
       return;
     }
-
     if (updatedEmployee.hdmf && updatedEmployee.hdmf.length !== 12) {
       alert("HDMF must be exactly 12 digits.");
       return;
     }
-
     if (updatedEmployee.tin && updatedEmployee.tin.length !== 12) {
       alert("TIN must be exactly 12 digits.");
       return;
     }
 
-    const resignationRemarks = ["Resign", "Terminate", "End of Contract"];
+    // Date Hired required only for Employed
+    if (updatedEmployee.remarks === "Employed" && !updatedEmployee.dateHired) {
+      alert("Date Hired is required for Employed status.");
+      return;
+    }
 
+    // Date Resigned required for resignation-type remarks
+    const resignationRemarks = [
+      "Resign",
+      "Terminate",
+      "End of Contract",
+      "Retrenchment",
+      "Terminated",
+      "AWOL",
+    ];
     if (
       resignationRemarks.includes(updatedEmployee.remarks) &&
       !updatedEmployee.dateResigned
     ) {
-      setDateResignedError(true); // triggers error display
-      return; // stop saving
+      setDateResignedError(true);
+      return;
+    }
+    if (
+      resignationRemarks.includes(updatedEmployee.remarks) &&
+      !updatedEmployee.dateResigned
+    ) {
+      setDateResignedError(true);
+      return;
     }
 
     try {
       const adminFullName = localStorage.getItem("adminFullName");
-
       const payload = {
         ...updatedEmployee,
         updatedBy: adminFullName || "Unknown",
       };
-
-      console.log("✅ Sending update with admin:", payload.updatedBy);
-
       await axios.put(
         `https://api-map.bmphrc.com/update-employee/${updatedEmployee._id}`,
         payload,
       );
-
       alert("Employee details updated successfully!");
       setDateResignedError(false);
       setOpenEditModal(false);
@@ -341,11 +389,20 @@ export default function BmpowerHO() {
           "https://api-map.bmphrc.com/get-merch-accounts",
         );
 
-        const bmpowerAccounts = response.data.filter(
-          (acc) =>
-            acc.company?.toUpperCase() === "MARABOU EVERGREEN RESOURCES INC" &&
-            acc.clientAssigned?.toUpperCase() === "J-GYU INC",
-        );
+        const bmpowerAccounts = response.data.filter((acc) => {
+          const isCorrectCompany =
+            acc.company?.toUpperCase() === "MARABOU EVERGREEN RESOURCES INC";
+
+          const isCorrectClient =
+            acc.clientAssigned?.toUpperCase() === "J-GYU INC";
+
+          // ❌ EXCLUDE APPLICANTS
+          const isNotApplicant =
+            acc.status?.toUpperCase() !== "APPLICANT" &&
+            acc.remarks?.toUpperCase() !== "APPLICANT";
+
+          return isCorrectCompany && isCorrectClient && isNotApplicant;
+        });
 
         setAccounts(bmpowerAccounts);
         setFilteredAccounts(bmpowerAccounts);
@@ -379,6 +436,7 @@ export default function BmpowerHO() {
         "Contact",
         "Email",
         "Birthday",
+        "Age",
         "DateHired",
         "DateResigned",
         "HomeAddress",
@@ -629,6 +687,19 @@ export default function BmpowerHO() {
     ...acc,
   }));
 
+  // ── Clearance section visibility: show when resigned/terminated AND dateResigned AND reasonForLeaving ──
+  const showClearance = (emp) =>
+    emp &&
+    [
+      "Resign",
+      "Terminate",
+      "End of Contract",
+      "Retrenchment",
+      "Terminated",
+      "AWOL",
+    ].includes(emp?.remarks) &&
+    emp?.dateResigned &&
+    emp?.reasonForLeaving;
   return (
     <>
       <Topbar />
@@ -733,8 +804,10 @@ export default function BmpowerHO() {
                   <MenuItem value="Applicant">Applicant</MenuItem>
                   <MenuItem value="Employed">Employed</MenuItem>
                   <MenuItem value="Resign">Resign</MenuItem>
-                  <MenuItem value="Terminate">Terminate</MenuItem>
                   <MenuItem value="End of Contract">End of Contract</MenuItem>
+                  <MenuItem value="Retrenchment">Retrenchment</MenuItem>
+                  <MenuItem value="Terminated">Terminated</MenuItem>
+                  <MenuItem value="AWOL">AWOL</MenuItem>
                 </Select>
               </FormControl>
 
@@ -1176,6 +1249,61 @@ export default function BmpowerHO() {
                           <Grid item xs={12} sm={6}>
                             {isEditing ? (
                               <FormControl fullWidth>
+                                <InputLabel>Remarks</InputLabel>
+                                <Select
+                                  value={selectedEmployee.remarks || ""}
+                                  label="Remarks"
+                                  onChange={(e) => {
+                                    const newRemarks = e.target.value;
+                                    // Auto-map Remarks → Reason for Leaving
+                                    const leavingRemarks = [
+                                      "Resign",
+                                      "End of Contract",
+                                      "Retrenchment",
+                                      "Terminated",
+                                      "AWOL",
+                                    ];
+                                    const autoReason = leavingRemarks.includes(
+                                      newRemarks,
+                                    )
+                                      ? newRemarks
+                                      : "";
+                                    setSelectedEmployee({
+                                      ...selectedEmployee,
+                                      remarks: newRemarks,
+                                      reasonForLeaving: autoReason,
+                                    });
+                                  }}
+                                >
+                                  <MenuItem value="Applicant">
+                                    Applicant
+                                  </MenuItem>
+                                  <MenuItem value="Employed">Employed</MenuItem>
+                                  <MenuItem value="Resign">Resign</MenuItem>
+                                  <MenuItem value="End of Contract">
+                                    End of Contract
+                                  </MenuItem>
+                                  <MenuItem value="Retrenchment">
+                                    Retrenchment
+                                  </MenuItem>
+                                  <MenuItem value="Terminated">
+                                    Terminated
+                                  </MenuItem>
+                                  <MenuItem value="AWOL">AWOL</MenuItem>
+                                </Select>
+                              </FormControl>
+                            ) : (
+                              <TextField
+                                label="Remarks"
+                                fullWidth
+                                value={selectedEmployee.remarks || ""}
+                                InputProps={{ readOnly: true }}
+                              />
+                            )}
+                          </Grid>
+                          <Grid item xs={12} sm={6}>
+                            {isEditing ? (
+                              <FormControl fullWidth>
                                 <InputLabel>Position</InputLabel>
                                 <Select
                                   value={selectedEmployee.position || ""}
@@ -1321,11 +1449,35 @@ export default function BmpowerHO() {
                                   dateHired: e.target.value,
                                 })
                               }
-                              InputProps={{ readOnly: !isEditing }}
+                              // Disabled entirely if Applicant; read-only if not editing
+                              InputProps={{
+                                readOnly:
+                                  !isEditing ||
+                                  selectedEmployee.remarks === "Applicant",
+                              }}
+                              disabled={
+                                isEditing &&
+                                selectedEmployee.remarks === "Applicant"
+                              }
                               inputProps={{
                                 onKeyDown: (e) => e.preventDefault(),
                               }}
                               InputLabelProps={{ shrink: true }}
+                              error={
+                                isEditing &&
+                                selectedEmployee.remarks === "Employed" &&
+                                !selectedEmployee.dateHired
+                              }
+                              helperText={
+                                isEditing &&
+                                selectedEmployee.remarks === "Applicant"
+                                  ? "Not applicable for Applicant"
+                                  : isEditing &&
+                                      selectedEmployee.remarks === "Employed" &&
+                                      !selectedEmployee.dateHired
+                                    ? "Date Hired is required for Employed"
+                                    : ""
+                              }
                             />
                           </Grid>
                           <Grid item xs={12} sm={4}>
@@ -1347,12 +1499,22 @@ export default function BmpowerHO() {
                                 });
                                 if (e.target.value) setDateResignedError(false);
                               }}
+                              // Disabled if Applicant or Employed
                               InputProps={{
-                                readOnly: !isEditing,
+                                readOnly:
+                                  !isEditing ||
+                                  ["Applicant", "Employed"].includes(
+                                    selectedEmployee.remarks,
+                                  ),
                               }}
+                              disabled={
+                                isEditing &&
+                                ["Applicant", "Employed"].includes(
+                                  selectedEmployee.remarks,
+                                )
+                              }
                               inputProps={{
-                                shrink: true,
-                                onKeyDown: (e) => e.preventDefault(), // blocks all keyboard input
+                                onKeyDown: (e) => e.preventDefault(),
                               }}
                               InputLabelProps={{ shrink: true }}
                               error={
@@ -1361,17 +1523,28 @@ export default function BmpowerHO() {
                                   "Resign",
                                   "Terminate",
                                   "End of Contract",
+                                  "Retrenchment",
+                                  "Terminated",
+                                  "AWOL",
                                 ].includes(selectedEmployee.remarks)
                               }
                               helperText={
-                                dateResignedError &&
-                                [
-                                  "Resign",
-                                  "Terminate",
-                                  "End of Contract",
-                                ].includes(selectedEmployee.remarks)
-                                  ? "Date Resigned is required for this remarks status."
-                                  : ""
+                                isEditing &&
+                                ["Applicant", "Employed"].includes(
+                                  selectedEmployee.remarks,
+                                )
+                                  ? "Not applicable for this status"
+                                  : dateResignedError &&
+                                      [
+                                        "Resign",
+                                        "Terminate",
+                                        "End of Contract",
+                                        "Retrenchment",
+                                        "Terminated",
+                                        "AWOL",
+                                      ].includes(selectedEmployee.remarks)
+                                    ? "Date Resigned is required for this remarks status."
+                                    : ""
                               }
                             />
                           </Grid>
@@ -1390,240 +1563,205 @@ export default function BmpowerHO() {
                             />
                           </Grid>
                           <Grid item xs={12} sm={6}>
-                            {isEditing ? (
-                              <FormControl fullWidth>
-                                <InputLabel>Reason for Leaving</InputLabel>
-                                <Select
-                                  value={
-                                    selectedEmployee.reasonForLeaving || ""
-                                  }
-                                  label="Reason for Leaving"
-                                  onChange={(e) =>
-                                    setSelectedEmployee({
-                                      ...selectedEmployee,
-                                      reasonForLeaving: e.target.value,
-                                    })
-                                  }
-                                >
-                                  <MenuItem value="End of Contract">
-                                    End of Contract
-                                  </MenuItem>
-                                  <MenuItem value="AWOL">AWOL</MenuItem>
-                                  <MenuItem value="Terminated">
-                                    Terminated
-                                  </MenuItem>
-                                  <MenuItem value="Retrenchment">
-                                    Retrenchment
-                                  </MenuItem>
-                                </Select>
-                              </FormControl>
-                            ) : (
-                              <TextField
-                                label="Reason for Leaving"
-                                fullWidth
-                                value={selectedEmployee.reasonForLeaving || ""}
-                                InputProps={{ readOnly: true }}
-                              />
-                            )}
+                            {/* Reason for Leaving — always read-only, auto-filled from Remarks */}
+                            <TextField
+                              label="Reason for Leaving"
+                              fullWidth
+                              value={selectedEmployee.reasonForLeaving || ""}
+                              InputProps={{ readOnly: true }}
+                              helperText={
+                                isEditing ? "Auto-filled based on Remarks" : ""
+                              }
+                              sx={{
+                                "& .MuiOutlinedInput-root": {
+                                  backgroundColor: "#fafafa",
+                                },
+                              }}
+                            />
                           </Grid>
                         </Grid>
                       </CardContent>
                     </Card>
-                    {["Resign", "Terminate", "End of Contract"].includes(
-                      selectedEmployee?.remarks,
-                    ) &&
-                      selectedEmployee?.dateResigned &&
-                      selectedEmployee?.reasonForLeaving && (
-                        <Card
-                          elevation={0}
-                          sx={{
-                            mb: 3,
-                            border: "1px solid #e0e0e0",
-                            borderRadius: "12px",
-                          }}
-                        >
-                          <CardContent sx={{ p: 3 }}>
-                            <Typography
-                              variant="h6"
-                              sx={{
-                                mb: 3,
-                                fontWeight: 600,
-                                color: "#2e6385ff",
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 1,
-                              }}
-                            >
-                              <ChecklistIcon /> Clearance
-                            </Typography>
-                            <Grid container spacing={2.5}>
-                              {/* Date Clearance Started */}
-                              <Grid item xs={12} sm={6}>
-                                <TextField
-                                  label="Date Clearance Started"
-                                  fullWidth
-                                  type="date"
-                                  value={
-                                    selectedEmployee.dateClearance
-                                      ? dayjs(
-                                          selectedEmployee.dateClearance,
-                                        ).format("YYYY-MM-DD")
-                                      : ""
-                                  }
-                                  onChange={(e) =>
-                                    setSelectedEmployee({
-                                      ...selectedEmployee,
-                                      dateClearance: e.target.value,
-                                    })
-                                  }
-                                  InputProps={{ readOnly: !isEditing }}
-                                  inputProps={{
-                                    onKeyDown: (e) => e.preventDefault(),
-                                  }}
-                                  InputLabelProps={{ shrink: true }}
-                                />
-                              </Grid>
+                    {showClearance(selectedEmployee) && (
+                      <Card
+                        elevation={0}
+                        sx={{
+                          mb: 3,
+                          border: "1px solid #e0e0e0",
+                          borderRadius: "12px",
+                        }}
+                      >
+                        <CardContent sx={{ p: 3 }}>
+                          <Typography
+                            variant="h6"
+                            sx={{
+                              mb: 3,
+                              fontWeight: 600,
+                              color: "#2e6385ff",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 1,
+                            }}
+                          >
+                            <ChecklistIcon /> Clearance
+                          </Typography>
+                          <Grid container spacing={2.5}>
+                            {/* Date Clearance Started */}
+                            <Grid item xs={12} sm={6}>
+                              <TextField
+                                label="Date Clearance Started"
+                                fullWidth
+                                type="date"
+                                value={
+                                  selectedEmployee.dateClearance
+                                    ? dayjs(
+                                        selectedEmployee.dateClearance,
+                                      ).format("YYYY-MM-DD")
+                                    : ""
+                                }
+                                onChange={(e) =>
+                                  setSelectedEmployee({
+                                    ...selectedEmployee,
+                                    dateClearance: e.target.value,
+                                  })
+                                }
+                                InputProps={{ readOnly: !isEditing }}
+                                inputProps={{
+                                  onKeyDown: (e) => e.preventDefault(),
+                                }}
+                                InputLabelProps={{ shrink: true }}
+                              />
+                            </Grid>
 
-                              {/* Clearance Status Dropdown */}
-                              <Grid item xs={12} sm={6}>
-                                {isEditing ? (
-                                  <FormControl fullWidth>
-                                    <InputLabel>Clearance Status</InputLabel>
-                                    <Select
-                                      value={
-                                        selectedEmployee.clearanceStatus ||
-                                        "Processing"
-                                      }
-                                      label="Clearance Status"
-                                      onChange={(e) =>
-                                        setSelectedEmployee({
-                                          ...selectedEmployee,
-                                          clearanceStatus: e.target.value,
-                                        })
-                                      }
-                                    >
-                                      <MenuItem value="Processing">
-                                        Processing
-                                      </MenuItem>
-                                      <MenuItem value="Cleared">
-                                        Cleared
-                                      </MenuItem>
-                                    </Select>
-                                  </FormControl>
-                                ) : (
-                                  <TextField
-                                    label="Clearance Status"
-                                    fullWidth
+                            {/* Clearance Status */}
+                            <Grid item xs={12} sm={6}>
+                              {isEditing ? (
+                                <FormControl fullWidth>
+                                  <InputLabel>Clearance Status</InputLabel>
+                                  <Select
                                     value={
                                       selectedEmployee.clearanceStatus ||
                                       "Processing"
                                     }
-                                    InputProps={{ readOnly: true }}
-                                  />
-                                )}
-                              </Grid>
-
-                              {/* Date Cleared */}
-                              <Grid item xs={12} sm={6}>
+                                    label="Clearance Status"
+                                    onChange={(e) =>
+                                      setSelectedEmployee({
+                                        ...selectedEmployee,
+                                        clearanceStatus: e.target.value,
+                                      })
+                                    }
+                                  >
+                                    <MenuItem value="Processing">
+                                      Processing
+                                    </MenuItem>
+                                    <MenuItem value="Cleared">Cleared</MenuItem>
+                                  </Select>
+                                </FormControl>
+                              ) : (
                                 <TextField
-                                  label="Date Cleared"
+                                  label="Clearance Status"
                                   fullWidth
-                                  type="date"
                                   value={
-                                    selectedEmployee.dateCleared
-                                      ? dayjs(
-                                          selectedEmployee.dateCleared,
-                                        ).format("YYYY-MM-DD")
-                                      : ""
-                                  }
-                                  onChange={(e) => {
-                                    const dateCleared = e.target.value;
-                                    // Auto-calculate Date Last Pay (+2 months)
-                                    const dateLastPay = dateCleared
-                                      ? dayjs(dateCleared)
-                                          .add(2, "month")
-                                          .format("YYYY-MM-DD")
-                                      : "";
-                                    setSelectedEmployee({
-                                      ...selectedEmployee,
-                                      dateCleared,
-                                      dateLastPay,
-                                      // Auto-set verdict to Pending when date cleared is filled
-                                      verdictCalled: dateCleared
-                                        ? selectedEmployee.verdictCalled ||
-                                          "Pending"
-                                        : selectedEmployee.verdictCalled,
-                                    });
-                                  }}
-                                  InputProps={{ readOnly: !isEditing }}
-                                  inputProps={{
-                                    onKeyDown: (e) => e.preventDefault(),
-                                  }}
-                                  InputLabelProps={{ shrink: true }}
-                                />
-                              </Grid>
-
-                              {/* Date Last Pay — auto-calculated, always readonly */}
-                              <Grid item xs={12} sm={6}>
-                                <TextField
-                                  label="Date Last Pay"
-                                  fullWidth
-                                  type="date"
-                                  value={
-                                    selectedEmployee.dateLastPay
-                                      ? dayjs(
-                                          selectedEmployee.dateLastPay,
-                                        ).format("YYYY-MM-DD")
-                                      : ""
+                                    selectedEmployee.clearanceStatus ||
+                                    "Processing"
                                   }
                                   InputProps={{ readOnly: true }}
-                                  InputLabelProps={{ shrink: true }}
-                                  helperText="Automatically set to 2 months after Date Cleared"
                                 />
-                              </Grid>
-
-                              {/* Verdict Called */}
-                              <Grid item xs={12} sm={6}>
-                                {isEditing ? (
-                                  <FormControl fullWidth>
-                                    <InputLabel>Verdict</InputLabel>
-                                    <Select
-                                      value={
-                                        selectedEmployee.verdictCalled ||
-                                        "Pending"
-                                      }
-                                      label="Verdict"
-                                      onChange={(e) =>
-                                        setSelectedEmployee({
-                                          ...selectedEmployee,
-                                          verdictCalled: e.target.value,
-                                        })
-                                      }
-                                    >
-                                      <MenuItem value="Pending">
-                                        Pending
-                                      </MenuItem>
-                                      <MenuItem value="Release">
-                                        Release
-                                      </MenuItem>
-                                    </Select>
-                                  </FormControl>
-                                ) : (
-                                  <TextField
-                                    label="Verdict"
-                                    fullWidth
-                                    value={
-                                      selectedEmployee.verdictCalled || "—"
-                                    }
-                                    InputProps={{ readOnly: true }}
-                                  />
-                                )}
-                              </Grid>
+                              )}
                             </Grid>
-                          </CardContent>
-                        </Card>
-                      )}
 
+                            {/* Date Cleared */}
+                            <Grid item xs={12} sm={6}>
+                              <TextField
+                                label="Date Cleared"
+                                fullWidth
+                                type="date"
+                                value={
+                                  selectedEmployee.dateCleared
+                                    ? dayjs(
+                                        selectedEmployee.dateCleared,
+                                      ).format("YYYY-MM-DD")
+                                    : ""
+                                }
+                                onChange={(e) => {
+                                  const dateCleared = e.target.value;
+                                  const dateLastPay = dateCleared
+                                    ? dayjs(dateCleared)
+                                        .add(2, "month")
+                                        .format("YYYY-MM-DD")
+                                    : "";
+                                  setSelectedEmployee({
+                                    ...selectedEmployee,
+                                    dateCleared,
+                                    dateLastPay,
+                                    verdictCalled: dateCleared
+                                      ? selectedEmployee.verdictCalled ||
+                                        "Pending"
+                                      : selectedEmployee.verdictCalled,
+                                  });
+                                }}
+                                InputProps={{ readOnly: !isEditing }}
+                                inputProps={{
+                                  onKeyDown: (e) => e.preventDefault(),
+                                }}
+                                InputLabelProps={{ shrink: true }}
+                              />
+                            </Grid>
+
+                            {/* Date Last Pay — always read-only, auto-calculated */}
+                            <Grid item xs={12} sm={6}>
+                              <TextField
+                                label="Date Last Pay"
+                                fullWidth
+                                type="date"
+                                value={
+                                  selectedEmployee.dateLastPay
+                                    ? dayjs(
+                                        selectedEmployee.dateLastPay,
+                                      ).format("YYYY-MM-DD")
+                                    : ""
+                                }
+                                InputProps={{ readOnly: true }}
+                                InputLabelProps={{ shrink: true }}
+                                helperText="Automatically set to 2 months after Date Cleared"
+                              />
+                            </Grid>
+
+                            {/* Verdict */}
+                            <Grid item xs={12} sm={6}>
+                              {isEditing ? (
+                                <FormControl fullWidth>
+                                  <InputLabel>Verdict</InputLabel>
+                                  <Select
+                                    value={
+                                      selectedEmployee.verdictCalled ||
+                                      "Pending"
+                                    }
+                                    label="Verdict"
+                                    onChange={(e) =>
+                                      setSelectedEmployee({
+                                        ...selectedEmployee,
+                                        verdictCalled: e.target.value,
+                                      })
+                                    }
+                                  >
+                                    <MenuItem value="Pending">Pending</MenuItem>
+                                    <MenuItem value="Release">Release</MenuItem>
+                                  </Select>
+                                </FormControl>
+                              ) : (
+                                <TextField
+                                  label="Verdict"
+                                  fullWidth
+                                  value={selectedEmployee.verdictCalled || "—"}
+                                  InputProps={{ readOnly: true }}
+                                />
+                              )}
+                            </Grid>
+                          </Grid>
+                        </CardContent>
+                      </Card>
+                    )}
                     {/* Government IDs Section */}
                     <Card
                       elevation={0}
@@ -1905,32 +2043,16 @@ export default function BmpowerHO() {
                           >
                             <ImageIcon /> Requirements (Softcopy)
                           </Typography>
-                          <Button
-                            variant="outlined"
-                            startIcon={<VisibilityIcon />}
-                            onClick={() => {
-                              if (selectedEmployee) {
-                                fetchSavedRequirements(selectedEmployee._id);
-                                setViewAllModalOpen(true);
-                              } else {
-                                alert("Please select an employee first.");
-                              }
-                            }}
-                            sx={{
-                              borderColor: "#2e6385ff",
-                              color: "#2e6385ff",
-                              "&:hover": {
-                                backgroundColor: "rgba(46, 99, 133, 0.08)",
-                                borderColor: "#0c2e3fff",
-                              },
-                            }}
-                          >
-                            View All Requirements
-                          </Button>
+                          <Chip
+                            label={`${selectedEmployee?.requirementsImages?.length || 0} file(s)`}
+                            size="small"
+                            color="primary"
+                            sx={{ fontWeight: 600 }}
+                          />
                         </Box>
-
                         <Divider sx={{ mb: 3 }} />
 
+                        {/* Upload button — edit mode only */}
                         {isEditing && (
                           <Box sx={{ mb: 3 }}>
                             <Button
@@ -1945,7 +2067,7 @@ export default function BmpowerHO() {
                                 py: 2,
                                 width: "100%",
                                 "&:hover": {
-                                  backgroundColor: "rgba(46, 99, 133, 0.08)",
+                                  backgroundColor: "rgba(46,99,133,0.08)",
                                   borderColor: "#0c2e3fff",
                                 },
                               }}
@@ -1959,10 +2081,8 @@ export default function BmpowerHO() {
                                 onChange={async (e) => {
                                   const files = Array.from(e.target.files);
                                   if (files.length === 0) return;
-
                                   try {
                                     const uploadedUrls = [];
-
                                     for (const file of files) {
                                       const response = await axios.post(
                                         "https://api-map.bmphrc.com/save-requirements-images",
@@ -1971,17 +2091,13 @@ export default function BmpowerHO() {
                                           fileType: file.type,
                                         },
                                       );
-
-                                      const { url } = response.data;
-
-                                      await axios.put(url, file, {
+                                      await axios.put(response.data.url, file, {
                                         headers: { "Content-Type": file.type },
                                       });
-
-                                      const s3FileUrl = `https://mmp-portal-docs.s3.ap-southeast-1.amazonaws.com/${file.name}`;
-                                      uploadedUrls.push(s3FileUrl);
+                                      uploadedUrls.push(
+                                        `https://mmp-portal-docs.s3.ap-southeast-1.amazonaws.com/${file.name}`,
+                                      );
                                     }
-
                                     setNewUploads((prev) => [
                                       ...prev,
                                       ...uploadedUrls,
@@ -2006,94 +2122,119 @@ export default function BmpowerHO() {
                           </Box>
                         )}
 
-                        {newUploads.length > 0 ? (
+                        {/* ── Show ALL saved images directly (no button needed) ── */}
+                        {selectedEmployee?.requirementsImages?.length > 0 ? (
                           <Grid container spacing={2}>
-                            {newUploads.map((url, index) => (
-                              <Grid item xs={6} sm={4} md={3} key={index}>
-                                <Box
-                                  sx={{
-                                    position: "relative",
-                                    paddingTop: "100%",
-                                    borderRadius: "12px",
-                                    overflow: "hidden",
-                                    border: "2px solid #e0e0e0",
-                                    "&:hover": {
-                                      boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-                                      transform: "translateY(-2px)",
-                                      transition: "all 0.3s ease",
-                                    },
-                                  }}
-                                >
-                                  <img
-                                    src={url}
-                                    alt={`Uploaded ${index + 1}`}
-                                    style={{
-                                      position: "absolute",
-                                      top: 0,
-                                      left: 0,
-                                      width: "100%",
-                                      height: "100%",
-                                      objectFit: "cover",
+                            {selectedEmployee.requirementsImages.map(
+                              (url, index) => (
+                                <Grid item xs={6} sm={4} md={3} key={index}>
+                                  <Box
+                                    sx={{
+                                      position: "relative",
+                                      paddingTop: "100%",
+                                      borderRadius: "12px",
+                                      overflow: "hidden",
+                                      border: "2px solid #e0e0e0",
                                       cursor: "pointer",
+                                      transition: "all 0.3s ease",
+                                      "&:hover": {
+                                        boxShadow:
+                                          "0 4px 12px rgba(0,0,0,0.15)",
+                                        transform: "translateY(-2px)",
+                                        border: "2px solid #2e6385ff",
+                                      },
                                     }}
-                                    onClick={() => setPreviewImage(url)}
-                                  />
-                                  {isEditing && (
-                                    <IconButton
-                                      size="small"
+                                  >
+                                    <img
+                                      src={url}
+                                      alt={`Requirement ${index + 1}`}
+                                      style={{
+                                        position: "absolute",
+                                        top: 0,
+                                        left: 0,
+                                        width: "100%",
+                                        height: "100%",
+                                        objectFit: "cover",
+                                      }}
+                                      onClick={() => setPreviewImage(url)}
+                                    />
+                                    {/* Delete button — edit mode only */}
+                                    {isEditing && (
+                                      <IconButton
+                                        size="small"
+                                        sx={{
+                                          position: "absolute",
+                                          top: 6,
+                                          right: 6,
+                                          backgroundColor:
+                                            "rgba(255,255,255,0.95)",
+                                          "&:hover": {
+                                            backgroundColor: "white",
+                                          },
+                                        }}
+                                        onClick={() => {
+                                          if (
+                                            window.confirm("Remove this image?")
+                                          ) {
+                                            setSelectedEmployee((prev) => ({
+                                              ...prev,
+                                              requirementsImages:
+                                                prev.requirementsImages.filter(
+                                                  (_, i) => i !== index,
+                                                ),
+                                            }));
+                                            setNewUploads((prev) =>
+                                              prev.filter((u) => u !== url),
+                                            );
+                                          }
+                                        }}
+                                      >
+                                        <DeleteIcon
+                                          color="error"
+                                          fontSize="small"
+                                        />
+                                      </IconButton>
+                                    )}
+                                    {/* Image number badge */}
+                                    <Box
                                       sx={{
                                         position: "absolute",
-                                        top: 8,
-                                        right: 8,
-                                        backgroundColor:
-                                          "rgba(255, 255, 255, 0.95)",
-                                        "&:hover": {
-                                          backgroundColor:
-                                            "rgba(255, 255, 255, 1)",
-                                        },
-                                      }}
-                                      onClick={() => {
-                                        if (
-                                          window.confirm(
-                                            "Are you sure you want to remove this image?",
-                                          )
-                                        ) {
-                                          setNewUploads((prev) =>
-                                            prev.filter((img) => img !== url),
-                                          );
-                                          setSelectedEmployee((prev) => ({
-                                            ...prev,
-                                            requirementsImages:
-                                              prev.requirementsImages?.filter(
-                                                (img) => img !== url,
-                                              ) || [],
-                                          }));
-                                        }
+                                        bottom: 6,
+                                        left: 6,
+                                        backgroundColor: "rgba(0,0,0,0.55)",
+                                        color: "white",
+                                        borderRadius: "6px",
+                                        px: 0.8,
+                                        py: 0.2,
+                                        fontSize: "11px",
+                                        fontWeight: 600,
                                       }}
                                     >
-                                      <DeleteIcon color="error" />
-                                    </IconButton>
-                                  )}
-                                </Box>
-                              </Grid>
-                            ))}
+                                      {index + 1}
+                                    </Box>
+                                  </Box>
+                                </Grid>
+                              ),
+                            )}
                           </Grid>
                         ) : (
                           <Box
-                            sx={{
-                              textAlign: "center",
-                              py: 4,
-                              color: "#666",
-                            }}
+                            sx={{ textAlign: "center", py: 4, color: "#666" }}
                           >
                             <ImageIcon
                               sx={{ fontSize: 64, color: "#ccc", mb: 2 }}
                             />
                             <Typography variant="body1">
-                              {isEditing
-                                ? "No new images uploaded yet"
-                                : "No requirements uploaded"}
+                              No requirements uploaded
                             </Typography>
+                            {isEditing && (
+                              <Typography
+                                variant="body2"
+                                sx={{ color: "#aaa", mt: 0.5 }}
+                              >
+                                Use the upload button above to add 201 files
+                              </Typography>
+                            )}
                           </Box>
                         )}
                       </CardContent>

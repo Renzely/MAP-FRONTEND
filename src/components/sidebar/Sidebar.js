@@ -290,9 +290,16 @@ export default function Sidebar() {
             </div>
           </Collapse>
         )}
-        {["MIS", "HR HEAD", "HR SPECIALIST", "ACCOUNT SUPERVISOR"].includes(
-          roleAccount,
-        ) && (
+
+        {[
+          "MIS",
+          "HR HEAD",
+          "HR OFFICER",
+          "HR COMPENSATION AND BENEFITS",
+          "HR COORDINATOR SPECIALIST",
+          "HR SPECIALIST",
+          "ACCOUNT SUPERVISOR",
+        ].includes(roleAccount) && (
           <NavLink
             to="/view-Outletlist"
             onClick={() => handleItemClick("/view-Outletlist")}
@@ -303,6 +310,15 @@ export default function Sidebar() {
             </li>
           </NavLink>
         )}
+        <NavLink
+          to="/view-applicants"
+          onClick={() => handleItemClick("/view-applicants")}
+        >
+          <li className={activeItem === "/view-applicants" ? "active" : ""}>
+            <AssignmentInd className="sidebar-icon" />
+            {isOpen && <span className="menu-text">Applicants</span>}
+          </li>
+        </NavLink>
 
         {/* ACCOUNT MANAGEMENT MENU */}
         <Tooltip

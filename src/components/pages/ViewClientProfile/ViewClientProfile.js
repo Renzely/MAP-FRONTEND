@@ -72,7 +72,8 @@ export default function ViewClientProfileEnhanced() {
   const [isEditMode, setIsEditMode] = useState(false);
   const [editFormData, setEditFormData] = useState({});
   const [employeeCounts, setEmployeeCounts] = useState({});
-
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
   const cardsPerPage = 6;
 
   // Listen to sidebar state from localStorage
@@ -194,6 +195,7 @@ export default function ViewClientProfileEnhanced() {
         ? dayjs(client.contractED).format("YYYY-MM-DD")
         : "",
       clientWebsite: client.clientWebsite || "",
+      requirementsImages: client.requirementsImages || [],
     });
     setIsEditMode(false);
     setOpenEditModal(true);
@@ -212,6 +214,46 @@ export default function ViewClientProfileEnhanced() {
       ...editFormData,
       [name]: type === "checkbox" ? checked : value,
     });
+  };
+
+  const handleAddImage = async (file) => {
+    if (!file) return;
+    try {
+      setUploading(true);
+      setUploadError("");
+
+      const response = await axios.post(
+        "https://api-map.bmphrc.com/save-requirements-images-client",
+        { fileName: file.name, fileType: file.type },
+      );
+
+      const { url } = response.data;
+
+      await axios.put(url, file, {
+        headers: { "Content-Type": file.type },
+      });
+
+      const s3FileUrl = `https://mmp-portal-docs-client.s3.ap-southeast-1.amazonaws.com/${file.name}`;
+
+      setEditFormData((prev) => ({
+        ...prev,
+        requirementsImages: [...(prev.requirementsImages || []), s3FileUrl],
+      }));
+    } catch (error) {
+      console.error("Upload failed:", error);
+      setUploadError("Failed to upload file. Please try again.");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleRemoveImage = (indexToRemove) => {
+    setEditFormData((prev) => ({
+      ...prev,
+      requirementsImages: prev.requirementsImages.filter(
+        (_, i) => i !== indexToRemove,
+      ),
+    }));
   };
 
   const fetchEmployeeCounts = async () => {
@@ -684,7 +726,8 @@ export default function ViewClientProfileEnhanced() {
 
                       {/* ACTION ICONS */}
                       <Box sx={{ display: "flex", gap: 1 }}>
-                        {client.requirementsImages?.length > 0 && (
+                        {(client.requirementsImages?.length > 0 ||
+                          client.images?.length > 0) && (
                           <Tooltip title="View Contracts" arrow>
                             <Button
                               size="small"
@@ -700,7 +743,9 @@ export default function ViewClientProfileEnhanced() {
                                 },
                               }}
                               onClick={() =>
-                                handleOpenImages(client.requirementsImages)
+                                handleOpenImages(
+                                  client.requirementsImages || client.images,
+                                )
                               }
                             >
                               <PhotoIcon fontSize="small" />
@@ -1091,6 +1136,112 @@ export default function ViewClientProfileEnhanced() {
                     InputLabelProps={{ shrink: true }}
                     size="small"
                   />
+                </Grid>
+                <Grid item xs={12}>
+                  <Divider sx={{ my: 2 }} />
+                  <Typography
+                    variant="subtitle1"
+                    sx={{ fontWeight: 600, mb: 2, color: "#2e6385" }}
+                  >
+                    Contract / Requirement Files
+                  </Typography>
+
+                  {/* Existing Images */}
+                  {editFormData.requirementsImages?.length > 0 ? (
+                    <Grid container spacing={2} sx={{ mb: 2 }}>
+                      {editFormData.requirementsImages.map((img, index) => (
+                        <Grid item xs={6} sm={4} md={3} key={index}>
+                          <Box sx={{ position: "relative" }}>
+                            <Box
+                              component="img"
+                              src={img}
+                              alt={`Contract ${index + 1}`}
+                              sx={{
+                                width: "100%",
+                                height: 120,
+                                objectFit: "cover",
+                                borderRadius: 2,
+                                cursor: "pointer",
+                                boxShadow: 1,
+                                "&:hover": { opacity: 0.85 },
+                              }}
+                              onClick={() => window.open(img, "_blank")}
+                            />
+                            {/* Remove button — only visible in edit mode */}
+                            {isEditMode && (
+                              <Box
+                                onClick={() => handleRemoveImage(index)}
+                                sx={{
+                                  position: "absolute",
+                                  top: 4,
+                                  right: 4,
+                                  width: 22,
+                                  height: 22,
+                                  borderRadius: "50%",
+                                  backgroundColor: "rgba(200,0,0,0.8)",
+                                  color: "white",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  cursor: "pointer",
+                                  fontSize: "14px",
+                                  fontWeight: "bold",
+                                  lineHeight: 1,
+                                  "&:hover": { backgroundColor: "red" },
+                                }}
+                              >
+                                ×
+                              </Box>
+                            )}
+                          </Box>
+                        </Grid>
+                      ))}
+                    </Grid>
+                  ) : (
+                    <Typography
+                      variant="body2"
+                      sx={{ color: "#999", mb: 2, fontStyle: "italic" }}
+                    >
+                      No contract files uploaded yet.
+                    </Typography>
+                  )}
+
+                  {/* Upload button — only visible in edit mode */}
+                  {isEditMode && (
+                    <Box>
+                      <Button
+                        variant="outlined"
+                        component="label"
+                        disabled={uploading}
+                        startIcon={<PhotoIcon />}
+                        sx={{
+                          borderColor: "#2e6385",
+                          color: "#2e6385",
+                          textTransform: "none",
+                          "&:hover": {
+                            borderColor: "#0c2e3f",
+                            backgroundColor: "rgba(46,99,133,0.06)",
+                          },
+                        }}
+                      >
+                        {uploading ? "Uploading..." : "Add Image"}
+                        <input
+                          type="file"
+                          hidden
+                          accept="image/*"
+                          onChange={(e) => handleAddImage(e.target.files[0])}
+                        />
+                      </Button>
+                      {uploadError && (
+                        <Typography
+                          variant="caption"
+                          sx={{ color: "red", display: "block", mt: 1 }}
+                        >
+                          {uploadError}
+                        </Typography>
+                      )}
+                    </Box>
+                  )}
                 </Grid>
               </Grid>
             </DialogContent>
