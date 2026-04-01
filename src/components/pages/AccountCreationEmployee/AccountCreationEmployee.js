@@ -1172,23 +1172,6 @@ export default function AccountCreationEnhanced() {
                     </Grid>
                     <Grid item xs={12} md={3}>
                       <TextField
-                        label="Middle Name"
-                        fullWidth
-                        size="small"
-                        value={formData.middleName}
-                        onChange={(e) => {
-                          const value = e.target.value.replace(
-                            /[^A-Za-z\s-]/g,
-                            "",
-                          );
-                          handleChange("middleName", value);
-                        }}
-                        error={!!formErrors.middleName}
-                        helperText={formErrors.middleName}
-                      />
-                    </Grid>
-                    <Grid item xs={12} md={3}>
-                      <TextField
                         label="First Name *"
                         fullWidth
                         size="small"
@@ -1248,6 +1231,24 @@ export default function AccountCreationEnhanced() {
                         </FormControl>
                       )}
                     </Grid>
+                    <Grid item xs={12} md={3}>
+                      <TextField
+                        label="Middle Name"
+                        fullWidth
+                        size="small"
+                        value={formData.middleName}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(
+                            /[^A-Za-z\s-]/g,
+                            "",
+                          );
+                          handleChange("middleName", value);
+                        }}
+                        error={!!formErrors.middleName}
+                        helperText={formErrors.middleName}
+                      />
+                    </Grid>
+                    
 
                     <Grid item xs={12} md={3}>
                       <TextField
