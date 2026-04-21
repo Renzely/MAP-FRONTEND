@@ -28,6 +28,7 @@ const Path = () => {
       case "/view-recent-activity":
       case "/view-Outletlist":
       case "/view-applicants":
+      case "/view-spxhubs":
 
       // BMPOWER
 

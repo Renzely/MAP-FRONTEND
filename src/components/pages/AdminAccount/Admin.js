@@ -1096,6 +1096,7 @@ export default function Admin() {
                       <MenuItem value="ACCOUNT SUPERVISOR">
                         ACCOUNT SUPERVISOR
                       </MenuItem>
+                      <MenuItem value="COORDINATOR">COORDINATOR</MenuItem>
                       <MenuItem value="HR HEAD">HR HEAD</MenuItem>
                       <MenuItem value="HR OFFICER">HR OFFICER</MenuItem>
                       <MenuItem value="HR COORDINATOR SPECIALIST">

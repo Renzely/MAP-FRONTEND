@@ -391,6 +391,7 @@ export default function AccountCreationEnhanced() {
     status: "",
     remarks: "",
     employeeNo: "",
+    riderid: "",
     firstName: "",
     suffix: "",
     middleName: "",
@@ -406,6 +407,7 @@ export default function AccountCreationEnhanced() {
     hdmf: "",
     tin: "",
     position: "",
+    contract: null,
     dateHired: null,
     dateResigned: null,
     homeAddress: "",
@@ -460,7 +462,7 @@ export default function AccountCreationEnhanced() {
 
       // Handle remarks logic
       if (field === "remarks") {
-        if (value !== "Resign") {
+        if (value !== "Resigned") {
           updated.dateResigned = null;
         }
       }
@@ -470,6 +472,7 @@ export default function AccountCreationEnhanced() {
           updated.remarks = "Applicant";
           updated.employeeNo = "";
           updated.dateHired = null;
+          updated.contract = null;
           updated.silBalance = "";
           updated.modeOfDisbursement = "";
           updated.accountNumber = "";
@@ -479,7 +482,7 @@ export default function AccountCreationEnhanced() {
         } else if (value === "Inactive") {
           // 🔥 Clear if invalid
           if (
-            !["Resign", "Terminated", "End of Contract", "AWOL"].includes(
+            !["Resigned", "Terminated", "End of Contract", "AWOL"].includes(
               prev.remarks,
             )
           ) {
@@ -490,6 +493,7 @@ export default function AccountCreationEnhanced() {
 
       if (field === "clientAssigned") {
         // Always reset outlet/hub when client changes
+        updated.riderid = "";
         updated.outlet = "";
         updated.account = "";
         updated.region = "";
@@ -517,7 +521,7 @@ export default function AccountCreationEnhanced() {
 
       // Handle remarks logic
       if (field === "remarks") {
-        if (value === "Resign") {
+        if (value === "Resigned") {
           if (!formData.dateResigned) {
             newErrors.dateResigned =
               "Date Resigned is required when employee resigns.";
@@ -569,7 +573,6 @@ export default function AccountCreationEnhanced() {
           "company",
           "status",
           "remarks",
-          //"employeeNo",
           "firstName",
           "lastName",
           "modeOfDisbursement",
@@ -612,7 +615,7 @@ export default function AccountCreationEnhanced() {
         errors.email = "Invalid email address";
     }
 
-    if (formData.remarks === "Resign" && !formData.dateResigned) {
+    if (formData.remarks === "Resigned" && !formData.dateResigned) {
       errors.dateResigned =
         "Date Resigned is required when remarks is 'Resign'";
     }
@@ -695,10 +698,12 @@ export default function AccountCreationEnhanced() {
       ...formData,
       createdBy: adminFullName,
       employeeNo: isApplicant ? null : formData.employeeNo,
+      riderid: isApplicant ? null : formData.riderid,
       accountNumber:
         isApplicant || formData.modeOfDisbursement === "TBA"
           ? null
           : formData.accountNumber,
+      contract: isApplicant ? null : formData.contract,
       dateHired: isApplicant ? null : formData.dateHired,
       silBalance: isApplicant ? null : formData.silBalance,
       region: formData.region || null,
@@ -708,6 +713,9 @@ export default function AccountCreationEnhanced() {
       ),
       birthday: formData.birthday
         ? dayjs(formData.birthday).toDate().toISOString()
+        : null,
+      contract: formData.contract
+        ? dayjs(formData.contract).toDate().toISOString()
         : null,
       dateHired: formData.dateHired
         ? dayjs(formData.dateHired).toDate().toISOString()
@@ -734,6 +742,7 @@ export default function AccountCreationEnhanced() {
           company: "",
           status: "",
           remarks: "",
+          riderid: "",
           employeeNo: "",
           firstName: "",
           suffix: "",
@@ -750,6 +759,7 @@ export default function AccountCreationEnhanced() {
           hdmf: "",
           tin: "",
           position: "",
+          contract: null,
           dateHired: null,
           dateResigned: null,
           homeAddress: "",
@@ -1090,7 +1100,7 @@ export default function AccountCreationEnhanced() {
                           {/* 🔹 Inactive */}
                           {formData.status === "Inactive" &&
                             [
-                              "Resign",
+                              "Resigned",
                               "Terminated",
                               "End of Contract",
                               "AWOL",
@@ -1117,6 +1127,22 @@ export default function AccountCreationEnhanced() {
                         helperText={formErrors.employeeNo}
                       />
                     </Grid>
+                    {isHubClient && (
+                      <Grid item xs={12} md={2}>
+                        <TextField
+                          label="SPX Rider ID (Optional)"
+                          disabled={isApplicant}
+                          fullWidth
+                          size="small"
+                          value={formData.riderid}
+                          onChange={(e) =>
+                            handleChange("riderid", e.target.value)
+                          }
+                          error={!!formErrors.riderid}
+                          helperText={formErrors.riderid}
+                        />
+                      </Grid>
+                    )}
                   </Grid>
                 </CardContent>
               </Card>
@@ -1248,7 +1274,6 @@ export default function AccountCreationEnhanced() {
                         helperText={formErrors.middleName}
                       />
                     </Grid>
-                    
 
                     <Grid item xs={12} md={3}>
                       <TextField
@@ -1571,9 +1596,19 @@ export default function AccountCreationEnhanced() {
                           disabled={isApplicant}
                           label="Date Hired *"
                           value={formData.dateHired}
-                          onChange={(newValue) =>
-                            handleChange("dateHired", newValue)
-                          }
+                          onChange={(newValue) => {
+                            handleChange("dateHired", newValue);
+
+                            // ✅ Auto-set provisional date (contract)
+                            if (isHubClient && newValue) {
+                              const provisionalDate = newValue.add(5, "month");
+
+                              setFormData((prev) => ({
+                                ...prev,
+                                contract: provisionalDate,
+                              }));
+                            }
+                          }}
                           slotProps={{
                             textField: {
                               size: "small",
@@ -1596,7 +1631,7 @@ export default function AccountCreationEnhanced() {
                         <DatePicker
                           label="Date Resigned"
                           value={formData.dateResigned}
-                          disabled={formData.remarks !== "Resign"}
+                          disabled={formData.remarks !== "Resigned"}
                           onChange={(newValue) =>
                             handleChange("dateResigned", newValue)
                           }
@@ -1616,7 +1651,37 @@ export default function AccountCreationEnhanced() {
                         />
                       </LocalizationProvider>
                     </Grid>
-
+                    {isHubClient && (
+                      <Grid item xs={12} md={3}>
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                          <DatePicker
+                            disabled={isApplicant || isHubClient}
+                            label={
+                              isHubClient
+                                ? "Provisional Date"
+                                : "Contract Date (Optional)"
+                            }
+                            value={formData.contract}
+                            onChange={(newValue) =>
+                              handleChange("contract", newValue)
+                            }
+                            slotProps={{
+                              textField: {
+                                size: "small",
+                                fullWidth: true,
+                                error: !!formErrors.contract,
+                                helperText: formErrors.contract,
+                                onKeyDown: (e) => e.preventDefault(),
+                                inputProps: {
+                                  onKeyDown: (e) => e.preventDefault(),
+                                  readOnly: true,
+                                },
+                              },
+                            }}
+                          />
+                        </LocalizationProvider>
+                      </Grid>
+                    )}
                     <Grid item xs={12} md={3}>
                       <TextField
                         label="SIL Balance *"
@@ -1809,21 +1874,18 @@ export default function AccountCreationEnhanced() {
                     )} */}
 
                     {/* Placeholder for other clients */}
-                    {
-                      // !isOutletClient &&
-                      !isHubClient && (
-                        <Grid item xs={12} md={3}>
-                          <TextField
-                            label="Outlet / Hub"
-                            fullWidth
-                            size="small"
-                            disabled
-                            value=""
-                            helperText="Select ECOSSENTIAL FOODS CORP or SPX EXPRESS"
-                          />
-                        </Grid>
-                      )
-                    }
+                    {/* {isHubClient && (
+                      <Grid item xs={12} md={3}>
+                        <TextField
+                          label="Outlet / Hub"
+                          fullWidth
+                          size="small"
+                          disabled
+                          value=""
+                          helperText="Select ECOSSENTIAL FOODS CORP or SPX EXPRESS"
+                        />
+                      </Grid>
+                    )} */}
                   </Grid>
                 </CardContent>
               </Card>

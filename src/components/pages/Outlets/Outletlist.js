@@ -3132,7 +3132,7 @@ export default function OutletList() {
             {
               outletName: data.outletName,
               employeeId: data.assignedEmployeeId,
-              remarks: previousEmployeeRemarks || "Resign",
+              remarks: previousEmployeeRemarks || "Resigned",
               dateResigned: today,
               updatedBy: adminFullName,
             },
@@ -3670,7 +3670,7 @@ export default function OutletList() {
                   variant="h4"
                   sx={{ color: "white", fontWeight: 700, mb: 0.5 }}
                 >
-                  OUTLET LIST
+                  EFC OUTLETS
                 </Typography>
                 <Typography
                   variant="body1"
@@ -5884,7 +5884,7 @@ export default function OutletList() {
                                         <MenuItem value="">
                                           <em>— Select Remarks —</em>
                                         </MenuItem>
-                                        <MenuItem value="Resign">
+                                        <MenuItem value="Resigned">
                                           <Box
                                             sx={{
                                               display: "flex",

@@ -44,6 +44,7 @@ import AccountCreationEmployee from "./components/pages/AccountCreationEmployee/
 import AccountCreationProfile from "./components/pages/AccountCreationProfileclient/AccountCreationProfileclient";
 import ViewClientProfile from "./components/pages/ViewClientProfile/ViewClientProfile";
 import OutletList from "./components/pages/Outlets/Outletlist";
+import SPXHub from "./components/pages/Outlets/SPXHub";
 
 function App() {
   return (
@@ -68,6 +69,7 @@ function App() {
           />
           <Route path="/view-clientProfile" element={<ViewClientProfile />} />
           <Route path="/view-Outletlist" element={<OutletList />} />
+          <Route path="/view-spxhubs" element={<SPXHub />} />
 
           {/* BMPOWER */}
 
