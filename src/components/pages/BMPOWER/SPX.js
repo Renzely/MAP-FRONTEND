@@ -473,7 +473,7 @@ export default function BmpowerHO() {
 
     // Date Resigned required for resignation-type remarks
     const resignationRemarks = [
-      "Resign",
+      "Resigned",
       "Terminate",
       "End of Contract",
       "Retrenchment",
@@ -651,9 +651,13 @@ export default function BmpowerHO() {
     switch (remarks?.toLowerCase()) {
       case "employed":
         return "success";
+      case "Deployed":
+        return "success";
       case "applicant":
         return "info";
-      case "resign":
+      case "undeployed":
+        return "warning";
+      case "resigned":
         return "warning";
       case "terminate":
         return "error";
@@ -771,7 +775,7 @@ export default function BmpowerHO() {
   const showClearance = (emp) =>
     emp &&
     [
-      "Resign",
+      "Resigned",
       "Terminate",
       "End of Contract",
       "Retrenchment",
@@ -875,7 +879,7 @@ export default function BmpowerHO() {
                   <MenuItem value="UNFILTERED">All Records</MenuItem>
                   <MenuItem value="Applicant">Applicant</MenuItem>
                   <MenuItem value="Employed">Employed</MenuItem>
-                  <MenuItem value="Resign">Resign</MenuItem>
+                  <MenuItem value="Resigned">Resigned</MenuItem>
                   <MenuItem value="End of Contract">End of Contract</MenuItem>
                   <MenuItem value="Retrenchment">Retrenchment</MenuItem>
                   <MenuItem value="Terminated">Terminated</MenuItem>
@@ -1303,7 +1307,7 @@ export default function BmpowerHO() {
                                     const newRemarks = e.target.value;
                                     // Auto-map Remarks → Reason for Leaving
                                     const leavingRemarks = [
-                                      "Resign",
+                                      "Resigned",
                                       "End of Contract",
                                       "Retrenchment",
                                       "Terminated",
@@ -1325,7 +1329,11 @@ export default function BmpowerHO() {
                                     Applicant
                                   </MenuItem>
                                   <MenuItem value="Employed">Employed</MenuItem>
-                                  <MenuItem value="Resign">Resign</MenuItem>
+                                  <MenuItem value="Resigned">Resigned</MenuItem>
+                                  <MenuItem value="Deployed">Deployed</MenuItem>
+                                  <MenuItem value="Undeployed">
+                                    Undeployed
+                                  </MenuItem>
                                   <MenuItem value="End of Contract">
                                     End of Contract
                                   </MenuItem>
@@ -1477,6 +1485,20 @@ export default function BmpowerHO() {
                           </Grid>
                           <Grid item xs={12} sm={4}>
                             <TextField
+                              label="Rider ID"
+                              fullWidth
+                              value={selectedEmployee.riderid || ""}
+                              onChange={(e) =>
+                                setSelectedEmployee({
+                                  ...selectedEmployee,
+                                  riderid: e.target.value,
+                                })
+                              }
+                              InputProps={{ readOnly: !isEditing }}
+                            />
+                          </Grid>
+                          <Grid item xs={12} sm={4}>
+                            <TextField
                               label="Date Hired"
                               fullWidth
                               type="date"
@@ -1524,6 +1546,33 @@ export default function BmpowerHO() {
                               }
                             />
                           </Grid>
+
+                          <Grid item xs={12} sm={4}>
+                            <TextField
+                              label="Provisional Date"
+                              fullWidth
+                              type="date"
+                              value={
+                                selectedEmployee.contract
+                                  ? dayjs(selectedEmployee.contract).format(
+                                      "YYYY-MM-DD",
+                                    )
+                                  : selectedEmployee.dateHired
+                                    ? dayjs(selectedEmployee.dateHired)
+                                        .add(5, "month")
+                                        .format("YYYY-MM-DD")
+                                    : ""
+                              }
+                              InputProps={{
+                                readOnly: true,
+                              }}
+                              inputProps={{
+                                onKeyDown: (e) => e.preventDefault(),
+                              }}
+                              InputLabelProps={{ shrink: true }}
+                            />
+                          </Grid>
+
                           <Grid item xs={12} sm={4}>
                             <TextField
                               label="Date Resigned"
@@ -1564,7 +1613,7 @@ export default function BmpowerHO() {
                               error={
                                 dateResignedError &&
                                 [
-                                  "Resign",
+                                  "Resigned",
                                   "Terminate",
                                   "End of Contract",
                                   "Retrenchment",
@@ -1580,7 +1629,7 @@ export default function BmpowerHO() {
                                   ? "Not applicable for this status"
                                   : dateResignedError &&
                                       [
-                                        "Resign",
+                                        "Resigned",
                                         "Terminate",
                                         "End of Contract",
                                         "Retrenchment",
@@ -1606,7 +1655,7 @@ export default function BmpowerHO() {
                               InputProps={{ readOnly: !isEditing }}
                             />
                           </Grid>
-                          <Grid item xs={12} sm={6}>
+                          <Grid item xs={12} sm={4}>
                             {/* Reason for Leaving — always read-only, auto-filled from Remarks */}
                             <TextField
                               label="Reason for Leaving"

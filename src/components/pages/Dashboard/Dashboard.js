@@ -257,7 +257,7 @@ export default function Admin() {
         filtered = employees.filter((a) => a.remarks === "employed");
         break;
       case "resigned":
-        filtered = employees.filter((a) => a.remarks === "resign");
+        filtered = employees.filter((a) => a.remarks === "resigned"); // ← was "Resigned"
         break;
       case "applicants":
         filtered = employees.filter((a) => a.remarks === "applicant");
@@ -273,40 +273,6 @@ export default function Admin() {
           .filter((a) => a.createdAt && isRecent(a.createdAt))
           .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         break;
-
-      // case "outlets with merchandiser":
-      //   filtered = OUTLET_DATA.filter((outlet) => {
-      //     const efcMerchandisers = employees.filter(
-      //       (emp) =>
-      //         emp.clientAssigned?.toUpperCase() === "ECOSSENTIAL FOODS CORP" &&
-      //         emp.remarks === "employed",
-      //     );
-      //     const assignedOutlets = new Set();
-      //     efcMerchandisers.forEach((emp) =>
-      //       emp.outletsAssigned?.forEach((o) => assignedOutlets.add(o)),
-      //     );
-      //     return assignedOutlets.has(
-      //       outlet.outletName || outlet.name || outlet,
-      //     );
-      //   });
-      //   break;
-
-      // case "outlets without merchandiser":
-      //   filtered = OUTLET_DATA.filter((outlet) => {
-      //     const efcMerchandisers = employees.filter(
-      //       (emp) =>
-      //         emp.clientAssigned?.toUpperCase() === "ECOSSENTIAL FOODS CORP" &&
-      //         emp.remarks === "employed",
-      //     );
-      //     const assignedOutlets = new Set();
-      //     efcMerchandisers.forEach((emp) =>
-      //       emp.outletsAssigned?.forEach((o) => assignedOutlets.add(o)),
-      //     );
-      //     return !assignedOutlets.has(
-      //       outlet.outletName || outlet.name || outlet,
-      //     );
-      //   });
-      //   break;
     }
 
     setModalData(filtered);
@@ -421,25 +387,10 @@ export default function Admin() {
     }
   }, [company]);
 
-  // Set client list when company changes
   useEffect(() => {
     const fetchSummary = async () => {
       try {
         setLoading(true);
-
-        const recentEmployeesCount = employees.filter(
-          (a) => a.createdAt && isRecent(a.createdAt),
-        ).length;
-
-        setSummary({
-          employed: 0,
-          resign: 0,
-          applicant: 0,
-          terminate: 0,
-          endContract: 0,
-          recent: recentEmployeesCount,
-        });
-
         setMonthlyData([]);
 
         let url = `https://api-map.bmphrc.com/get-merch-accounts-dashboard`;
@@ -448,17 +399,14 @@ export default function Admin() {
         if (company !== "All") {
           params.push(`company=${encodeURIComponent(company.trim())}`);
         }
-
         if (year !== "All") {
           params.push(`year=${year}`);
         }
-
         if (selectedClient) {
           params.push(
             `clientAssigned=${encodeURIComponent(selectedClient.trim())}`,
           );
         }
-
         if (params.length) {
           url += `?${params.join("&")}`;
         }
@@ -477,23 +425,28 @@ export default function Admin() {
           dateResigned: a.dateResigned ? new Date(a.dateResigned) : null,
         }));
 
+        // ✅ NOW it's safe — normalizedData exists here
+        const recentEmployeesCount = normalizedData.filter(
+          (a) => a.createdAt && isRecent(a.createdAt),
+        ).length;
+
         setEmployees(normalizedData);
 
         const years = [
           ...new Set(
             normalizedData
-              .filter((a) => a.dateHired instanceof Date && !isNaN(a.dateHired))
-              .map((a) => a.dateHired.getFullYear().toString()),
+              .flatMap((a) => [a.dateHired, a.dateResigned]) // ← include both
+              .filter((d) => d instanceof Date && !isNaN(d))
+              .map((d) => d.getFullYear().toString()),
           ),
-        ].sort((a, b) => b - a); // descending: newest first
+        ].sort((a, b) => b - a);
 
         setYearOptions(["All", ...years]);
 
-        // SUMMARY COUNTS
         setSummary({
           employed: normalizedData.filter((a) => a.remarks === "employed")
             .length,
-          resign: normalizedData.filter((a) => a.remarks === "resign").length,
+          resign: normalizedData.filter((a) => a.remarks === "resigned").length, // ← lowercase
           applicant: normalizedData.filter((a) => a.remarks === "applicant")
             .length,
           terminate: normalizedData.filter((a) => a.remarks === "terminate")
@@ -501,6 +454,7 @@ export default function Admin() {
           endContract: normalizedData.filter(
             (a) => a.remarks === "end of contract",
           ).length,
+          recent: recentEmployeesCount,
         });
 
         const efcMerchandisers = normalizedData.filter(
@@ -529,18 +483,49 @@ export default function Admin() {
         }));
 
         normalizedData.forEach((a) => {
-          if (a.dateHired instanceof Date && !isNaN(a.dateHired)) {
-            const monthIndex = a.dateHired.getMonth();
-            if (monthCounts[monthIndex][a.remarks] !== undefined) {
-              monthCounts[monthIndex][a.remarks]++;
+          // Pick the best date depending on status
+          const relevantDate =
+            a.remarks === "resigned" ||
+            a.remarks === "terminate" ||
+            a.remarks === "end of contract"
+              ? a.dateResigned
+              : a.remarks === "applicant"
+                ? a.createdAt
+                  ? new Date(a.createdAt)
+                  : null // ← applicants use createdAt
+                : a.dateHired;
+
+          if (relevantDate instanceof Date && !isNaN(relevantDate)) {
+            const monthIndex = relevantDate.getMonth();
+            const key =
+              a.remarks === "resigned"
+                ? "resign"
+                : a.remarks === "end of contract"
+                  ? "endContract"
+                  : a.remarks; // "employed", "applicant", "terminate"
+
+            if (monthCounts[monthIndex][key] !== undefined) {
+              monthCounts[monthIndex][key]++;
             }
           }
         });
 
+        const currentYear = new Date().getFullYear().toString();
+        const currentMonth = new Date().getMonth(); // 0-indexed, April = 3
+
         setMonthlyData(
           monthCounts.map((data, i) => ({
             month: new Date(0, i).toLocaleString("default", { month: "short" }),
-            ...data,
+            // Hide future months if viewing current year
+            ...(year === currentYear && i > currentMonth
+              ? {
+                  employed: null,
+                  resign: null,
+                  applicant: null,
+                  terminate: null,
+                  endContract: null,
+                }
+              : data),
           })),
         );
       } catch (error) {

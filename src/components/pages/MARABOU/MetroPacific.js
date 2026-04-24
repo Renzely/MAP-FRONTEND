@@ -339,7 +339,7 @@ export default function BmpowerHO() {
 
     // Date Resigned required for resignation-type remarks
     const resignationRemarks = [
-      "Resign",
+      "Resigned",
       "Terminate",
       "End of Contract",
       "Retrenchment",
@@ -515,7 +515,7 @@ export default function BmpowerHO() {
         return "success";
       case "applicant":
         return "info";
-      case "resign":
+      case "Resigned":
         return "warning";
       case "terminate":
         return "error";
@@ -691,7 +691,7 @@ export default function BmpowerHO() {
   const showClearance = (emp) =>
     emp &&
     [
-      "Resign",
+      "Resigned",
       "Terminate",
       "End of Contract",
       "Retrenchment",
@@ -803,7 +803,7 @@ export default function BmpowerHO() {
                   <MenuItem value="UNFILTERED">All Records</MenuItem>
                   <MenuItem value="Applicant">Applicant</MenuItem>
                   <MenuItem value="Employed">Employed</MenuItem>
-                  <MenuItem value="Resign">Resign</MenuItem>
+                  <MenuItem value="Resigned">Resigned</MenuItem>
                   <MenuItem value="End of Contract">End of Contract</MenuItem>
                   <MenuItem value="Retrenchment">Retrenchment</MenuItem>
                   <MenuItem value="Terminated">Terminated</MenuItem>
@@ -1257,7 +1257,7 @@ export default function BmpowerHO() {
                                     const newRemarks = e.target.value;
                                     // Auto-map Remarks → Reason for Leaving
                                     const leavingRemarks = [
-                                      "Resign",
+                                      "Resigned",
                                       "End of Contract",
                                       "Retrenchment",
                                       "Terminated",
@@ -1279,7 +1279,7 @@ export default function BmpowerHO() {
                                     Applicant
                                   </MenuItem>
                                   <MenuItem value="Employed">Employed</MenuItem>
-                                  <MenuItem value="Resign">Resign</MenuItem>
+                                  <MenuItem value="Resigned">Resigned</MenuItem>
                                   <MenuItem value="End of Contract">
                                     End of Contract
                                   </MenuItem>
@@ -1520,7 +1520,7 @@ export default function BmpowerHO() {
                               error={
                                 dateResignedError &&
                                 [
-                                  "Resign",
+                                  "Resigned",
                                   "Terminate",
                                   "End of Contract",
                                   "Retrenchment",
@@ -1536,7 +1536,7 @@ export default function BmpowerHO() {
                                   ? "Not applicable for this status"
                                   : dateResignedError &&
                                       [
-                                        "Resign",
+                                        "Resigned",
                                         "Terminate",
                                         "End of Contract",
                                         "Retrenchment",

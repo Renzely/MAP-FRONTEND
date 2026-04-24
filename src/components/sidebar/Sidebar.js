@@ -1,765 +1,128 @@
+// Sidebar.jsx — clean renderer, zero role logic here
 import React, { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import {
-  Dashboard,
-  AssignmentInd,
-  ManageAccounts,
-  SupervisorAccount,
-  ExpandLess,
-  ExpandMore,
-  ListAlt,
-} from "@mui/icons-material";
-import GroupsIcon from "@mui/icons-material/Groups";
-import StoreIcon from "@mui/icons-material/Store";
-import ContactPhoneIcon from "@mui/icons-material/ContactPhone";
-import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
-import PersonAddIcon from "@mui/icons-material/PersonAdd";
-import ContactPageIcon from "@mui/icons-material/ContactPage";
-import { IconButton, Collapse, Tooltip } from "@mui/material";
+import { Collapse, IconButton, Tooltip } from "@mui/material";
+import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import MenuIcon from "@mui/icons-material/Menu";
+import { NAV_CONFIG } from "./sidebarConfig";
 import "./sidebar.css";
 
-export default function Sidebar() {
-  const location = useLocation();
-  const [activeItem, setActiveItem] = useState(location.pathname);
-  const [isOpen, setOpen] = useState(() => {
-    const saved = localStorage.getItem("sidebarOpen");
-    return saved === "true" ? true : false;
-  });
-  const [openMarabou, setOpenMarabou] = useState(false);
-  const [openBmpower, setOpenBmpower] = useState(false);
-  const [openClientProfiles, setOpenClientProfiles] = useState(false);
-  const [openAccountManagement, setOpenAccountManagement] = useState(false);
+// ── access check ──────────────────────────────────────────
+function hasAccess(allowedRoles, role) {
+  if (!allowedRoles) return true; // null = public
+  return allowedRoles.includes(role);
+}
 
-  const handleToggleMarabou = () => {
-    if (!isOpen) {
-      setOpen(true);
-      localStorage.setItem("sidebarOpen", "true");
+// Filter the entire tree for this role (removes items AND prunes empty parents)
+function filterNav(items, role) {
+  return items.reduce((acc, item) => {
+    if (!hasAccess(item.allowedRoles, role)) return acc;
+
+    if (item.children) {
+      const visibleChildren = filterNav(item.children, role);
+      if (visibleChildren.length === 0) return acc; // hide parent if no kids
+      acc.push({ ...item, children: visibleChildren });
+    } else {
+      acc.push(item);
     }
-    setOpenMarabou((prev) => !prev);
-  };
+    return acc;
+  }, []);
+}
 
-  const handleToggleBmpower = () => {
-    if (!isOpen) {
-      setOpen(true);
-      localStorage.setItem("sidebarOpen", "true");
-    }
-    setOpenBmpower((prev) => !prev);
-  };
+// ── recursive nav item ────────────────────────────────────
+function NavItem({ item, isOpen, depth = 0 }) {
+  const [expanded, setExpanded] = useState(false);
+  const Icon = item.icon;
+  const hasChildren = item.children?.length > 0;
+  const indent = depth * 12;
 
-  const handleToggleClientProfiles = () => {
-    if (!isOpen) {
-      setOpen(true);
-      localStorage.setItem("sidebarOpen", "true");
-    }
-    setOpenClientProfiles((prev) => !prev);
-  };
-
-  const handleToggleAccountManagement = () => {
-    if (!isOpen) {
-      setOpen(true);
-      localStorage.setItem("sidebarOpen", "true");
-    }
-    setOpenAccountManagement((prev) => !prev);
-  };
-
-  const toggleSidebar = () => {
-    const newState = !isOpen;
-    setOpen(newState);
-    localStorage.setItem("sidebarOpen", newState.toString());
-  };
-
-  const handleItemClick = (itemName) => {
-    setActiveItem(itemName);
-  };
-
-  const handleLogout = () => {
-    localStorage.clear();
-    window.location.href = "/";
-  };
-
-  const roleAccount = localStorage.getItem("roleAccount");
-  const fullName = localStorage.getItem("adminFullName");
-
-  return (
-    <div
-      className={`sidebar ${isOpen ? "open" : ""}`}
-      style={{ minHeight: "auto" }}
-    >
-      {/* Toggle Button */}
-      <div className="sidebar-header">
-        <IconButton onClick={toggleSidebar} className="menu-button">
-          <MenuIcon sx={{ color: "white" }} />
-        </IconButton>
-      </div>
-
-      {/* Divider Line */}
-      <hr className="sidebar-divider" />
-
-      {/* Sidebar Menu */}
-      <ul className="sidebar-menu">
-        <NavLink
-          to="/view-dashboard"
-          onClick={() => handleItemClick("/view-dashboard")}
-        >
-          <Tooltip title={!isOpen ? "Dashboard" : ""} placement="right" arrow>
-            <li className={activeItem === "/view-dashboard" ? "active" : ""}>
-              <Dashboard className="sidebar-icon" />
-              {isOpen && <span className="menu-text">Dashboard</span>}
-            </li>
-          </Tooltip>
-        </NavLink>
-        {[
-          "HR HEAD",
-          "HR OFFICER",
-          "HR SPECIALIST",
-          "HR COMPENSATION AND BENEFITS",
-          "HR COORDINATOR SPECIALIST",
-          "MIS",
-        ].includes(roleAccount) && (
-          <NavLink
-            to="/view-AccountCreationEmployee"
-            onClick={() => handleItemClick("/view-AccountCreationEmployee")}
-          >
-            <li
-              className={
-                activeItem === "/view-AccountCreationEmployee" ? "active" : ""
-              }
-            >
-              <PersonAddIcon className="sidebar-icon" />
-              {isOpen && (
-                <span className="menu-text">Employee Registration</span>
-              )}
-            </li>
-          </NavLink>
-        )}
-
-        {["MIS", "HR HEAD"].includes(roleAccount) && (
-          <NavLink
-            to="/view-admin-accounts"
-            onClick={() => handleItemClick("/view-admin-accounts")}
-          >
-            <Tooltip
-              title={!isOpen ? "Admin Accounts" : ""}
-              placement="right"
-              arrow
-            >
-              <li
-                className={
-                  activeItem === "/view-admin-accounts" ? "active" : ""
-                }
-              >
-                <AdminPanelSettingsIcon className="sidebar-icon" />
-                {isOpen && <span className="menu-text">Admin Accounts</span>}
-              </li>
-            </Tooltip>
-          </NavLink>
-        )}
-
-        {["MIS", "HR HEAD", "EXECUTIVE DIRECTOR"].includes(roleAccount) && (
-          <NavLink
-            to="/view-recent-activity"
-            onClick={() => handleItemClick("/view-recent-activity")}
-          >
-            <Tooltip
-              title={!isOpen ? "Recent Activity" : ""}
-              placement="right"
-              arrow
-            >
-              <li
-                className={
-                  activeItem === "/view-recent-activity" ? "active" : ""
-                }
-              >
-                <ListAlt className="sidebar-icon" />
-                {isOpen && <span className="menu-text">Recent Activity</span>}
-              </li>
-            </Tooltip>
-          </NavLink>
-        )}
-
-        {/* CLIENT PROFILES MENU */}
-        {[
-          "MIS",
-          "HR HEAD",
-          "HR OFFICER",
-          "HR SPECIALIST",
-          "HR COMPENSATION AND BENEFITS",
-          "HR COORDINATOR SPECIALIST",
-          "EXECUTIVE DIRECTOR",
-          "ACCOUNT SUPERVISOR DIRECTOR",
-          "ACCOUNT SUPERVISOR",
-        ].includes(roleAccount) && (
-          <Tooltip
-            title={!isOpen ? "Client Profiles" : ""}
-            placement="right"
-            arrow
-          >
-            <li
-              onClick={handleToggleClientProfiles}
-              className="menu-with-submenu"
-            >
-              <ContactPageIcon className="sidebar-icon" />
-              {isOpen && (
-                <>
-                  <span className="menu-text">Client Profiles</span>
-                  <span className="expand-icon">
-                    {openClientProfiles ? <ExpandLess /> : <ExpandMore />}
-                  </span>
-                </>
-              )}
-            </li>
-          </Tooltip>
-        )}
-
-        {[
-          "MIS",
-          "HR HEAD",
-          "HR OFFICER",
-          "HR SPECIALIST",
-          "HR COMPENSATION AND BENEFITS",
-          "HR COORDINATOR SPECIALIST",
-          "EXECUTIVE DIRECTOR",
-          "ACCOUNT SUPERVISOR DIRECTOR",
-          "ACCOUNT SUPERVISOR",
-        ].includes(roleAccount) && (
-          <Collapse
-            in={openClientProfiles && isOpen}
-            timeout="auto"
-            unmountOnExit
-          >
-            <div className="sidebar-submenu-scroll">
-              <ul className="sidebar-submenu">
-                {[
-                  "MIS",
-                  "EXECUTIVE DIRECTOR",
-                  "ACCOUNT SUPERVISOR DIRECTOR",
-                  "ACCOUNT SUPERVISOR",
-                ].includes(roleAccount) && (
-                  <NavLink
-                    to="/view-AccountCreationProfileclient"
-                    onClick={() =>
-                      handleItemClick("/view-AccountCreationProfileclient")
-                    }
-                  >
-                    <li
-                      className={
-                        activeItem === "/view-AccountCreationProfileclient"
-                          ? "active"
-                          : ""
-                      }
-                    >
-                      <ManageAccounts className="sidebar-icon" />
-                      {isOpen && (
-                        <span className="menu-text">
-                          Client Profile Registration
-                        </span>
-                      )}
-                    </li>
-                  </NavLink>
-                )}
-
-                {[
-                  "HR HEAD",
-                  "HR OFFICER",
-                  "HR SPECIALIST",
-                  "HR COMPENSATION AND BENEFITS",
-                  "HR COORDINATOR SPECIALIST",
-                  "MIS",
-                  "EXECUTIVE DIRECTOR",
-                  "ACCOUNT SUPERVISOR DIRECTOR",
-                  "ACCOUNT SUPERVISOR",
-                ].includes(roleAccount) && (
-                  <NavLink
-                    to="/view-clientProfile"
-                    onClick={() => handleItemClick("/view-clientProfile")}
-                  >
-                    <li
-                      className={
-                        activeItem === "/view-clientProfile" ? "active" : ""
-                      }
-                    >
-                      <ContactPhoneIcon className="sidebar-icon" />
-                      {isOpen && (
-                        <span className="menu-text">Client Profile</span>
-                      )}
-                    </li>
-                  </NavLink>
-                )}
-              </ul>
-            </div>
-          </Collapse>
-        )}
-
-        {[
-          "MIS",
-          "HR HEAD",
-          "HR OFFICER",
-          "HR COMPENSATION AND BENEFITS",
-          "HR COORDINATOR SPECIALIST",
-          "HR SPECIALIST",
-          "ACCOUNT SUPERVISOR",
-        ].includes(roleAccount) && (
-          <NavLink
-            to="/view-Outletlist"
-            onClick={() => handleItemClick("/view-Outletlist")}
-          >
-            <li className={activeItem === "/view-Outletlist" ? "active" : ""}>
-              <StoreIcon className="sidebar-icon" />
-              {isOpen && <span className="menu-text">Outlet List</span>}
-            </li>
-          </NavLink>
-        )}
-        <NavLink
-          to="/view-applicants"
-          onClick={() => handleItemClick("/view-applicants")}
-        >
-          <li className={activeItem === "/view-applicants" ? "active" : ""}>
-            <AssignmentInd className="sidebar-icon" />
-            {isOpen && <span className="menu-text">Applicants</span>}
-          </li>
-        </NavLink>
-
-        {/* ACCOUNT MANAGEMENT MENU */}
-        <Tooltip
-          title={!isOpen ? "Employee Management" : ""}
-          placement="right"
-          arrow
-        >
+  if (hasChildren) {
+    return (
+      <>
+        <Tooltip title={!isOpen ? item.label : ""} placement="right" arrow>
           <li
-            onClick={handleToggleAccountManagement}
             className="menu-with-submenu"
+            style={{ paddingLeft: indent }}
+            onClick={() => setExpanded((p) => !p)}
           >
-            <GroupsIcon className="sidebar-icon" />
+            <Icon className="sidebar-icon" />
             {isOpen && (
               <>
-                <span className="menu-text">Employee Management</span>
+                <span className="menu-text">{item.label}</span>
                 <span className="expand-icon">
-                  {openAccountManagement ? <ExpandLess /> : <ExpandMore />}
+                  {expanded ? <ExpandLess /> : <ExpandMore />}
                 </span>
               </>
             )}
           </li>
         </Tooltip>
 
-        <Collapse
-          in={openAccountManagement && isOpen}
-          timeout="auto"
-          unmountOnExit
-        >
+        <Collapse in={expanded && isOpen} timeout="auto" unmountOnExit>
           <div className="sidebar-submenu-scroll">
             <ul className="sidebar-submenu">
-              {/* BMPOWER SUBMENU */}
-              <Tooltip title={!isOpen ? "BMPOWER" : ""} placement="right" arrow>
-                <li
-                  onClick={handleToggleBmpower}
-                  className="menu-with-submenu submenu-nested"
-                >
-                  <AssignmentInd className="sidebar-icon" />
-                  {isOpen && (
-                    <>
-                      <span className="menu-text">BMPOWER</span>
-                      <span className="expand-icon">
-                        {openBmpower ? <ExpandLess /> : <ExpandMore />}
-                      </span>
-                    </>
-                  )}
-                </li>
-              </Tooltip>
-
-              <Collapse in={openBmpower && isOpen} timeout="auto" unmountOnExit>
-                <div className="sidebar-submenu-scroll">
-                  <ul className="sidebar-submenu">
-                    <NavLink
-                      to="/view-bmpowerHO"
-                      onClick={() => handleItemClick("/view-bmpowerHO")}
-                    >
-                      <li
-                        className={
-                          activeItem === "/view-bmpowerHO" ? "active" : ""
-                        }
-                      >
-                        <AssignmentInd className="sidebar-icon" />
-                        {isOpen && (
-                          <span className="menu-text">BMPOWER HO</span>
-                        )}
-                      </li>
-                    </NavLink>
-
-                    <NavLink
-                      to="/view-asianstreak"
-                      onClick={() => handleItemClick("/view-asianstreak")}
-                    >
-                      <li
-                        className={
-                          activeItem === "/view-asianstreak" ? "active" : ""
-                        }
-                      >
-                        <AssignmentInd className="sidebar-icon" />
-                        {isOpen && (
-                          <span className="menu-text">
-                            Asian Streak Brokerage CO
-                          </span>
-                        )}
-                      </li>
-                    </NavLink>
-
-                    <NavLink
-                      to="/view-ecossentialfoods"
-                      onClick={() => handleItemClick("/view-ecossentialfoods")}
-                    >
-                      <li
-                        className={
-                          activeItem === "/view-ecossentialfoods"
-                            ? "active"
-                            : ""
-                        }
-                      >
-                        <AssignmentInd className="sidebar-icon" />
-                        {isOpen && (
-                          <span className="menu-text">Ecossential Foods</span>
-                        )}
-                      </li>
-                    </NavLink>
-
-                    {/* <NavLink
-                      to="/view-ecossentialfoodsCOORS"
-                      onClick={() =>
-                        handleItemClick("/view-ecossentialfoodsCOORS")
-                      }
-                    >
-                      <li
-                        className={
-                          activeItem === "/view-ecossentialfoodsCOORS"
-                            ? "active"
-                            : ""
-                        }
-                      >
-                        <AssignmentInd className="sidebar-icon" />
-                        {isOpen && (
-                          <span className="menu-text">
-                            Ecossential Foods COOR
-                          </span>
-                        )}
-                      </li>
-                    </NavLink> */}
-
-                    <NavLink
-                      to="/view-ecossentialfoodsHO"
-                      onClick={() =>
-                        handleItemClick("/view-ecossentialfoodsHO")
-                      }
-                    >
-                      <li
-                        className={
-                          activeItem === "/view-ecossentialfoodsHO"
-                            ? "active"
-                            : ""
-                        }
-                      >
-                        <AssignmentInd className="sidebar-icon" />
-                        {isOpen && (
-                          <span className="menu-text">
-                            Ecossential Foods HO
-                          </span>
-                        )}
-                      </li>
-                    </NavLink>
-
-                    <NavLink
-                      to="/view-brolleeexlusive"
-                      onClick={() => handleItemClick("/view-brolleeexlusive")}
-                    >
-                      <li
-                        className={
-                          activeItem === "/view-brolleeexlusive" ? "active" : ""
-                        }
-                      >
-                        <AssignmentInd className="sidebar-icon" />
-                        {isOpen && (
-                          <span className="menu-text">Brollee Exclusive</span>
-                        )}
-                      </li>
-                    </NavLink>
-
-                    <NavLink
-                      to="/view-engkanto"
-                      onClick={() => handleItemClick("/view-engkanto")}
-                    >
-                      <li
-                        className={
-                          activeItem === "/view-engkanto" ? "active" : ""
-                        }
-                      >
-                        <AssignmentInd className="sidebar-icon" />
-                        {isOpen && <span className="menu-text">Engkanto</span>}
-                      </li>
-                    </NavLink>
-
-                    <NavLink
-                      to="/view-magis"
-                      onClick={() => handleItemClick("/view-magis")}
-                    >
-                      <li
-                        className={activeItem === "/view-magis" ? "active" : ""}
-                      >
-                        <AssignmentInd className="sidebar-icon" />
-                        {isOpen && <span className="menu-text">Magis</span>}
-                      </li>
-                    </NavLink>
-
-                    <NavLink
-                      to="/view-mckenzie"
-                      onClick={() => handleItemClick("/view-mckenzie")}
-                    >
-                      <li
-                        className={
-                          activeItem === "/view-mckenzie" ? "active" : ""
-                        }
-                      >
-                        <AssignmentInd className="sidebar-icon" />
-                        {isOpen && <span className="menu-text">Mckenzie</span>}
-                      </li>
-                    </NavLink>
-
-                    <NavLink
-                      to="/view-pldt"
-                      onClick={() => handleItemClick("/view-pldt")}
-                    >
-                      <li
-                        className={activeItem === "/view-pldt" ? "active" : ""}
-                      >
-                        <AssignmentInd className="sidebar-icon" />
-                        {isOpen && (
-                          <span className="menu-text">PLDT Telescoop</span>
-                        )}
-                      </li>
-                    </NavLink>
-
-                    <NavLink
-                      to="/view-spx"
-                      onClick={() => handleItemClick("/view-spx")}
-                    >
-                      <li
-                        className={activeItem === "/view-spx" ? "active" : ""}
-                      >
-                        <AssignmentInd className="sidebar-icon" />
-                        {isOpen && (
-                          <span className="menu-text">SPX Express</span>
-                        )}
-                      </li>
-                    </NavLink>
-
-                    <NavLink
-                      to="/view-delmonte"
-                      onClick={() => handleItemClick("/view-delmonte")}
-                    >
-                      <li
-                        className={
-                          activeItem === "/view-delmonte" ? "active" : ""
-                        }
-                      >
-                        <AssignmentInd className="sidebar-icon" />
-                        {isOpen && <span className="menu-text">Del Monte</span>}
-                      </li>
-                    </NavLink>
-
-                    <NavLink
-                      to="/view-mandom"
-                      onClick={() => handleItemClick("/view-mandom")}
-                    >
-                      <li
-                        className={
-                          activeItem === "/view-mandom" ? "active" : ""
-                        }
-                      >
-                        <AssignmentInd className="sidebar-icon" />
-                        {isOpen && <span className="menu-text">Mandom</span>}
-                      </li>
-                    </NavLink>
-
-                    <NavLink
-                      to="/view-galvasteel"
-                      onClick={() => handleItemClick("/view-galvasteel")}
-                    >
-                      <li
-                        className={
-                          activeItem === "/view-galvasteel" ? "active" : ""
-                        }
-                      >
-                        <AssignmentInd className="sidebar-icon" />
-                        {isOpen && (
-                          <span className="menu-text">Union Galvasteel</span>
-                        )}
-                      </li>
-                    </NavLink>
-                  </ul>
-                </div>
-              </Collapse>
-
-              {/* MARABOU SUBMENU */}
-              <Tooltip title={!isOpen ? "MARABOU" : ""} placement="right" arrow>
-                <li
-                  onClick={handleToggleMarabou}
-                  className="menu-with-submenu submenu-nested"
-                >
-                  <AssignmentInd className="sidebar-icon" />
-                  {isOpen && (
-                    <>
-                      <span className="menu-text">MARABOU</span>
-                      <span className="expand-icon">
-                        {openMarabou ? <ExpandLess /> : <ExpandMore />}
-                      </span>
-                    </>
-                  )}
-                </li>
-              </Tooltip>
-
-              <Collapse in={openMarabou && isOpen} timeout="auto" unmountOnExit>
-                <div className="sidebar-submenu-scroll">
-                  <ul className="sidebar-submenu">
-                    <NavLink
-                      to="/view-marabouHO"
-                      onClick={() => handleItemClick("/view-marabouHO")}
-                    >
-                      <li
-                        className={
-                          activeItem === "/view-marabouHO" ? "active" : ""
-                        }
-                      >
-                        <AssignmentInd className="sidebar-icon" />
-                        {isOpen && (
-                          <span className="menu-text">Marabou HO</span>
-                        )}
-                      </li>
-                    </NavLink>
-
-                    <NavLink
-                      to="/view-carmensbest"
-                      onClick={() => handleItemClick("/view-carmensbest")}
-                    >
-                      <li
-                        className={
-                          activeItem === "/view-carmensbest" ? "active" : ""
-                        }
-                      >
-                        <AssignmentInd className="sidebar-icon" />
-                        {isOpen && (
-                          <span className="menu-text">Carmens Best</span>
-                        )}
-                      </li>
-                    </NavLink>
-
-                    <NavLink
-                      to="/view-metropacific"
-                      onClick={() => handleItemClick("/view-metropacific")}
-                    >
-                      <li
-                        className={
-                          activeItem === "/view-metropacific" ? "active" : ""
-                        }
-                      >
-                        <AssignmentInd className="sidebar-icon" />
-                        {isOpen && (
-                          <span className="menu-text">
-                            Metro Pacific Dairy Farm
-                          </span>
-                        )}
-                      </li>
-                    </NavLink>
-
-                    <NavLink
-                      to="/view-metropacificfresh"
-                      onClick={() => handleItemClick("/view-metropacificfresh")}
-                    >
-                      <li
-                        className={
-                          activeItem === "/view-metropacificfresh"
-                            ? "active"
-                            : ""
-                        }
-                      >
-                        <AssignmentInd className="sidebar-icon" />
-                        {isOpen && (
-                          <span className="menu-text">
-                            Metro Pacific Fresh Farm
-                          </span>
-                        )}
-                      </li>
-                    </NavLink>
-
-                    <NavLink
-                      to="/view-universalharvester"
-                      onClick={() =>
-                        handleItemClick("/view-universalharvester")
-                      }
-                    >
-                      <li
-                        className={
-                          activeItem === "/view-universalharvester"
-                            ? "active"
-                            : ""
-                        }
-                      >
-                        <AssignmentInd className="sidebar-icon" />
-                        {isOpen && (
-                          <span className="menu-text">
-                            Universal Harvester Dairy Farm INC
-                          </span>
-                        )}
-                      </li>
-                    </NavLink>
-
-                    <NavLink
-                      to="/view-longtable"
-                      onClick={() => handleItemClick("/view-longtable")}
-                    >
-                      <li
-                        className={
-                          activeItem === "/view-longtable" ? "active" : ""
-                        }
-                      >
-                        <AssignmentInd className="sidebar-icon" />
-                        {isOpen && (
-                          <span className="menu-text">
-                            Long Table - Masajiro
-                          </span>
-                        )}
-                      </li>
-                    </NavLink>
-
-                    <NavLink
-                      to="/view-jgyu"
-                      onClick={() => handleItemClick("/view-jgyu")}
-                    >
-                      <li
-                        className={activeItem === "/view-jgyu" ? "active" : ""}
-                      >
-                        <AssignmentInd className="sidebar-icon" />
-                        {isOpen && <span className="menu-text">J-GYU INC</span>}
-                      </li>
-                    </NavLink>
-                    <NavLink
-                      to="/view-cosmetic"
-                      onClick={() => handleItemClick("/view-cosmetic")}
-                    >
-                      <li
-                        className={
-                          activeItem === "/view-cosmetic" ? "active" : ""
-                        }
-                      >
-                        <AssignmentInd className="sidebar-icon" />
-                        {isOpen && (
-                          <span className="menu-text">Cosmetique Asia</span>
-                        )}
-                      </li>
-                    </NavLink>
-                  </ul>
-                </div>
-              </Collapse>
+              {item.children.map((child) => (
+                <NavItem
+                  key={child.path ?? child.label}
+                  item={child}
+                  isOpen={isOpen}
+                  depth={depth + 1}
+                />
+              ))}
             </ul>
           </div>
         </Collapse>
+      </>
+    );
+  }
+
+  return (
+    <NavLink to={item.path}>
+      {({ isActive }) => (
+        <Tooltip title={!isOpen ? item.label : ""} placement="right" arrow>
+          <li
+            className={isActive ? "active" : ""}
+            style={{ paddingLeft: indent }}
+          >
+            <Icon className="sidebar-icon" />
+            {isOpen && <span className="menu-text">{item.label}</span>}
+          </li>
+        </Tooltip>
+      )}
+    </NavLink>
+  );
+}
+
+// ── sidebar ───────────────────────────────────────────────
+export default function Sidebar() {
+  const roleAccount = localStorage.getItem("roleAccount");
+
+  const [isOpen, setOpen] = useState(
+    () => localStorage.getItem("sidebarOpen") === "true",
+  );
+
+  const toggleSidebar = () => {
+    setOpen((prev) => {
+      localStorage.setItem("sidebarOpen", String(!prev));
+      return !prev;
+    });
+  };
+
+  // compute once per render — only items this role can see
+  const visibleNav = filterNav(NAV_CONFIG, roleAccount);
+
+  return (
+    <div className={`sidebar ${isOpen ? "open" : ""}`}>
+      <div className="sidebar-header">
+        <IconButton onClick={toggleSidebar} className="menu-button">
+          <MenuIcon sx={{ color: "white" }} />
+        </IconButton>
+      </div>
+      <hr className="sidebar-divider" />
+
+      <ul className="sidebar-menu">
+        {visibleNav.map((item) => (
+          <NavItem key={item.path ?? item.label} item={item} isOpen={isOpen} />
+        ))}
       </ul>
     </div>
   );
