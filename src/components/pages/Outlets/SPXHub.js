@@ -52,7 +52,7 @@ import Sidebar from "../../sidebar/Sidebar";
 import SPXlogo from "../../Images/Bmpower_Logo/BMP - SPX.jpg";
 
 // ── Hubs by Region ────────────────────────────────────────────────────────────
-const HUBS_BY_REGION = {
+export const HUBS_BY_REGION = {
   "NCR 1 South": [
     "Apelo Hub",
     "Arnaiz Hub",
@@ -69,7 +69,7 @@ const HUBS_BY_REGION = {
     "Pasay Hub",
     "Tambo Hub",
     "Tunasan Hub",
-  ],
+  ].sort((a, b) => a.localeCompare(b)),
   "NCR 2 East": [
     "Angono Hub",
     "Antipolo Hub",
@@ -100,7 +100,7 @@ const HUBS_BY_REGION = {
     "M.Balara Hub",
     "Wack Wack Hub",
     "San Juan Hub",
-  ],
+  ].sort((a, b) => a.localeCompare(b)),
   "NCR 3 Central": [
     "Escoda Hub",
     "Jaboneros Hub",
@@ -125,7 +125,7 @@ const HUBS_BY_REGION = {
     "Congressional Hub",
     "Del Monte Ave Hub",
     "Reliance Hub",
-  ],
+  ].sort((a, b) => a.localeCompare(b)),
   "NCR 4 North": [
     "North East Caloocan Hub",
     "Upper QC Hub",
@@ -148,7 +148,7 @@ const HUBS_BY_REGION = {
     "Caloocan Hub",
     "Northwest Caloocan Hub",
     "Tala Hub",
-  ],
+  ].sort((a, b) => a.localeCompare(b)),
   "MIN 2 Caraga": [
     "Surigao Downtown Hub",
     "Surigao Del Norte Hub",
@@ -169,7 +169,7 @@ const HUBS_BY_REGION = {
     "Kitcharao Mobile Hub",
     "MB Crossing Hub",
     "RC Hub",
-  ],
+  ].sort((a, b) => a.localeCompare(b)),
 };
 
 // ── Flat OUTLET_DATA ──────────────────────────────────────────────────────────

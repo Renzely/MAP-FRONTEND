@@ -569,11 +569,13 @@ export default function BmpowerHO() {
     },
   ];
 
-  const rows = filteredAccounts.map((acc, index) => ({
-    id: acc._id || index,
-    count: index + 1,
-    ...acc,
-  }));
+  const rows = [...filteredAccounts]
+    .sort((a, b) => (a.lastName || "").localeCompare(b.lastName || ""))
+    .map((acc, index) => ({
+      id: acc._id || index,
+      count: index + 1,
+      ...acc,
+    }));
 
   // ── Clearance section visibility: show when resigned/terminated AND dateResigned AND reasonForLeaving ──
   const showClearance = (emp) =>

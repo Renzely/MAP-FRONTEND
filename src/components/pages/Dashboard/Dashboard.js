@@ -29,6 +29,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { OUTLET_DATA } from "../../pages/Outlets/Outletlist";
+import { HUBS_BY_REGION } from "../../pages/Outlets/SPXHub";
 import axios from "axios";
 import dayjs from "dayjs";
 
@@ -46,6 +47,10 @@ export default function Admin() {
   const [outletSummary, setOutletSummary] = useState({
     withMerchandiser: 0,
     withoutMerchandiser: 0,
+  });
+  const [hubsSummary, setHubsSummary] = useState({
+    withRider: 0,
+    withoutRider: 0,
   });
   const role = localStorage.getItem("roleAccount");
 
@@ -368,22 +373,48 @@ export default function Admin() {
     };
   };
 
-  const bmpowerBarData = getClientBarDataForLegend(
-    "BMPOWER HUMAN RESOURCES CORPORATION",
-  );
-  const marabouBarData = getClientBarDataForLegend(
-    "MARABOU EVERGREEN RESOURCES INC",
-  );
+  const [bmpowerBarData, setBmpowerBarData] = useState({
+    data: [],
+    clients: [],
+    colors: [],
+  });
+  const [marabouBarData, setMarabouBarData] = useState({
+    data: [],
+    clients: [],
+    colors: [],
+  });
+
+  const isSPXUser = role === "SPX COORDINATOR" || role === "SPX HR SPECIALIST";
+
+  const allowedCompany = isSPXUser
+    ? ["BMPOWER HUMAN RESOURCES CORPORATION"]
+    : Object.keys(companyClientsMap);
+
+  const allowedClients = isSPXUser ? ["SPX EXPRESS"] : clientList;
+
+  useEffect(() => {
+    if (isSPXUser) {
+      setCompany("BMPOWER HUMAN RESOURCES CORPORATION");
+      setSelectedClient("SPX EXPRESS");
+    }
+  }, [isSPXUser]);
 
   useEffect(() => {
     if (company === "All") {
-      // Combine all clients from all companies
       const allClients = Object.values(companyClientsMap).flat();
       setClientList(allClients);
-      setSelectedClient(""); // reset
+
+      // only reset if NOT SPX user
+      if (!isSPXUser) {
+        setSelectedClient("");
+      }
     } else {
       setClientList(companyClientsMap[company] || []);
-      setSelectedClient("");
+
+      // only reset if NOT SPX user
+      if (!isSPXUser) {
+        setSelectedClient("");
+      }
     }
   }, [company]);
 
@@ -393,20 +424,37 @@ export default function Admin() {
         setLoading(true);
         setMonthlyData([]);
 
+        const normalize = (v) => (v || "").toString().trim().toUpperCase();
+
+        // ─────────────────────────────
+        // SPX LOCK
+        // ─────────────────────────────
+        const finalCompany = isSPXUser
+          ? "BMPOWER HUMAN RESOURCES CORPORATION"
+          : company;
+
+        const finalClient = isSPXUser ? "SPX EXPRESS" : selectedClient;
+
+        // ─────────────────────────────
+        // BUILD URL
+        // ─────────────────────────────
         let url = `https://api-map.bmphrc.com/get-merch-accounts-dashboard`;
         const params = [];
 
-        if (company !== "All") {
-          params.push(`company=${encodeURIComponent(company.trim())}`);
+        if (finalCompany !== "All") {
+          params.push(`company=${encodeURIComponent(finalCompany.trim())}`);
         }
+
         if (year !== "All") {
           params.push(`year=${year}`);
         }
-        if (selectedClient) {
+
+        if (finalClient) {
           params.push(
-            `clientAssigned=${encodeURIComponent(selectedClient.trim())}`,
+            `clientAssigned=${encodeURIComponent(finalClient.trim())}`,
           );
         }
+
         if (params.length) {
           url += `?${params.join("&")}`;
         }
@@ -418,24 +466,91 @@ export default function Admin() {
 
         if (!Array.isArray(data)) return;
 
+        // ─────────────────────────────
+        // NORMALIZE
+        // ─────────────────────────────
         const normalizedData = data.map((a) => ({
           ...a,
-          remarks: a.remarks?.toLowerCase(),
+          remarks: normalize(a.remarks),
+          _company: normalize(a.company),
+          _client: normalize(a.clientAssigned),
           dateHired: a.dateHired ? new Date(a.dateHired) : null,
           dateResigned: a.dateResigned ? new Date(a.dateResigned) : null,
         }));
 
-        // ✅ NOW it's safe — normalizedData exists here
-        const recentEmployeesCount = normalizedData.filter(
+        setEmployees(normalizedData);
+
+        const bmpowerData = normalizedData.filter(
+          (emp) =>
+            emp._company === "BMPOWER HUMAN RESOURCES CORPORATION" &&
+            emp.remarks === "EMPLOYED",
+        );
+        const bmpowerClientMap = {};
+
+        bmpowerData.forEach((emp) => {
+          const client = emp._client || "UNKNOWN";
+
+          bmpowerClientMap[client] = (bmpowerClientMap[client] || 0) + 1;
+        });
+
+        setBmpowerBarData({
+          data: [{ category: "BMPOWER", ...bmpowerClientMap }],
+          clients: Object.keys(bmpowerClientMap),
+          colors: generateColors(Object.keys(bmpowerClientMap).length),
+        });
+
+        const marabouData = normalizedData.filter(
+          (emp) =>
+            emp._company === "MARABOU EVERGREEN RESOURCES INC" &&
+            emp.remarks === "EMPLOYED",
+        );
+
+        const marabouClientMap = {};
+
+        marabouData.forEach((emp) => {
+          const client = emp.clientAssigned || "UNKNOWN";
+
+          marabouClientMap[client] = (marabouClientMap[client] || 0) + 1;
+        });
+
+        setMarabouBarData({
+          data: [{ category: "MARABOU", ...marabouClientMap }],
+          clients: Object.keys(marabouClientMap),
+          colors: generateColors(Object.keys(marabouClientMap).length),
+        });
+
+        // ─────────────────────────────
+        // FILTER LOGIC (FIXED CORE ISSUE)
+        // ─────────────────────────────
+        const selectedCompany = normalize(company);
+        const selectedClientNorm = normalize(selectedClient);
+
+        const filteredData = normalizedData.filter((emp) => {
+          const matchCompany =
+            selectedCompany === "ALL" || emp._company === selectedCompany;
+
+          const matchClient =
+            selectedClientNorm === "ALL CLIENT" ||
+            selectedClientNorm === "" ||
+            emp._client === selectedClientNorm;
+
+          return matchCompany && matchClient;
+        });
+
+        // ─────────────────────────────
+        // RECENT EMPLOYEES
+        // ─────────────────────────────
+        const recentEmployeesCount = filteredData.filter(
           (a) => a.createdAt && isRecent(a.createdAt),
         ).length;
 
-        setEmployees(normalizedData);
-
+        // ─────────────────────────────
+        // YEAR OPTIONS
+        // ─────────────────────────────
         const years = [
           ...new Set(
-            normalizedData
-              .flatMap((a) => [a.dateHired, a.dateResigned]) // ← include both
+            filteredData
+              .flatMap((a) => [a.dateHired, a.dateResigned])
               .filter((d) => d instanceof Date && !isNaN(d))
               .map((d) => d.getFullYear().toString()),
           ),
@@ -443,37 +558,70 @@ export default function Admin() {
 
         setYearOptions(["All", ...years]);
 
+        // ─────────────────────────────
+        // SUMMARY CARDS
+        // ─────────────────────────────
         setSummary({
-          employed: normalizedData.filter((a) => a.remarks === "employed")
+          employed: filteredData.filter((a) => a.remarks === "EMPLOYED").length,
+          resign: filteredData.filter((a) => a.remarks === "RESIGNED").length,
+          applicant: filteredData.filter((a) => a.remarks === "APPLICANT")
             .length,
-          resign: normalizedData.filter((a) => a.remarks === "resigned").length, // ← lowercase
-          applicant: normalizedData.filter((a) => a.remarks === "applicant")
+          terminate: filteredData.filter((a) => a.remarks === "TERMINATE")
             .length,
-          terminate: normalizedData.filter((a) => a.remarks === "terminate")
-            .length,
-          endContract: normalizedData.filter(
-            (a) => a.remarks === "end of contract",
+          endContract: filteredData.filter(
+            (a) => a.remarks === "END OF CONTRACT",
           ).length,
           recent: recentEmployeesCount,
         });
 
-        const efcMerchandisers = normalizedData.filter(
+        // ─────────────────────────────
+        // EFC OUTLETS
+        // ─────────────────────────────
+        const efcMerchandisers = filteredData.filter(
           (emp) =>
-            emp.clientAssigned?.toUpperCase() === "ECOSSENTIAL FOODS CORP" &&
-            emp.remarks === "employed",
+            emp.clientAssigned === "ECOSSENTIAL FOODS CORP" &&
+            emp.remarks === "EMPLOYED",
         );
 
         const assignedOutlets = new Set();
+
         efcMerchandisers.forEach((emp) => {
-          emp.outletsAssigned?.forEach((outlet) => assignedOutlets.add(outlet));
+          emp.outletsAssigned?.forEach((o) => assignedOutlets.add(o));
         });
 
         setOutletSummary({
           withMerchandiser: assignedOutlets.size,
-          withoutMerchandiser: OUTLET_DATA.length - assignedOutlets.size, // ← always dynamic
+          withoutMerchandiser: OUTLET_DATA.length - assignedOutlets.size,
         });
 
+        // ─────────────────────────────
+        // SPX HUBS
+        // ─────────────────────────────
+        const spxRiders = filteredData.filter(
+          (emp) =>
+            emp.clientAssigned === "SPX EXPRESS" && emp.remarks === "EMPLOYED",
+        );
+
+        const assignedHubs = new Set();
+
+        spxRiders.forEach((emp) => {
+          emp.outletsAssigned?.forEach((h) => assignedHubs.add(h));
+
+          if (emp.outlet) {
+            assignedHubs.add(emp.outlet);
+          }
+        });
+
+        const totalHubs = Object.values(HUBS_BY_REGION).flat().length;
+
+        setHubsSummary({
+          withRider: assignedHubs.size,
+          withoutRider: totalHubs - assignedHubs.size,
+        });
+
+        // ─────────────────────────────
         // MONTHLY GRAPH
+        // ─────────────────────────────
         const monthCounts = Array.from({ length: 12 }, () => ({
           employed: 0,
           resign: 0,
@@ -482,27 +630,27 @@ export default function Admin() {
           endContract: 0,
         }));
 
-        normalizedData.forEach((a) => {
-          // Pick the best date depending on status
+        filteredData.forEach((a) => {
           const relevantDate =
-            a.remarks === "resigned" ||
-            a.remarks === "terminate" ||
-            a.remarks === "end of contract"
+            a.remarks === "RESIGNED" ||
+            a.remarks === "TERMINATE" ||
+            a.remarks === "END OF CONTRACT"
               ? a.dateResigned
-              : a.remarks === "applicant"
+              : a.remarks === "APPLICANT"
                 ? a.createdAt
                   ? new Date(a.createdAt)
-                  : null // ← applicants use createdAt
+                  : null
                 : a.dateHired;
 
           if (relevantDate instanceof Date && !isNaN(relevantDate)) {
             const monthIndex = relevantDate.getMonth();
+
             const key =
-              a.remarks === "resigned"
+              a.remarks === "RESIGNED"
                 ? "resign"
-                : a.remarks === "end of contract"
+                : a.remarks === "END OF CONTRACT"
                   ? "endContract"
-                  : a.remarks; // "employed", "applicant", "terminate"
+                  : a.remarks.toLowerCase();
 
             if (monthCounts[monthIndex][key] !== undefined) {
               monthCounts[monthIndex][key]++;
@@ -511,12 +659,13 @@ export default function Admin() {
         });
 
         const currentYear = new Date().getFullYear().toString();
-        const currentMonth = new Date().getMonth(); // 0-indexed, April = 3
+        const currentMonth = new Date().getMonth();
 
         setMonthlyData(
           monthCounts.map((data, i) => ({
-            month: new Date(0, i).toLocaleString("default", { month: "short" }),
-            // Hide future months if viewing current year
+            month: new Date(0, i).toLocaleString("default", {
+              month: "short",
+            }),
             ...(year === currentYear && i > currentMonth
               ? {
                   employed: null,
@@ -536,7 +685,7 @@ export default function Admin() {
     };
 
     fetchSummary();
-  }, [company, selectedClient, year]);
+  }, [company, selectedClient, year, isSPXUser]);
 
   const getExportData = async () => {
     try {
@@ -673,6 +822,7 @@ export default function Admin() {
                 value={company}
                 onChange={(e) => setCompany(e.target.value)}
                 fullWidth
+                disabled={isSPXUser}
                 sx={{
                   backgroundColor: "#fff",
                   "& .MuiOutlinedInput-root": {
@@ -681,7 +831,8 @@ export default function Admin() {
                 }}
               >
                 <MenuItem value="All">All Companies</MenuItem>
-                {Object.keys(companyClientsMap).map((c) => (
+
+                {allowedCompany.map((c) => (
                   <MenuItem key={c} value={c}>
                     {c}
                   </MenuItem>
@@ -695,7 +846,7 @@ export default function Admin() {
                 value={selectedClient}
                 onChange={(e) => setSelectedClient(e.target.value)}
                 fullWidth
-                disabled={company === "All"}
+                disabled={isSPXUser || company === "All"}
                 sx={{
                   backgroundColor: "#fff",
                   "& .MuiOutlinedInput-root": {
@@ -704,7 +855,8 @@ export default function Admin() {
                 }}
               >
                 <MenuItem value="All Client">All Client</MenuItem>
-                {clientList.map((c) => (
+
+                {allowedClients.map((c) => (
                   <MenuItem key={c} value={c}>
                     {c}
                   </MenuItem>
@@ -746,7 +898,7 @@ export default function Admin() {
                   gridTemplateColumns: {
                     xs: "1fr",
                     sm: "repeat(2, 1fr)",
-                    md: "repeat(7, 1fr)", // ← changed from 5 to 7
+                    md: "repeat(auto-fit, minmax(180px, 1fr))",
                   },
                   gap: 2,
                   mb: 3,
@@ -782,23 +934,38 @@ export default function Admin() {
                   onClick={() => handleOpenModal("End of Contract")}
                   color="#9c27b0"
                 />
+                {selectedClient === "SPX EXPRESS" && (
+                  <>
+                    <SummaryCard
+                      title="HUBS WITH RIDER"
+                      value={hubsSummary.withRider}
+                      color="#00897b"
+                    />
 
-                {/* ── NEW: Outlet Summary Cards ── */}
-                <SummaryCard
-                  title="OUTLETS WITH MERCHANDISER"
-                  value={outletSummary.withMerchandiser}
-                  //  onClick={() => handleOpenModal("Outlets With Merchandiser")}
-                  color="#00897b"
-                />
-                <SummaryCard
-                  title="OUTLETS WITHOUT MERCHANDISER"
-                  value={outletSummary.withoutMerchandiser}
-                  sds
-                  // onClick={() =>
-                  //   handleOpenModal("Outlets Without Merchandiser")
-                  // }
-                  color="#e53935"
-                />
+                    <SummaryCard
+                      title="HUBS WITHOUT RIDER"
+                      value={hubsSummary.withoutRider}
+                      color="#e53935"
+                    />
+                  </>
+                )}
+
+                {/* Show only when EFC OUTLETS is selected */}
+                {selectedClient === "ECOSSENTIAL FOODS CORP" && (
+                  <>
+                    <SummaryCard
+                      title="OUTLETS WITH MERCHANDISER"
+                      value={outletSummary.withMerchandiser}
+                      color="#00897b"
+                    />
+
+                    <SummaryCard
+                      title="OUTLETS WITHOUT MERCHANDISER"
+                      value={outletSummary.withoutMerchandiser}
+                      color="#e53935"
+                    />
+                  </>
+                )}
               </Box>
 
               {/* GRAPH + RECENT EMPLOYEES */}
@@ -1048,30 +1215,41 @@ export default function Admin() {
                     BMPOWER HUMAN RESOURCES CORPORATION - EMPLOYED PER CLIENT
                   </Typography>
 
-                  <ResponsiveContainer width="100%" height={280}>
-                    <BarChart data={bmpowerBarData.data}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="category" tick={{ fontSize: 10 }} />
-                      <YAxis />
-                      <Tooltip />
-                      <Legend
-                        wrapperStyle={{ fontSize: "10px" }}
-                        iconType="rect"
-                      />
-                      {bmpowerBarData.clients.map((client, index) => (
-                        <Bar
-                          key={client}
-                          dataKey={client}
-                          fill={bmpowerBarData.colors[index]}
-                          name={
-                            client.length > 20
-                              ? `${client.substring(0, 20)}...`
-                              : client
-                          }
+                  {bmpowerBarData.clients.length > 0 ? (
+                    <ResponsiveContainer width="100%" height={280}>
+                      <BarChart data={bmpowerBarData.data}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="category" tick={{ fontSize: 10 }} />
+                        <YAxis />
+                        <Tooltip />
+                        <Legend
+                          wrapperStyle={{ fontSize: "10px" }}
+                          iconType="rect"
                         />
-                      ))}
-                    </BarChart>
-                  </ResponsiveContainer>
+
+                        {bmpowerBarData.clients.map((client, index) => (
+                          <Bar
+                            key={client}
+                            dataKey={client}
+                            fill={
+                              bmpowerBarData.colors[
+                                index % bmpowerBarData.colors.length
+                              ]
+                            }
+                            name={
+                              client.length > 20
+                                ? `${client.substring(0, 20)}...`
+                                : client
+                            }
+                          />
+                        ))}
+                      </BarChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <Typography sx={{ textAlign: "center", mt: 3 }}>
+                      No BMPOWER data available
+                    </Typography>
+                  )}
                 </Paper>
 
                 {/* MARABOU */}
@@ -1095,30 +1273,41 @@ export default function Admin() {
                     MARABOU EVERGREEN RESOURCES INC - EMPLOYED PER CLIENT
                   </Typography>
 
-                  <ResponsiveContainer width="100%" height={280}>
-                    <BarChart data={marabouBarData.data}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="category" tick={{ fontSize: 10 }} />
-                      <YAxis />
-                      <Tooltip />
-                      <Legend
-                        wrapperStyle={{ fontSize: "10px" }}
-                        iconType="rect"
-                      />
-                      {marabouBarData.clients.map((client, index) => (
-                        <Bar
-                          key={client}
-                          dataKey={client}
-                          fill={marabouBarData.colors[index]}
-                          name={
-                            client.length > 20
-                              ? `${client.substring(0, 20)}...`
-                              : client
-                          }
+                  {marabouBarData.clients.length > 0 ? (
+                    <ResponsiveContainer width="100%" height={280}>
+                      <BarChart data={marabouBarData.data}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="category" tick={{ fontSize: 10 }} />
+                        <YAxis />
+                        <Tooltip />
+                        <Legend
+                          wrapperStyle={{ fontSize: "10px" }}
+                          iconType="rect"
                         />
-                      ))}
-                    </BarChart>
-                  </ResponsiveContainer>
+
+                        {marabouBarData.clients.map((client, index) => (
+                          <Bar
+                            key={client}
+                            dataKey={client}
+                            fill={
+                              marabouBarData.colors[
+                                index % marabouBarData.colors.length
+                              ]
+                            }
+                            name={
+                              client.length > 20
+                                ? `${client.substring(0, 20)}...`
+                                : client
+                            }
+                          />
+                        ))}
+                      </BarChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <Typography sx={{ textAlign: "center", mt: 3 }}>
+                      No Marabou data available
+                    </Typography>
+                  )}
                 </Paper>
               </Box>
 

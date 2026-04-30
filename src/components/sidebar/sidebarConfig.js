@@ -90,7 +90,12 @@ export const NAV_CONFIG = [
     label: "SPX Hubs",
     path: "/view-spxhubs",
     icon: StoreIcon,
-    allowedRoles: [...ALL_HR, "COORDINATOR", "EXECUTIVE DIRECTOR"],
+    allowedRoles: [
+      ...ALL_HR,
+      "SPX COORDINATOR",
+      "EXECUTIVE DIRECTOR",
+      "SPX HR SPECIALIST",
+    ],
   },
   {
     label: "Applicants",
@@ -101,12 +106,22 @@ export const NAV_CONFIG = [
   {
     label: "Employee Management",
     icon: GroupsIcon,
-    allowedRoles: [...HR_MANAGEMENT, "ACCOUNT SUPERVISOR", "COORDINATOR"],
+    allowedRoles: [
+      ...HR_MANAGEMENT,
+      "ACCOUNT SUPERVISOR",
+      "SPX COORDINATOR",
+      "SPX HR SPECIALIST",
+    ],
     children: [
       {
         label: "BMPOWER",
         icon: AssignmentInd,
-        allowedRoles: [...HR_MANAGEMENT, "ACCOUNT SUPERVISOR", "COORDINATOR"],
+        allowedRoles: [
+          ...HR_MANAGEMENT,
+          "ACCOUNT SUPERVISOR",
+          "SPX COORDINATOR",
+          "SPX HR SPECIALIST",
+        ],
         children: [
           {
             label: "BMPOWER HO",
@@ -170,7 +185,11 @@ export const NAV_CONFIG = [
             label: "SPX Express",
             path: "/view-spx",
             icon: AssignmentInd,
-            allowedRoles: [...HR_MANAGEMENT, "COORDINATOR"],
+            allowedRoles: [
+              ...HR_MANAGEMENT,
+              "SPX COORDINATOR",
+              "SPX HR SPECIALIST",
+            ],
           },
           {
             label: "Del Monte",
