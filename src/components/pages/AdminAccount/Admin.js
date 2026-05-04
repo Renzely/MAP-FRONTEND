@@ -80,6 +80,7 @@ export default function Admin() {
   const allowedRoles = [
     "HR HEAD",
     "HR SPECIALIST",
+    "SPX HR SPECIALIST",
     "HR COMPENSATION AND BENEFITS",
     "HR COORDINATOR SPECIALIST",
     "MIS",
@@ -1096,7 +1097,9 @@ export default function Admin() {
                       <MenuItem value="ACCOUNT SUPERVISOR">
                         ACCOUNT SUPERVISOR
                       </MenuItem>
-                      <MenuItem value="COORDINATOR">COORDINATOR</MenuItem>
+                      <MenuItem value="SPX COORDINATOR">
+                        SPX COORDINATOR
+                      </MenuItem>
                       <MenuItem value="HR HEAD">HR HEAD</MenuItem>
                       <MenuItem value="HR OFFICER">HR OFFICER</MenuItem>
                       <MenuItem value="HR COORDINATOR SPECIALIST">
@@ -1106,6 +1109,9 @@ export default function Admin() {
                         HR COMPENSATION AND BENEFITS
                       </MenuItem>
                       <MenuItem value="HR SPECIALIST">HR SPECIALIST</MenuItem>
+                      <MenuItem value="SPX HR SPECIALIST">
+                        SPX HR SPECIALIST
+                      </MenuItem>
                     </Select>
                   </FormControl>
 

@@ -54,6 +54,24 @@ import Topbar from "../../topbar/Topbar";
 import Sidebar from "../../sidebar/Sidebar";
 import EFClogo from "../../Images/Bmpower_Logo/BMP - EFC.jpg";
 
+const REGION_ORDER = [
+  "NCR",
+  "CAR",
+  "REGION 1",
+  "REGION 2",
+  "REGION 3",
+  "REGION 4A",
+  "REGION 4B",
+  "REGION 5",
+  "REGION 6",
+  "REGION 7",
+  "REGION 8",
+  "REGION 9",
+  "REGION 10",
+  "REGION 11",
+  "REGION 12",
+];
+
 // ── Outlet data ───────────────────────────────────────────────────────────────
 export const OUTLET_DATA = [
   { id: 1, region: "NCR", outlet: "WALTERMART SUPERMARKET, INC. - SUCAT" },
@@ -2208,7 +2226,14 @@ export const OUTLET_DATA = [
   { id: 1202, region: "REGION 11", outlet: "GEN TRADE - NCCC HB1 BONIFACIO" },
   { id: 1203, region: "REGION 11", outlet: "GEN TRADE - SOUTH SEAS SUPERRAMA" },
   { id: 1204, region: "REGION 12", outlet: "ROBINSONS PLACE - GENERAL SANTOS" },
-];
+].sort((a, b) => {
+  const regionCompare =
+    REGION_ORDER.indexOf(a.region) - REGION_ORDER.indexOf(b.region);
+
+  if (regionCompare !== 0) return regionCompare;
+
+  return a.outlet.localeCompare(b.outlet);
+});
 
 // ── Applicant Status pipeline ─────────────────────────────────────────────────
 export const APPLICANT_STATUS_OPTIONS = [
@@ -2820,6 +2845,7 @@ export default function OutletList() {
     // ─────────────────────────────────────────────────────────────────────────
     try {
       const adminFullName = localStorage.getItem("adminFullName");
+      const adminRole = localStorage.getItem("roleAccount");
       const today = todayISO();
 
       // Safety check: if status is Onboarded but no applicant selected, block save
@@ -2851,6 +2877,7 @@ export default function OutletList() {
                 previousEmployeeRemarks === "Terminated" ? terminateReason : "",
               dateResigned: today,
               updatedBy: adminFullName,
+              updatedByRole: adminRole,
             },
           );
         }
@@ -2868,11 +2895,13 @@ export default function OutletList() {
           undeployDate: null,
           applicantStatus: "",
           updatedBy: adminFullName,
+          updatedByRole: adminRole,
         });
         // 3. Promote applicant → Active/Employed
         await axios.put("https://api-map.bmphrc.com/promote-applicant", {
           employeeId: data.incomingApplicantId,
           updatedBy: adminFullName,
+          updatedByRole: adminRole,
         });
       } else {
         // ── SCENARIO: Normal save ──────────────────────────────────────────
@@ -2896,6 +2925,7 @@ export default function OutletList() {
                 ? data.temporaryDeployEndDate || null
                 : null,
             updatedBy: adminFullName,
+            updatedByRole: adminRole,
           });
         }
 
@@ -2919,6 +2949,7 @@ export default function OutletList() {
                 ? targetOnboardDate
                 : "",
             updatedBy: adminFullName,
+            updatedByRole: adminRole,
           });
         }
         // Promote if primary (no-incoming) was just onboarded
@@ -2930,6 +2961,7 @@ export default function OutletList() {
           await axios.put("https://api-map.bmphrc.com/promote-applicant", {
             employeeId: data.assignedEmployeeId,
             updatedBy: adminFullName,
+            updatedByRole: adminRole,
           });
         }
       }
@@ -2940,6 +2972,7 @@ export default function OutletList() {
         employeeId: data.assignedCoordinatorId,
         deployStatus: data.coordinatorDeployStatus,
         updatedBy: adminFullName,
+        updatedByRole: adminRole,
       });
 
       await fetchAndApply();

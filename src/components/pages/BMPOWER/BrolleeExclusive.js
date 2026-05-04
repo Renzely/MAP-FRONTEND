@@ -682,11 +682,13 @@ export default function BmpowerHO() {
     // { field: "clientAssigned", headerName: "Client Assigned", width: 200 },
   ];
 
-  const rows = filteredAccounts.map((acc, index) => ({
-    id: acc._id || index,
-    count: index + 1,
-    ...acc,
-  }));
+  const rows = [...filteredAccounts]
+    .sort((a, b) => (a.lastName || "").localeCompare(b.lastName || ""))
+    .map((acc, index) => ({
+      id: acc._id || index,
+      count: index + 1,
+      ...acc,
+    }));
 
   const showClearance = (emp) =>
     emp &&

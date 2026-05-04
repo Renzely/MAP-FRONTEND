@@ -697,6 +697,7 @@ export default function AccountCreationEnhanced() {
     const formattedData = {
       ...formData,
       createdBy: adminFullName,
+      createdByRole: localStorage.getItem("roleAccount"),
       employeeNo: isApplicant ? null : formData.employeeNo,
       riderid: isApplicant ? null : formData.riderid,
       accountNumber:
