@@ -2845,6 +2845,7 @@ export default function OutletList() {
     // ─────────────────────────────────────────────────────────────────────────
     try {
       const adminFullName = localStorage.getItem("adminFullName");
+      const adminRole = localStorage.getItem("roleAccount");
       const today = todayISO();
 
       // Safety check: if status is Onboarded but no applicant selected, block save
@@ -2876,6 +2877,7 @@ export default function OutletList() {
                 previousEmployeeRemarks === "Terminated" ? terminateReason : "",
               dateResigned: today,
               updatedBy: adminFullName,
+              updatedByRole: adminRole,
             },
           );
         }
@@ -2893,11 +2895,13 @@ export default function OutletList() {
           undeployDate: null,
           applicantStatus: "",
           updatedBy: adminFullName,
+          updatedByRole: adminRole,
         });
         // 3. Promote applicant → Active/Employed
         await axios.put("https://api-map.bmphrc.com/promote-applicant", {
           employeeId: data.incomingApplicantId,
           updatedBy: adminFullName,
+          updatedByRole: adminRole,
         });
       } else {
         // ── SCENARIO: Normal save ──────────────────────────────────────────
@@ -2921,6 +2925,7 @@ export default function OutletList() {
                 ? data.temporaryDeployEndDate || null
                 : null,
             updatedBy: adminFullName,
+            updatedByRole: adminRole,
           });
         }
 
@@ -2944,6 +2949,7 @@ export default function OutletList() {
                 ? targetOnboardDate
                 : "",
             updatedBy: adminFullName,
+            updatedByRole: adminRole,
           });
         }
         // Promote if primary (no-incoming) was just onboarded
@@ -2955,6 +2961,7 @@ export default function OutletList() {
           await axios.put("https://api-map.bmphrc.com/promote-applicant", {
             employeeId: data.assignedEmployeeId,
             updatedBy: adminFullName,
+            updatedByRole: adminRole,
           });
         }
       }
@@ -2965,6 +2972,7 @@ export default function OutletList() {
         employeeId: data.assignedCoordinatorId,
         deployStatus: data.coordinatorDeployStatus,
         updatedBy: adminFullName,
+        updatedByRole: adminRole,
       });
 
       await fetchAndApply();

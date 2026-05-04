@@ -197,7 +197,7 @@ const SPX_DARK = "#0c2e3fff";
 
 // ── Status category sets ──────────────────────────────────────────────────────
 // These drive which date fields are enabled/disabled
-const UNDEPLOY_STATUSES = ["Undeployed", "AWOL", "Resigned", "End of Contract"];
+const UNDEPLOY_STATUSES = ["Undeployed", "AWOL", "Resigned"];
 const DEPLOY_STATUSES = ["Deployed", "Shadowing training"];
 
 // ── Resolve employee-level fields from deployStatus ───────────────────────────
@@ -214,8 +214,6 @@ function resolveEmployeeFields(deployStatus) {
       return { status: "Inactive", remarks: "AWOL" };
     case "Resigned":
       return { status: "Inactive", remarks: "Resigned" };
-    case "End of Contract":
-      return { status: "Inactive", remarks: "End of Contract" };
     default:
       return { status: "Active", remarks: "Employed" };
   }
@@ -341,7 +339,7 @@ export default function SPXHubs() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const role = localStorage.getItem("roleAccount");
-  const canEdit = ["COORDINATOR", "MIS"].includes(role);
+  const canEdit = ["SPX COORDINATOR", "MIS"].includes(role);
   const canAccessEdit =
     canEdit ||
     [
@@ -534,8 +532,6 @@ export default function SPXHubs() {
         return "Active";
       case "Resigned":
         return "Inactive";
-      case "End of Contract":
-        return "Inactive";
       case "AWOL":
         return "Inacitve";
       case "Undeployed":
@@ -669,7 +665,6 @@ export default function SPXHubs() {
     AWOL: "#ed6c02",
     Resigned: "#d32f2f",
     "Shadowing training": "#1976d2",
-    "End of Contract": "#8b0000",
   };
 
   // ── Toolbar ───────────────────────────────────────────────────────────────
@@ -1625,9 +1620,6 @@ export default function SPXHubs() {
                                             </MenuItem>
                                             <MenuItem value="Resigned">
                                               Resigned
-                                            </MenuItem>
-                                            <MenuItem value="End of Contract">
-                                              End of Contract
                                             </MenuItem>
                                           </TextField>
                                         ) : (

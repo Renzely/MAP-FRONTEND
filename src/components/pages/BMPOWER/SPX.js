@@ -476,7 +476,6 @@ export default function BmpowerHO() {
       "Resigned",
       "Terminate",
       "End of Contract",
-      "Retrenchment",
       "Terminated",
       "AWOL",
     ];
@@ -709,7 +708,12 @@ export default function BmpowerHO() {
     { field: "philhealth", headerName: "PHIC No.", width: 150 },
     { field: "hdmf", headerName: "HDMF No.", width: 150 },
     { field: "tin", headerName: "TIN No.", width: 150 },
-    // { field: "company", headerName: "Company", width: 350 },
+    {
+      field: "modeOfDisbursement",
+      headerName: "Mode of Disbursement",
+      width: 170,
+    },
+    { field: "accountNumber", headerName: "Account Number", width: 130 },
     {
       field: "remarks",
       headerName: "Remarks",
@@ -776,14 +780,9 @@ export default function BmpowerHO() {
 
   const showClearance = (emp) =>
     emp &&
-    [
-      "Resigned",
-      "Terminate",
-      "End of Contract",
-      "Retrenchment",
-      "Terminated",
-      "AWOL",
-    ].includes(emp?.remarks) &&
+    ["Resigned", "Terminate", "End of Contract", "Terminated", "AWOL"].includes(
+      emp?.remarks,
+    ) &&
     emp?.dateResigned &&
     emp?.reasonForLeaving;
 
@@ -879,11 +878,9 @@ export default function BmpowerHO() {
                     <em>Select Remarks</em>
                   </MenuItem>
                   <MenuItem value="UNFILTERED">All Records</MenuItem>
-                  <MenuItem value="Applicant">Applicant</MenuItem>
                   <MenuItem value="Employed">Employed</MenuItem>
                   <MenuItem value="Resigned">Resigned</MenuItem>
                   <MenuItem value="End of Contract">End of Contract</MenuItem>
-                  <MenuItem value="Retrenchment">Retrenchment</MenuItem>
                   <MenuItem value="Terminated">Terminated</MenuItem>
                   <MenuItem value="AWOL">AWOL</MenuItem>
                 </Select>
@@ -1284,9 +1281,6 @@ export default function BmpowerHO() {
                                 >
                                   <MenuItem value="Active">Active</MenuItem>
                                   <MenuItem value="Inactive">Inactive</MenuItem>
-                                  <MenuItem value="Applicant">
-                                    Applicant
-                                  </MenuItem>
                                 </Select>
                               </FormControl>
                             ) : (
@@ -1311,7 +1305,6 @@ export default function BmpowerHO() {
                                     const leavingRemarks = [
                                       "Resigned",
                                       "End of Contract",
-                                      "Retrenchment",
                                       "Terminated",
                                       "AWOL",
                                     ];
@@ -1327,9 +1320,6 @@ export default function BmpowerHO() {
                                     });
                                   }}
                                 >
-                                  <MenuItem value="Applicant">
-                                    Applicant
-                                  </MenuItem>
                                   <MenuItem value="Employed">Employed</MenuItem>
                                   <MenuItem value="Resigned">Resigned</MenuItem>
                                   <MenuItem value="Deployed">Deployed</MenuItem>
@@ -1338,9 +1328,6 @@ export default function BmpowerHO() {
                                   </MenuItem>
                                   <MenuItem value="End of Contract">
                                     End of Contract
-                                  </MenuItem>
-                                  <MenuItem value="Retrenchment">
-                                    Retrenchment
                                   </MenuItem>
                                   <MenuItem value="Terminated">
                                     Terminated
@@ -1618,7 +1605,6 @@ export default function BmpowerHO() {
                                   "Resigned",
                                   "Terminate",
                                   "End of Contract",
-                                  "Retrenchment",
                                   "Terminated",
                                   "AWOL",
                                 ].includes(selectedEmployee.remarks)
@@ -1634,7 +1620,6 @@ export default function BmpowerHO() {
                                         "Resigned",
                                         "Terminate",
                                         "End of Contract",
-                                        "Retrenchment",
                                         "Terminated",
                                         "AWOL",
                                       ].includes(selectedEmployee.remarks)
