@@ -19,6 +19,7 @@ const ALL_HR = [
   "HR HEAD",
   "HR OFFICER",
   "HR SPECIALIST",
+  "SPX HR SPECIALIST",
   "HR COMPENSATION AND BENEFITS",
   "HR COORDINATOR SPECIALIST",
 ];
@@ -54,7 +55,13 @@ export const NAV_CONFIG = [
     label: "Recent Activity",
     path: "/view-recent-activity",
     icon: ListAlt,
-    allowedRoles: ["MIS", "HR HEAD", "EXECUTIVE DIRECTOR"],
+    allowedRoles: [
+      "MIS",
+      "HR HEAD",
+      "EXECUTIVE DIRECTOR",
+      "SPX OPERATION HEAD & LOGISTICS",
+      "SPX ACCOUNT SUPERVISOR",
+    ],
   },
   {
     label: "Client Profiles",
@@ -93,6 +100,8 @@ export const NAV_CONFIG = [
     allowedRoles: [
       ...ALL_HR,
       "SPX COORDINATOR",
+      "SPX OPERATION HEAD & LOGISTICS",
+      "SPX ACCOUNT SUPERVISOR",
       "EXECUTIVE DIRECTOR",
       "SPX HR SPECIALIST",
     ],
@@ -110,6 +119,8 @@ export const NAV_CONFIG = [
       ...HR_MANAGEMENT,
       "ACCOUNT SUPERVISOR",
       "SPX COORDINATOR",
+      "SPX OPERATION HEAD & LOGISTICS",
+      "SPX ACCOUNT SUPERVISOR",
       "SPX HR SPECIALIST",
     ],
     children: [
@@ -120,6 +131,8 @@ export const NAV_CONFIG = [
           ...HR_MANAGEMENT,
           "ACCOUNT SUPERVISOR",
           "SPX COORDINATOR",
+          "SPX OPERATION HEAD & LOGISTICS",
+          "SPX ACCOUNT SUPERVISOR",
           "SPX HR SPECIALIST",
         ],
         children: [
@@ -188,6 +201,8 @@ export const NAV_CONFIG = [
             allowedRoles: [
               ...HR_MANAGEMENT,
               "SPX COORDINATOR",
+              "SPX ACCOUNT SUPERVISOR",
+              "SPX OPERATION HEAD & LOGISTICS",
               "SPX HR SPECIALIST",
             ],
           },

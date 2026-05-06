@@ -345,7 +345,7 @@ export default function SPXHubs() {
     [
       "HR HEAD",
       "HR OFFICER",
-      "HR SPECIALIST",
+      "SPX HR SPECIALIST",
       "HR COORDINATOR SPECIALIST",
     ].includes(role);
 
@@ -546,6 +546,7 @@ export default function SPXHubs() {
     setSaveError("");
     try {
       const adminFullName = localStorage.getItem("adminFullName");
+      const adminRole = localStorage.getItem("roleAccount"); // ← add this
       const today = todayISO();
 
       // 1. Remove riders marked for removal
@@ -556,6 +557,7 @@ export default function SPXHubs() {
           remarks: "Resigned",
           dateResigned: today,
           updatedBy: adminFullName,
+          updatedByRole: adminRole, // ← add
         });
       }
 
@@ -572,20 +574,22 @@ export default function SPXHubs() {
           deployDate: !isUndeploy ? r.deployDate || today : null,
           undeployDate: isUndeploy ? r.undeployDate || today : null,
           updatedBy: adminFullName,
+          updatedByRole: adminRole, // ← add
         });
 
         await axios.put("https://api-map.bmphrc.com/update-employee-status", {
           employeeId: r.employeeId,
           status: resolveEmployeeStatus(r.deployStatus),
           updatedBy: adminFullName,
+          updatedByRole: adminRole, // ← add
         });
 
-        // Sync status (Active / Inactive) + remarks to the employee record
         await axios.put("https://api-map.bmphrc.com/update-employee-remarks", {
           employeeId: r.employeeId,
           status,
           remarks,
           updatedBy: adminFullName,
+          updatedByRole: adminRole, // ← add
         });
       }
 
@@ -602,20 +606,22 @@ export default function SPXHubs() {
           deployDate: !isUndeploy ? r.deployDate || null : null,
           undeployDate: isUndeploy ? r.undeployDate || null : null,
           updatedBy: adminFullName,
+          updatedByRole: adminRole, // ← add
         });
 
         await axios.put("https://api-map.bmphrc.com/update-employee-status", {
           employeeId: r.employeeId,
           status: resolveEmployeeStatus(r.deployStatus),
           updatedBy: adminFullName,
+          updatedByRole: adminRole, // ← add
         });
 
-        // Sync status (Active / Inactive) + remarks to the employee record
         await axios.put("https://api-map.bmphrc.com/update-employee-remarks", {
           employeeId: r.employeeId,
           status,
           remarks,
           updatedBy: adminFullName,
+          updatedByRole: adminRole, // ← add
         });
       }
 
@@ -626,6 +632,8 @@ export default function SPXHubs() {
           {
             adminUserId: assignedCoordId,
             outletName: selectedHub.outlet,
+            updatedBy: adminFullName,
+            updatedByRole: adminRole, // ← add
           },
         );
       }

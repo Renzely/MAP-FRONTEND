@@ -14,6 +14,7 @@ import {
   CircularProgress,
   Tabs,
   Tab,
+  Alert,
 } from "@mui/material";
 import HistoryIcon from "@mui/icons-material/History";
 import PersonIcon from "@mui/icons-material/Person";
@@ -30,9 +31,37 @@ export default function RecentActivity() {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState(0); // 0 = Updates, 1 = New Registrations
+  const [activeTab, setActiveTab] = useState(0);
 
   const itemsPerPage = 6;
+
+  // ── Role-based filtering ────────────────────────────────────────────────
+  const currentRole = localStorage.getItem("roleAccount");
+  const SPX_VIEWER_ROLES = [
+    "SPX ACCOUNT SUPERVISOR",
+    "SPX OPERATION HEAD & LOGISTICS",
+  ];
+  const SPX_ACTIVITY_ROLES = ["SPX COORDINATOR", "SPX HR SPECIALIST"];
+  const isSPXViewer = SPX_VIEWER_ROLES.includes(currentRole);
+
+  const visibleActivities = isSPXViewer
+    ? activities.filter((a) => SPX_ACTIVITY_ROLES.includes(a.updatedByRole))
+    : activities;
+
+  // ── Split by type ────────────────────────────────────────────────────────
+  const updates = visibleActivities.filter(
+    (a) => a.activityType !== "NEW_EMPLOYEE",
+  );
+  const newRegistrations = visibleActivities.filter(
+    (a) => a.activityType === "NEW_EMPLOYEE",
+  );
+  const displayList = activeTab === 0 ? updates : newRegistrations;
+
+  const totalPages = Math.ceil(displayList.length / itemsPerPage);
+  const paginated = displayList.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage,
+  );
 
   useEffect(() => {
     const checkSidebarState = () => {
@@ -66,26 +95,12 @@ export default function RecentActivity() {
     fetchRecentActivities();
   }, []);
 
-  // ── Split by type ──────────────────────────────────────────────────────────
-  const updates = activities.filter((a) => a.activityType !== "NEW_EMPLOYEE");
-  const newRegistrations = activities.filter(
-    (a) => a.activityType === "NEW_EMPLOYEE",
-  );
-  const displayList = activeTab === 0 ? updates : newRegistrations;
-
-  const totalPages = Math.ceil(displayList.length / itemsPerPage);
-  const paginated = displayList.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage,
-  );
-
-  // ── Export Summary to Excel ───────────────────────────────────────────────
+  // ── Export Summary to Excel ─────────────────────────────────────────────
   const exportSummary = () => {
     const XLSX = require("sheetjs-style");
 
-    // Count per role
     const roleCounts = {};
-    activities.forEach((a) => {
+    visibleActivities.forEach((a) => {
       const role = a.updatedByRole || "Unknown";
       if (!roleCounts[role])
         roleCounts[role] = { role, updates: 0, newRegistrations: 0, total: 0 };
@@ -100,7 +115,6 @@ export default function RecentActivity() {
     const summaryRows = Object.values(roleCounts).sort(
       (a, b) => b.total - a.total,
     );
-
     const wb = XLSX.utils.book_new();
 
     // ── Sheet 1: Summary by Role ──
@@ -148,7 +162,12 @@ export default function RecentActivity() {
       Role: a.updatedByRole || "—",
       "Fields Changed":
         a.changes
-          ?.filter((c) => c.field !== "updatedBy" && c.field !== "Outlet")
+          ?.filter(
+            (c) =>
+              c.field !== "updatedBy" &&
+              c.field !== "Outlet" &&
+              c.field !== "Hub",
+          )
           .map((c) => `${c.field}: ${c.oldValue} → ${c.newValue}`)
           .join(" | ") || "—",
       "Date & Time": new Date(a.date).toLocaleString("en-PH"),
@@ -238,6 +257,8 @@ export default function RecentActivity() {
       "Deploy Date",
       "Undeploy Date",
       "Reliever Deploy Until",
+      "Hub Assigned",
+      "Region",
     ];
     const applicantFields = [
       "Applicant Status",
@@ -249,6 +270,7 @@ export default function RecentActivity() {
       "Remarks",
       "Employee Status",
       "Outlet Removed",
+      "Coordinator Assigned to Hub",
     ];
     if (deployFields.includes(field))
       return { border: "#2e7d32", bg: "#f0fdf4" };
@@ -314,34 +336,39 @@ export default function RecentActivity() {
                     variant="body1"
                     sx={{ color: "rgba(255,255,255,0.9)" }}
                   >
-                    Track all employee record updates and new registrations
+                    {isSPXViewer
+                      ? "SPX-related activity — updates and registrations"
+                      : "Track all employee record updates and new registrations"}
                   </Typography>
                 </Box>
               </Box>
-              {/* Export Button */}
-              <Button
-                variant="contained"
-                startIcon={<FileDownloadIcon />}
-                onClick={exportSummary}
-                disabled={activities.length === 0}
-                sx={{
-                  backgroundColor: "rgba(255,255,255,0.15)",
-                  color: "white",
-                  fontWeight: 600,
-                  textTransform: "none",
-                  borderRadius: "8px",
-                  px: 3,
-                  py: 1.2,
-                  border: "1px solid rgba(255,255,255,0.3)",
-                  "&:hover": { backgroundColor: "rgba(255,255,255,0.25)" },
-                  "&.Mui-disabled": {
-                    backgroundColor: "rgba(255,255,255,0.05)",
-                    color: "rgba(255,255,255,0.3)",
-                  },
-                }}
-              >
-                Export Summary (Excel)
-              </Button>
+
+              {/* Export Button — hidden for SPX viewers */}
+              {!isSPXViewer && (
+                <Button
+                  variant="contained"
+                  startIcon={<FileDownloadIcon />}
+                  onClick={exportSummary}
+                  disabled={visibleActivities.length === 0}
+                  sx={{
+                    backgroundColor: "rgba(255,255,255,0.15)",
+                    color: "white",
+                    fontWeight: 600,
+                    textTransform: "none",
+                    borderRadius: "8px",
+                    px: 3,
+                    py: 1.2,
+                    border: "1px solid rgba(255,255,255,0.3)",
+                    "&:hover": { backgroundColor: "rgba(255,255,255,0.25)" },
+                    "&.Mui-disabled": {
+                      backgroundColor: "rgba(255,255,255,0.05)",
+                      color: "rgba(255,255,255,0.3)",
+                    },
+                  }}
+                >
+                  Export Summary (Excel)
+                </Button>
+              )}
             </Box>
           </Paper>
 
@@ -442,7 +469,7 @@ export default function RecentActivity() {
                 </Tabs>
                 <Chip
                   icon={<UpdateIcon />}
-                  label={`${activities.length} Total Activities`}
+                  label={`${visibleActivities.length} Total Activities`}
                   color="primary"
                   sx={{ fontWeight: 600, px: 1 }}
                 />
@@ -732,16 +759,8 @@ export default function RecentActivity() {
                                               label={change.newValue || "Empty"}
                                               size="small"
                                               sx={{
-                                                bgcolor:
-                                                  activity.activityType ===
-                                                  "NEW_EMPLOYEE"
-                                                    ? "#e8f5e9"
-                                                    : "#e8f5e9",
-                                                color:
-                                                  activity.activityType ===
-                                                  "NEW_EMPLOYEE"
-                                                    ? "#2e7d32"
-                                                    : "#2e7d32",
+                                                bgcolor: "#e8f5e9",
+                                                color: "#2e7d32",
                                                 fontWeight: 500,
                                                 fontSize: "11px",
                                                 height: "22px",

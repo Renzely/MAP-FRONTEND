@@ -384,7 +384,11 @@ export default function Admin() {
     colors: [],
   });
 
-  const isSPXUser = role === "SPX COORDINATOR" || role === "SPX HR SPECIALIST";
+  const isSPXUser =
+    role === "SPX COORDINATOR" ||
+    role === "SPX HR SPECIALIST" ||
+    role === "SPX OPERATION HEAD & LOGISTICS" ||
+    role === "SPX ACCOUNT SUPERVISOR";
 
   const allowedCompany = isSPXUser
     ? ["BMPOWER HUMAN RESOURCES CORPORATION"]

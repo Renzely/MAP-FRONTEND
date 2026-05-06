@@ -599,10 +599,10 @@ export default function AccountCreationEnhanced() {
     });
 
     // ---------------- SPX Specific Validation ----------------
-    if (formData.clientAssigned === "SPX EXPRESS") {
-      if (!formData.region) errors.region = "Please select a region";
-      if (!formData.outlet) errors.outlet = "Please select a hub";
-    }
+    // if (formData.clientAssigned === "SPX EXPRESS") {
+    //   if (!formData.region) errors.region = "Please select a region";
+    //   if (!formData.outlet) errors.outlet = "Please select a hub";
+    // }
 
     // ---------------- Other Validations ----------------
     if (!errors.contact && formData.contact.length !== 11) {
@@ -1704,7 +1704,7 @@ export default function AccountCreationEnhanced() {
                     </Grid>
 
                     {/* Region dropdown - only for SPX EXPRESS */}
-                    {isHubClient && (
+                    {/* {isHubClient && (
                       <Grid item xs={12} md={3}>
                         <FormControl
                           fullWidth
@@ -1733,10 +1733,10 @@ export default function AccountCreationEnhanced() {
                           )}
                         </FormControl>
                       </Grid>
-                    )}
+                    )} */}
 
                     {/* Hub dropdown - shown once a Region is selected */}
-                    {isHubClient && (
+                    {/* {isHubClient && (
                       <Grid item xs={12} md={3}>
                         <Autocomplete
                           disabled={isApplicant || !formData.region}
@@ -1760,7 +1760,7 @@ export default function AccountCreationEnhanced() {
                           )}
                         />
                       </Grid>
-                    )}
+                    )} */}
 
                     {/* {isOutletClient && (
                       <Grid item xs={12} md={3}>
