@@ -58,6 +58,8 @@ export default function BmpowerHO() {
   const [newUploads, setNewUploads] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [dateResignedError, setDateResignedError] = useState(false);
+  const [dateHiredFrom, setDateHiredFrom] = useState("");
+  const [dateHiredTo, setDateHiredTo] = useState("");
 
   const role = localStorage.getItem("roleAccount");
 
@@ -555,11 +557,12 @@ export default function BmpowerHO() {
         {
           remarks: selectedRemarks,
           clientAssigned: "SPX EXPRESS",
+          dateHiredFrom: dateHiredFrom || null,
+          dateHiredTo: dateHiredTo || null,
         },
       );
 
       const headers = [
-        // "#",
         "Company",
         "Client",
         "EmployeeNo",
@@ -568,11 +571,10 @@ export default function BmpowerHO() {
         "Remarks",
         "Position",
         "Region",
-        "Outlet",
+        "Hub",
         "Contact",
         "Email",
         "Birthday",
-        "Age",
         "Age",
         "DateHired",
         "DateResigned",
@@ -589,14 +591,12 @@ export default function BmpowerHO() {
 
       const wb = XLSX.utils.book_new();
       const ws = XLSX.utils.json_to_sheet([]);
-
       XLSX.utils.sheet_add_aoa(ws, [headers], { origin: "A1" });
       XLSX.utils.sheet_add_json(ws, newData, {
         origin: "A2",
         skipHeader: true,
         header: headers,
       });
-
       ws["!cols"] = headers.map((h) => ({
         wch:
           Math.max(
@@ -604,7 +604,6 @@ export default function BmpowerHO() {
             ...newData.map((row) => (row[h] || "").toString().length),
           ) + 4,
       }));
-
       headers.forEach((_, col) => {
         const cell = XLSX.utils.encode_cell({ r: 0, c: col });
         if (ws[cell])
@@ -613,7 +612,6 @@ export default function BmpowerHO() {
             alignment: { horizontal: "center", vertical: "center" },
           };
       });
-
       XLSX.utils.book_append_sheet(wb, ws, "Employees");
 
       const buffer = XLSX.write(wb, { type: "array", bookType: "xlsx" });
@@ -621,13 +619,15 @@ export default function BmpowerHO() {
         type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       });
 
-      alert(`Successfully exported ${newData.length} records!`);
+      const rangeLabel =
+        dateHiredFrom && dateHiredTo
+          ? `_${dateHiredFrom}_to_${dateHiredTo}`
+          : "";
 
+      alert(`Successfully exported ${newData.length} records!`);
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
-      link.download = `MASTERLIST_SPX_${
-        new Date().toISOString().split("T")[0]
-      }.xlsx`;
+      link.download = `MASTERLIST_SPX${rangeLabel}_${new Date().toISOString().split("T")[0]}.xlsx`;
       link.click();
     } catch (error) {
       console.error(error);
@@ -864,6 +864,7 @@ export default function BmpowerHO() {
                 flexDirection: { xs: "column", sm: "row" },
                 alignItems: { xs: "stretch", sm: "center" },
                 gap: 2,
+                flexWrap: "wrap",
               }}
             >
               <FormControl sx={{ minWidth: 220 }}>
@@ -885,6 +886,35 @@ export default function BmpowerHO() {
                   <MenuItem value="AWOL">AWOL</MenuItem>
                 </Select>
               </FormControl>
+
+              {/* Date Hired Range */}
+              <TextField
+                label="Date Hired From"
+                type="date"
+                value={dateHiredFrom}
+                onChange={(e) => setDateHiredFrom(e.target.value)}
+                InputLabelProps={{ shrink: true }}
+                inputProps={{ onKeyDown: (e) => e.preventDefault() }}
+                sx={{
+                  width: 180,
+                  backgroundColor: "white",
+                  borderRadius: "8px",
+                }}
+              />
+              <TextField
+                label="Date Hired To"
+                type="date"
+                value={dateHiredTo}
+                onChange={(e) => setDateHiredTo(e.target.value)}
+                InputLabelProps={{ shrink: true }}
+                inputProps={{ onKeyDown: (e) => e.preventDefault() }}
+                sx={{
+                  width: 180,
+                  backgroundColor: "white",
+                  borderRadius: "8px",
+                }}
+              />
+
               <Button
                 onClick={getExportData}
                 variant="contained"
@@ -904,6 +934,7 @@ export default function BmpowerHO() {
               >
                 Export to Excel
               </Button>
+
               <Box sx={{ flexGrow: 1 }} />
               <Chip
                 icon={<PersonIcon />}
@@ -917,6 +948,13 @@ export default function BmpowerHO() {
                 }}
               />
             </Box>
+            <Typography
+              variant="caption"
+              sx={{ color: "#aaa", mt: 1, display: "block" }}
+            >
+              Leave date fields empty to export all records regardless of hire
+              date.
+            </Typography>
           </Paper>
 
           {/* DataGrid */}

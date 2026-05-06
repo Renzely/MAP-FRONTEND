@@ -1095,7 +1095,10 @@ export default function Admin() {
                         OPERATION DIRECTOR
                       </MenuItem>
                       <MenuItem value="ACCOUNT SUPERVISOR">
-                        ACCOUNT SUPERVISOR
+                        SPX ACCOUNT SUPERVISOR
+                      </MenuItem>
+                      <MenuItem value="SPX OPERATION HEAD & LOGISTICS">
+                        SPX OPERATION HEAD & LOGISTICS
                       </MenuItem>
                       <MenuItem value="SPX COORDINATOR">
                         SPX COORDINATOR
