@@ -2065,6 +2065,7 @@ export default function BmpowerHO() {
                                   "AUB (Hello Money)": 12,
                                   LANDBANK: 10,
                                   UNIONBANK: 12,
+                                  MARIBANK: 11,
                                   "BDO NETWORK": 12,
                                   "BDO UNIBANK": 12,
                                   BPI: 12,
@@ -2089,7 +2090,26 @@ export default function BmpowerHO() {
                               }}
                               helperText={
                                 selectedEmployee.modeOfDisbursement
-                                  ? `Must be ${{ GCASH: 11, CEBUANA: 11, PNB: 12, RCBC: 10, EASTWEST: 12, "AUB (Hello Money)": 12, LANDBANK: 10, UNIONBANK: 12, "BDO NETWORK": 12, "BDO UNIBANK": 12, BPI: 12, "SECURITY BANK": 13, METROBANK: 13, CHINABANK: 12 }[selectedEmployee.modeOfDisbursement] || "up to 20"} digits`
+                                  ? `Must be ${
+                                      {
+                                        GCASH: 11,
+                                        CEBUANA: 11,
+                                        PNB: 12,
+                                        RCBC: 10,
+                                        EASTWEST: 12,
+                                        "AUB (Hello Money)": 12,
+                                        LANDBANK: 10,
+                                        UNIONBANK: 12,
+                                        MARIBANK: 11,
+                                        "BDO NETWORK": 12,
+                                        "BDO UNIBANK": 12,
+                                        BPI: 12,
+                                        "SECURITY BANK": 13,
+                                        METROBANK: 13,
+                                        CHINABANK: 12,
+                                      }[selectedEmployee.modeOfDisbursement] ||
+                                      "up to 20"
+                                    } digits`
                                   : "Select Mode of Disbursement first"
                               }
                             />
