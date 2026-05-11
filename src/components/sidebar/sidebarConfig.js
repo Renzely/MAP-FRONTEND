@@ -104,6 +104,8 @@ export const NAV_CONFIG = [
       "SPX ACCOUNT SUPERVISOR",
       "EXECUTIVE DIRECTOR",
       "SPX HR SPECIALIST",
+      "SPX PAYROLL SPECIALIST",
+      "SPX PAYROLL & BILLING",
     ],
   },
   {
@@ -122,6 +124,8 @@ export const NAV_CONFIG = [
       "SPX OPERATION HEAD & LOGISTICS",
       "SPX ACCOUNT SUPERVISOR",
       "SPX HR SPECIALIST",
+      "SPX PAYROLL SPECIALIST",
+      "SPX PAYROLL & BILLING",
     ],
     children: [
       {
@@ -134,6 +138,8 @@ export const NAV_CONFIG = [
           "SPX OPERATION HEAD & LOGISTICS",
           "SPX ACCOUNT SUPERVISOR",
           "SPX HR SPECIALIST",
+          "SPX PAYROLL SPECIALIST",
+          "SPX PAYROLL & BILLING",
         ],
         children: [
           {
@@ -204,6 +210,8 @@ export const NAV_CONFIG = [
               "SPX ACCOUNT SUPERVISOR",
               "SPX OPERATION HEAD & LOGISTICS",
               "SPX HR SPECIALIST",
+              "SPX PAYROLL SPECIALIST",
+              "SPX PAYROLL & BILLING",
             ],
           },
           {

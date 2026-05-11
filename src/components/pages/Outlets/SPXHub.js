@@ -339,7 +339,9 @@ export default function SPXHubs() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const role = localStorage.getItem("roleAccount");
-  const canEdit = ["SPX COORDINATOR", "MIS"].includes(role);
+  const canEdit = ["SPX COORDINATOR", "MIS", "SPX ACCOUNT SUPERVISOR"].includes(
+    role,
+  );
   const canAccessEdit =
     canEdit ||
     [

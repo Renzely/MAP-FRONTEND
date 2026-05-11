@@ -259,19 +259,19 @@ export default function Admin() {
 
     switch (matchType) {
       case "employed":
-        filtered = employees.filter((a) => a.remarks === "employed");
+        filtered = employees.filter((a) => a.remarks === "EMPLOYED");
         break;
       case "resigned":
-        filtered = employees.filter((a) => a.remarks === "resigned"); // ← was "Resigned"
+        filtered = employees.filter((a) => a.remarks === "RESIGNED");
         break;
       case "applicants":
-        filtered = employees.filter((a) => a.remarks === "applicant");
+        filtered = employees.filter((a) => a.remarks === "APPLICANT");
         break;
       case "terminated":
-        filtered = employees.filter((a) => a.remarks === "terminate");
+        filtered = employees.filter((a) => a.remarks === "TERMINATE");
         break;
       case "end of contract":
-        filtered = employees.filter((a) => a.remarks === "end of contract");
+        filtered = employees.filter((a) => a.remarks === "END OF CONTRACT");
         break;
       case "recent employees":
         filtered = employees
@@ -387,6 +387,8 @@ export default function Admin() {
   const isSPXUser =
     role === "SPX COORDINATOR" ||
     role === "SPX HR SPECIALIST" ||
+    role === "SPX PAYROLL SPECIALIST" ||
+    role === "SPX PAYROLL & BILLING" ||
     role === "SPX OPERATION HEAD & LOGISTICS" ||
     role === "SPX ACCOUNT SUPERVISOR";
 
@@ -1043,7 +1045,7 @@ export default function Admin() {
                       <Line
                         name="Employed"
                         type="monotone"
-                        dataKey="employed"
+                        dataKey="Employed"
                         stroke="#4caf50"
                         strokeWidth={3}
                       />

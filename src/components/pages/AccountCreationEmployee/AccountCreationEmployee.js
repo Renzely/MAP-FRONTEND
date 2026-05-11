@@ -442,6 +442,7 @@ export default function AccountCreationEnhanced() {
     RCBC: 10,
     "SECURITY BANK": 13,
     UNIONBANK: 12,
+    MARIBANK: 11,
   };
 
   const handleChange = (field, value) => {
@@ -635,6 +636,7 @@ export default function AccountCreationEnhanced() {
       RCBC: 10,
       "SECURITY BANK": 13,
       UNIONBANK: 12,
+      MARIBANK: 11,
     };
 
     if (
@@ -1956,6 +1958,7 @@ export default function AccountCreationEnhanced() {
                             SECURITY BANK
                           </MenuItem>
                           <MenuItem value="UNIONBANK">UNIONBANK</MenuItem>
+                          <MenuItem value="MARIBANK">MARIBANK</MenuItem>
                         </Select>
                       </FormControl>
                     </Grid>

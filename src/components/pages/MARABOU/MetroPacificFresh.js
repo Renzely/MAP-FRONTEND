@@ -1931,6 +1931,7 @@ export default function BmpowerHO() {
                                   <MenuItem value="UNIONBANK">
                                     UNIONBANK
                                   </MenuItem>
+                                  <MenuItem value="MARIBANK">MARIBANK</MenuItem>
                                 </Select>
                               </FormControl>
                             ) : (
@@ -1963,6 +1964,7 @@ export default function BmpowerHO() {
                                   "AUB (Hello Money)": 12,
                                   LANDBANK: 10,
                                   UNIONBANK: 12,
+                                  MARIBANK: 11,
                                   "BDO NETWORK": 12,
                                   "BDO UNIBANK": 12,
                                   BPI: 12,
@@ -1998,6 +2000,7 @@ export default function BmpowerHO() {
                                         "AUB (Hello Money)": 12,
                                         LANDBANK: 10,
                                         UNIONBANK: 12,
+                                        MARIBANK: 11,
                                         "BDO NETWORK": 12,
                                         "BDO UNIBANK": 12,
                                         BPI: 12,
