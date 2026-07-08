@@ -369,7 +369,7 @@ export default function SPXHubs() {
   const fetchAndApply = async () => {
     try {
       const { data } = await axios.get(
-        "http://192.168.68.73:3001/get-merch-accounts",
+        "https://api-map.bmphrc.com/get-merch-accounts",
       );
       const { activeRiders, hubAssignments, coordAssignments, floatingRiders } =
         buildAssignmentMaps(data);
@@ -389,7 +389,7 @@ export default function SPXHubs() {
     const fetchCoordinators = async () => {
       try {
         const res = await axios.post(
-          "http://192.168.68.73:3001/get-coordinators",
+          "https://api-map.bmphrc.com/get-coordinators",
         );
         setSpxCoordinators(res.data.data);
       } catch (err) {
@@ -556,7 +556,7 @@ export default function SPXHubs() {
 
       // 1. Remove riders marked for removal
       for (const r of hubRiders.filter((r) => r._toRemove && !r._isNew)) {
-        await axios.put("http://192.168.68.73:3001/remove-outlet-assignment", {
+        await axios.put("https://api-map.bmphrc.com/remove-outlet-assignment", {
           outletName: selectedHub.outlet,
           employeeId: r.employeeId,
           remarks: "Resigned",
@@ -571,7 +571,7 @@ export default function SPXHubs() {
         const isUndeploy = UNDEPLOY_STATUSES.includes(r.deployStatus);
         const { status, remarks } = resolveEmployeeFields(r.deployStatus);
 
-        await axios.put("http://192.168.68.73:3001/assign-outlet-spx", {
+        await axios.put("https://api-map.bmphrc.com/assign-outlet-spx", {
           outletName: selectedHub.outlet,
           region: selectedHub.region,
           employeeId: r.employeeId,
@@ -582,14 +582,14 @@ export default function SPXHubs() {
           updatedByRole: adminRole, // ← add
         });
 
-        await axios.put("http://192.168.68.73:3001/update-employee-status", {
+        await axios.put("https://api-map.bmphrc.com/update-employee-status", {
           employeeId: r.employeeId,
           status: resolveEmployeeStatus(r.deployStatus),
           updatedBy: adminFullName,
           updatedByRole: adminRole, // ← add
         });
 
-        await axios.put("http://192.168.68.73:3001/update-employee-remarks", {
+        await axios.put("https://api-map.bmphrc.com/update-employee-remarks", {
           employeeId: r.employeeId,
           status,
           remarks,
@@ -603,7 +603,7 @@ export default function SPXHubs() {
         const isUndeploy = UNDEPLOY_STATUSES.includes(r.deployStatus);
         const { status, remarks } = resolveEmployeeFields(r.deployStatus);
 
-        await axios.put("http://192.168.68.73:3001/assign-outlet-spx", {
+        await axios.put("https://api-map.bmphrc.com/assign-outlet-spx", {
           outletName: selectedHub.outlet,
           region: selectedHub.region,
           employeeId: r.employeeId,
@@ -614,14 +614,14 @@ export default function SPXHubs() {
           updatedByRole: adminRole, // ← add
         });
 
-        await axios.put("http://192.168.68.73:3001/update-employee-status", {
+        await axios.put("https://api-map.bmphrc.com/update-employee-status", {
           employeeId: r.employeeId,
           status: resolveEmployeeStatus(r.deployStatus),
           updatedBy: adminFullName,
           updatedByRole: adminRole, // ← add
         });
 
-        await axios.put("http://192.168.68.73:3001/update-employee-remarks", {
+        await axios.put("https://api-map.bmphrc.com/update-employee-remarks", {
           employeeId: r.employeeId,
           status,
           remarks,
@@ -632,17 +632,20 @@ export default function SPXHubs() {
 
       // 4. Coordinator
       if (assignedCoordId) {
-        await axios.put("http://192.168.68.73:3001/assign-coordinator-outlet", {
-          adminUserId: assignedCoordId,
-          outletName: selectedHub.outlet,
-          updatedBy: adminFullName,
-          updatedByRole: adminRole, // ← add
-        });
+        await axios.put(
+          "https://api-map.bmphrc.com/assign-coordinator-outlet",
+          {
+            adminUserId: assignedCoordId,
+            outletName: selectedHub.outlet,
+            updatedBy: adminFullName,
+            updatedByRole: adminRole, // ← add
+          },
+        );
       }
 
       const [, coordRes] = await Promise.all([
         fetchAndApply(),
-        axios.post("http://192.168.68.73:3001/get-coordinators"),
+        axios.post("https://api-map.bmphrc.com/get-coordinators"),
       ]);
       setSpxCoordinators(coordRes.data.data);
       await fetchAndApply();
