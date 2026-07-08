@@ -2384,6 +2384,7 @@ function buildAssignmentMaps(allData) {
           employeeId: emp._id,
           employeeName: `${emp.firstName} ${emp.lastName}`,
           deployStatus: emp.deployStatus || "Undeployed",
+          deploymentType: emp.deploymentType || "Stationary",
           deployDate: emp.deployDate || null,
           undeployDate: emp.undeployDate || null,
           applicantStatus: emp.applicantStatus || "",
@@ -2528,7 +2529,7 @@ export default function OutletList() {
   const [dateError, setDateError] = useState("");
   const [openSummaryModal, setOpenSummaryModal] = useState(false);
   const [summaryFilter, setSummaryFilter] = useState("MERCHANDISER");
-
+  const [filterType, setFilterType] = useState("ALL");
   const role = localStorage.getItem("roleAccount");
   const canEdit = ["ACCOUNT SUPERVISOR", "MIS"].includes(role);
   const canSetApplicantStatus = [
@@ -2556,7 +2557,7 @@ export default function OutletList() {
   const fetchAndApply = async () => {
     try {
       const { data } = await axios.get(
-        "https://api-map.bmphrc.com/get-merch-accounts",
+        "http://192.168.68.73:3001/get-merch-accounts",
       );
       const {
         merchandisers,
@@ -2670,12 +2671,20 @@ export default function OutletList() {
     );
   }
 
-  const applyFilters = (region, status) => {
+  const applyFilters = (region, status, type = "ALL") => {
     let filtered = [...OUTLET_DATA];
 
     // Filter by region
     if (region !== "ALL") {
       filtered = filtered.filter((o) => o.region === region);
+    }
+
+    if (type !== "ALL") {
+      filtered = filtered.filter((o) => {
+        const a = outletAssignments[o.id];
+        const t = a?.deploymentType || "Stationary";
+        return t === type;
+      });
     }
 
     // Filter by status
@@ -2712,8 +2721,13 @@ export default function OutletList() {
   const handleStatusFilter = (e) => {
     const value = e.target.value;
     setFilterStatus(value);
+    applyFilters(filterRegion, value, filterType); // ← add filterType
+  };
 
-    applyFilters(filterRegion, value);
+  const handleTypeFilter = (e) => {
+    const value = e.target.value;
+    setFilterType(value);
+    applyFilters(filterRegion, filterStatus, value); // ← pass type as 3rd arg
   };
 
   const handleEdit = (outletRow) => {
@@ -2868,7 +2882,7 @@ export default function OutletList() {
         // 1. Remove previous employee — set Inactive + selected remarks + dateResigned today
         if (data.assignedEmployeeId) {
           await axios.put(
-            "https://api-map.bmphrc.com/remove-outlet-assignment",
+            "http://192.168.68.73:3001/remove-outlet-assignment",
             {
               outletName: data.outletName,
               employeeId: data.assignedEmployeeId,
@@ -2882,7 +2896,7 @@ export default function OutletList() {
           );
         }
         // 2. Assign incoming applicant as new deployed employee
-        await axios.put("https://api-map.bmphrc.com/assign-outlet", {
+        await axios.put("http://192.168.68.73:3001/assign-outlet", {
           outletId: data.outletId,
           outletName: data.outletName,
           employeeId: data.incomingApplicantId,
@@ -2891,6 +2905,7 @@ export default function OutletList() {
               ? data.temporaryDeployEndDate || null
               : null,
           deployStatus: "Deployed",
+          deploymentType: "Stationary",
           deployDate: data.incomingDeployDate || today,
           undeployDate: null,
           applicantStatus: "",
@@ -2898,7 +2913,7 @@ export default function OutletList() {
           updatedByRole: adminRole,
         });
         // 3. Promote applicant → Active/Employed
-        await axios.put("https://api-map.bmphrc.com/promote-applicant", {
+        await axios.put("http://192.168.68.73:3001/promote-applicant", {
           employeeId: data.incomingApplicantId,
           updatedBy: adminFullName,
           updatedByRole: adminRole,
@@ -2911,11 +2926,12 @@ export default function OutletList() {
 
         // Save current employee
         if (data.assignedEmployeeId || data.applicantStatus === "For Pooling") {
-          await axios.put("https://api-map.bmphrc.com/assign-outlet", {
+          await axios.put("http://192.168.68.73:3001/assign-outlet", {
             outletId: data.outletId,
             outletName: data.outletName,
             employeeId: data.assignedEmployeeId,
             deployStatus: data.deployStatus,
+            deploymentType: data.deploymentType || "Stationary",
             deployDate: data.deployDate || null,
             undeployDate: data.undeployDate || null,
             applicantStatus: finalStatus,
@@ -2934,11 +2950,12 @@ export default function OutletList() {
           data.incomingApplicantId &&
           data.incomingApplicantStatus !== "Onboarded"
         ) {
-          await axios.put("https://api-map.bmphrc.com/assign-outlet", {
+          await axios.put("http://192.168.68.73:3001/assign-outlet", {
             outletId: data.outletId,
             outletName: data.outletName,
             employeeId: data.incomingApplicantId,
             deployStatus: "Undeployed",
+            deploymentType: "Stationary",
             deployDate: null,
             undeployDate: null,
             applicantStatus: data.incomingApplicantStatus,
@@ -2958,7 +2975,7 @@ export default function OutletList() {
           data.assignedEmployeeId &&
           !data.incomingApplicantId
         ) {
-          await axios.put("https://api-map.bmphrc.com/promote-applicant", {
+          await axios.put("http://192.168.68.73:3001/promote-applicant", {
             employeeId: data.assignedEmployeeId,
             updatedBy: adminFullName,
             updatedByRole: adminRole,
@@ -2967,7 +2984,7 @@ export default function OutletList() {
       }
 
       // Coordinator always saved
-      await axios.put("https://api-map.bmphrc.com/assign-coordinator", {
+      await axios.put("http://192.168.68.73:3001/assign-coordinator", {
         outletName: data.outletName,
         employeeId: data.assignedCoordinatorId,
         deployStatus: data.coordinatorDeployStatus,
@@ -3051,7 +3068,7 @@ export default function OutletList() {
       headerAlign: "center",
       align: "center",
     },
-    { field: "region", headerName: "Region", width: 150 },
+    { field: "region", headerName: "Region", width: 100 },
     { field: "outlet", headerName: "Outlet", width: 380 },
     {
       field: "assignedCoordinator",
@@ -3094,7 +3111,7 @@ export default function OutletList() {
     {
       field: "assignedEmployee",
       headerName: "Assigned Merchandiser",
-      width: 265,
+      width: 200,
       renderCell: (p) => (
         <Box
           sx={{
@@ -3182,6 +3199,40 @@ export default function OutletList() {
           )}
         </Box>
       ),
+    },
+    {
+      field: "deploymentType",
+      headerName: "Type of Deployment",
+      width: 170,
+      renderCell: (p) => {
+        const t = p.row._deploymentType || "Stationary";
+        if (t === "Roving") {
+          return (
+            <Chip
+              label="Roving"
+              size="small"
+              sx={{
+                fontWeight: 500,
+                backgroundColor: "#e8eaf6",
+                color: "#3949ab",
+                border: "1px solid #c5cae9",
+              }}
+            />
+          );
+        }
+        return (
+          <Chip
+            label="Stationary"
+            size="small"
+            sx={{
+              fontWeight: 500,
+              backgroundColor: "#f5f5f5",
+              color: "#616161",
+              border: "1px solid #e0e0e0",
+            }}
+          />
+        );
+      },
     },
     {
       field: "deployStatus",
@@ -3386,6 +3437,7 @@ export default function OutletList() {
       ...outlet,
       count: index + 1,
       _deployStatus: a?.deployStatus || "",
+      _deploymentType: a?.deploymentType || "Stationary", // ← ADD
       _applicantStatus: a?.applicantStatus || "",
       _employeeName: a?.employeeName || "",
       _deployDate: a?.deployDate || null,
@@ -3513,6 +3565,19 @@ export default function OutletList() {
                     Reliever Deployed
                   </MenuItem>
                   <MenuItem value="Undeployed">Undeployed</MenuItem>
+                </Select>
+              </FormControl>
+              <FormControl sx={{ minWidth: 220 }}>
+                <InputLabel>Filter by Type of Deployment</InputLabel>
+                <Select
+                  value={filterType}
+                  onChange={handleTypeFilter}
+                  label="Filter by Type of Deployment"
+                  sx={{ backgroundColor: "white", borderRadius: "8px" }}
+                >
+                  <MenuItem value="ALL">All Types</MenuItem>
+                  <MenuItem value="Stationary">Stationary</MenuItem>
+                  <MenuItem value="Roving">Roving</MenuItem>
                 </Select>
               </FormControl>
               <Box sx={{ flexGrow: 1 }} />
@@ -4550,6 +4615,78 @@ export default function OutletList() {
                                   fullWidth
                                   value={
                                     selectedOutlet.deployStatus || "Undeployed"
+                                  }
+                                  InputProps={{
+                                    readOnly: true,
+                                    endAdornment:
+                                      isEditing && !canEdit ? (
+                                        <LockIcon
+                                          sx={{
+                                            fontSize: 16,
+                                            color: "#bbb",
+                                            mr: 1,
+                                          }}
+                                        />
+                                      ) : null,
+                                  }}
+                                  helperText={
+                                    isEditing && !canEdit
+                                      ? "Managed by Account Supervisor"
+                                      : ""
+                                  }
+                                  FormHelperTextProps={{
+                                    sx: {
+                                      color: "#bbb",
+                                      display: "flex",
+                                      alignItems: "center",
+                                      gap: 0.5,
+                                    },
+                                  }}
+                                />
+                              )}
+                            </Grid>
+                          )}
+
+                          {!hasIncomingPipeline && (
+                            <Grid item xs={12} sm={6}>
+                              {isEditing && canEdit ? (
+                                <FormControl
+                                  fullWidth
+                                  disabled={!selectedOutlet.assignedEmployeeId}
+                                >
+                                  <InputLabel>Type of Deployment</InputLabel>
+                                  <Select
+                                    value={
+                                      selectedOutlet.assignedEmployeeId
+                                        ? selectedOutlet.deploymentType ||
+                                          "Stationary"
+                                        : "Stationary"
+                                    }
+                                    label="Type of Deployment"
+                                    onChange={(e) => {
+                                      setSelectedOutlet({
+                                        ...selectedOutlet,
+                                        deploymentType: e.target.value,
+                                      });
+                                    }}
+                                  >
+                                    <MenuItem value="Stationary">
+                                      Stationary
+                                    </MenuItem>
+                                    <MenuItem value="Roving">Roving</MenuItem>
+                                  </Select>
+                                  <FormHelperText>
+                                    Roving lets one merchandiser cover multiple
+                                    outlets
+                                  </FormHelperText>
+                                </FormControl>
+                              ) : (
+                                <TextField
+                                  label="Type of Deployment"
+                                  fullWidth
+                                  value={
+                                    selectedOutlet.deploymentType ||
+                                    "Stationary"
                                   }
                                   InputProps={{
                                     readOnly: true,

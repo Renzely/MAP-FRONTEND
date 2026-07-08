@@ -1045,7 +1045,7 @@ export default function Admin() {
                       <Line
                         name="Employed"
                         type="monotone"
-                        dataKey="Employed"
+                        dataKey="employed"
                         stroke="#4caf50"
                         strokeWidth={3}
                       />
