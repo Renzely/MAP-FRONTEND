@@ -2557,7 +2557,7 @@ export default function OutletList() {
   const fetchAndApply = async () => {
     try {
       const { data } = await axios.get(
-        "http://192.168.68.73:3001/get-merch-accounts",
+        "https://api-map.bmphrc.com/get-merch-accounts",
       );
       const {
         merchandisers,
@@ -2882,7 +2882,7 @@ export default function OutletList() {
         // 1. Remove previous employee — set Inactive + selected remarks + dateResigned today
         if (data.assignedEmployeeId) {
           await axios.put(
-            "http://192.168.68.73:3001/remove-outlet-assignment",
+            "https://api-map.bmphrc.com/remove-outlet-assignment",
             {
               outletName: data.outletName,
               employeeId: data.assignedEmployeeId,
@@ -2896,7 +2896,7 @@ export default function OutletList() {
           );
         }
         // 2. Assign incoming applicant as new deployed employee
-        await axios.put("http://192.168.68.73:3001/assign-outlet", {
+        await axios.put("https://api-map.bmphrc.com/assign-outlet", {
           outletId: data.outletId,
           outletName: data.outletName,
           employeeId: data.incomingApplicantId,
@@ -2913,7 +2913,7 @@ export default function OutletList() {
           updatedByRole: adminRole,
         });
         // 3. Promote applicant → Active/Employed
-        await axios.put("http://192.168.68.73:3001/promote-applicant", {
+        await axios.put("https://api-map.bmphrc.com/promote-applicant", {
           employeeId: data.incomingApplicantId,
           updatedBy: adminFullName,
           updatedByRole: adminRole,
@@ -2926,7 +2926,7 @@ export default function OutletList() {
 
         // Save current employee
         if (data.assignedEmployeeId || data.applicantStatus === "For Pooling") {
-          await axios.put("http://192.168.68.73:3001/assign-outlet", {
+          await axios.put("https://api-map.bmphrc.com/assign-outlet", {
             outletId: data.outletId,
             outletName: data.outletName,
             employeeId: data.assignedEmployeeId,
@@ -2950,7 +2950,7 @@ export default function OutletList() {
           data.incomingApplicantId &&
           data.incomingApplicantStatus !== "Onboarded"
         ) {
-          await axios.put("http://192.168.68.73:3001/assign-outlet", {
+          await axios.put("https://api-map.bmphrc.com/assign-outlet", {
             outletId: data.outletId,
             outletName: data.outletName,
             employeeId: data.incomingApplicantId,
@@ -2975,7 +2975,7 @@ export default function OutletList() {
           data.assignedEmployeeId &&
           !data.incomingApplicantId
         ) {
-          await axios.put("http://192.168.68.73:3001/promote-applicant", {
+          await axios.put("https://api-map.bmphrc.com/promote-applicant", {
             employeeId: data.assignedEmployeeId,
             updatedBy: adminFullName,
             updatedByRole: adminRole,
@@ -2984,7 +2984,7 @@ export default function OutletList() {
       }
 
       // Coordinator always saved
-      await axios.put("http://192.168.68.73:3001/assign-coordinator", {
+      await axios.put("https://api-map.bmphrc.com/assign-coordinator", {
         outletName: data.outletName,
         employeeId: data.assignedCoordinatorId,
         deployStatus: data.coordinatorDeployStatus,
