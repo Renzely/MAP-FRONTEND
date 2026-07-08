@@ -43,6 +43,7 @@ import LocationOnIcon from "@mui/icons-material/LocationOn";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import TwoWheelerIcon from "@mui/icons-material/TwoWheeler";
 import SaveIcon from "@mui/icons-material/Save";
+import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import CancelIcon from "@mui/icons-material/Cancel";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
@@ -342,6 +343,8 @@ export default function SPXHubs() {
   const canEdit = ["SPX COORDINATOR", "MIS", "SPX ACCOUNT SUPERVISOR"].includes(
     role,
   );
+  const XLSX = require("sheetjs-style");
+
   const canAccessEdit =
     canEdit ||
     [
@@ -366,7 +369,7 @@ export default function SPXHubs() {
   const fetchAndApply = async () => {
     try {
       const { data } = await axios.get(
-        "https://api-map.bmphrc.com/get-merch-accounts",
+        "http://192.168.68.73:3001/get-merch-accounts",
       );
       const { activeRiders, hubAssignments, coordAssignments, floatingRiders } =
         buildAssignmentMaps(data);
@@ -386,7 +389,7 @@ export default function SPXHubs() {
     const fetchCoordinators = async () => {
       try {
         const res = await axios.post(
-          "https://api-map.bmphrc.com/get-coordinators",
+          "http://192.168.68.73:3001/get-coordinators",
         );
         setSpxCoordinators(res.data.data);
       } catch (err) {
@@ -553,7 +556,7 @@ export default function SPXHubs() {
 
       // 1. Remove riders marked for removal
       for (const r of hubRiders.filter((r) => r._toRemove && !r._isNew)) {
-        await axios.put("https://api-map.bmphrc.com/remove-outlet-assignment", {
+        await axios.put("http://192.168.68.73:3001/remove-outlet-assignment", {
           outletName: selectedHub.outlet,
           employeeId: r.employeeId,
           remarks: "Resigned",
@@ -568,7 +571,7 @@ export default function SPXHubs() {
         const isUndeploy = UNDEPLOY_STATUSES.includes(r.deployStatus);
         const { status, remarks } = resolveEmployeeFields(r.deployStatus);
 
-        await axios.put("https://api-map.bmphrc.com/assign-outlet-spx", {
+        await axios.put("http://192.168.68.73:3001/assign-outlet-spx", {
           outletName: selectedHub.outlet,
           region: selectedHub.region,
           employeeId: r.employeeId,
@@ -579,14 +582,14 @@ export default function SPXHubs() {
           updatedByRole: adminRole, // ← add
         });
 
-        await axios.put("https://api-map.bmphrc.com/update-employee-status", {
+        await axios.put("http://192.168.68.73:3001/update-employee-status", {
           employeeId: r.employeeId,
           status: resolveEmployeeStatus(r.deployStatus),
           updatedBy: adminFullName,
           updatedByRole: adminRole, // ← add
         });
 
-        await axios.put("https://api-map.bmphrc.com/update-employee-remarks", {
+        await axios.put("http://192.168.68.73:3001/update-employee-remarks", {
           employeeId: r.employeeId,
           status,
           remarks,
@@ -600,7 +603,7 @@ export default function SPXHubs() {
         const isUndeploy = UNDEPLOY_STATUSES.includes(r.deployStatus);
         const { status, remarks } = resolveEmployeeFields(r.deployStatus);
 
-        await axios.put("https://api-map.bmphrc.com/assign-outlet-spx", {
+        await axios.put("http://192.168.68.73:3001/assign-outlet-spx", {
           outletName: selectedHub.outlet,
           region: selectedHub.region,
           employeeId: r.employeeId,
@@ -611,14 +614,14 @@ export default function SPXHubs() {
           updatedByRole: adminRole, // ← add
         });
 
-        await axios.put("https://api-map.bmphrc.com/update-employee-status", {
+        await axios.put("http://192.168.68.73:3001/update-employee-status", {
           employeeId: r.employeeId,
           status: resolveEmployeeStatus(r.deployStatus),
           updatedBy: adminFullName,
           updatedByRole: adminRole, // ← add
         });
 
-        await axios.put("https://api-map.bmphrc.com/update-employee-remarks", {
+        await axios.put("http://192.168.68.73:3001/update-employee-remarks", {
           employeeId: r.employeeId,
           status,
           remarks,
@@ -629,20 +632,17 @@ export default function SPXHubs() {
 
       // 4. Coordinator
       if (assignedCoordId) {
-        await axios.put(
-          "https://api-map.bmphrc.com/assign-coordinator-outlet",
-          {
-            adminUserId: assignedCoordId,
-            outletName: selectedHub.outlet,
-            updatedBy: adminFullName,
-            updatedByRole: adminRole, // ← add
-          },
-        );
+        await axios.put("http://192.168.68.73:3001/assign-coordinator-outlet", {
+          adminUserId: assignedCoordId,
+          outletName: selectedHub.outlet,
+          updatedBy: adminFullName,
+          updatedByRole: adminRole, // ← add
+        });
       }
 
       const [, coordRes] = await Promise.all([
         fetchAndApply(),
-        axios.post("https://api-map.bmphrc.com/get-coordinators"),
+        axios.post("http://192.168.68.73:3001/get-coordinators"),
       ]);
       setSpxCoordinators(coordRes.data.data);
       await fetchAndApply();
@@ -937,6 +937,116 @@ export default function SPXHubs() {
       _coordStatus: coord ? "Active" : "",
     };
   });
+  const handleExportHubs = () => {
+    const headers = [
+      "#",
+      "Region",
+      "Hub",
+      "Total Riders",
+      "Deployed",
+      "Assigned Riders",
+      "Coordinator",
+    ];
+
+    const exportRows = filteredOutlets.map((outlet, index) => {
+      const hData = hubAssignments[outlet.id] || { riders: [] };
+      const coord = spxCoordinators.find((c) =>
+        Array.isArray(c.outlet)
+          ? c.outlet.some(
+              (o) =>
+                o.trim().toLowerCase() === outlet.outlet.trim().toLowerCase(),
+            )
+          : c.outlet?.trim().toLowerCase() ===
+            outlet.outlet.trim().toLowerCase(),
+      );
+
+      // ── Each rider on its own line ──────────────────────────────────────
+      const riderLines = hData.riders.length
+        ? hData.riders
+            .map((r) => `${r.employeeName} (${r.deployStatus || "Undeployed"})`)
+            .join("\n")
+        : "No riders assigned";
+
+      const deployedCount = hData.riders.filter(
+        (r) => r.deployStatus === "Deployed",
+      ).length;
+
+      return {
+        count: index + 1,
+        region: outlet.region,
+        hub: outlet.outlet,
+        totalRiders: hData.riders.length,
+        deployed: deployedCount,
+        assignedRiders: riderLines,
+        coordinator: coord ? `${coord.firstName} ${coord.lastName}` : "—",
+      };
+    });
+
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet([]);
+
+    XLSX.utils.sheet_add_aoa(ws, [headers], { origin: "A1" });
+    XLSX.utils.sheet_add_json(ws, exportRows, {
+      origin: "A2",
+      skipHeader: true,
+    });
+
+    // ── Column widths ───────────────────────────────────────────────────
+    ws["!cols"] = [
+      { wch: 5 }, // #
+      { wch: 18 }, // Region
+      { wch: 28 }, // Hub
+      { wch: 14 }, // Total Riders
+      { wch: 12 }, // Deployed
+      { wch: 40 }, // Assigned Riders — fixed width, wraps vertically
+      { wch: 22 }, // Coordinator
+    ];
+
+    // ── Row heights — taller rows for hubs with many riders ────────────
+    // Row 0 = header (index 0), data starts at index 1
+    ws["!rows"] = [
+      { hpt: 20 }, // header row
+      ...exportRows.map((r) => {
+        const lineCount = r.assignedRiders.split("\n").length;
+        return { hpt: Math.max(18, lineCount * 16) }; // 16pt per rider line
+      }),
+    ];
+
+    // ── Wrap + vertical-align every data cell in the Assigned Riders col ─
+    exportRows.forEach((_, rowIdx) => {
+      const cellAddr = XLSX.utils.encode_cell({ r: rowIdx + 1, c: 5 }); // col F
+      if (ws[cellAddr]) {
+        ws[cellAddr].s = {
+          alignment: { wrapText: true, vertical: "top" },
+        };
+      }
+    });
+
+    // ── Header styles ───────────────────────────────────────────────────
+    headers.forEach((_, c) => {
+      const addr = XLSX.utils.encode_cell({ r: 0, c });
+      if (ws[addr])
+        ws[addr].s = {
+          font: { bold: true },
+          fill: { fgColor: { rgb: "F8FAFC" } },
+          alignment: { horizontal: "center", vertical: "center" },
+          border: { bottom: { style: "thin", color: { rgb: "E2E8F0" } } },
+        };
+    });
+
+    XLSX.utils.book_append_sheet(wb, ws, "SPX Hubs");
+
+    const buffer = XLSX.write(wb, { type: "array", bookType: "xlsx" });
+    const blob = new Blob([buffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `SPX_Hubs_${new Date().toISOString().split("T")[0]}.xlsx`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  };
 
   // ══════════════════════════════════════════════════════════════════════════
   return (
@@ -1114,6 +1224,27 @@ export default function SPXHubs() {
                   alignItems: "center",
                 }}
               >
+                <Button
+                  variant="outlined"
+                  startIcon={<FileDownloadIcon />}
+                  onClick={handleExportHubs}
+                  sx={{
+                    height: 40,
+                    borderColor: SPX_BLUE,
+                    color: SPX_BLUE,
+                    fontWeight: 600,
+                    textTransform: "none",
+                    borderRadius: "8px",
+                    fontSize: "14px",
+                    px: 2.5,
+                    "&:hover": {
+                      backgroundColor: "rgba(46,99,133,0.06)",
+                      borderColor: SPX_BLUE,
+                    },
+                  }}
+                >
+                  Export Hubs
+                </Button>
                 <Chip
                   icon={<LocationOnIcon />}
                   label={`Showing: ${filteredOutlets.length} hubs`}
