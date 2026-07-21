@@ -13,6 +13,12 @@ import MenuIcon from "@mui/icons-material/Menu";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import LogoutIcon from "@mui/icons-material/Logout";
 import "./topbar.css";
+import { useRef } from "react";
+import axios from "axios";
+import { io } from "socket.io-client";
+import { useSnackbar } from "notistack";
+import { Badge, List, ListItem, ListItemText, Divider } from "@mui/material";
+import NotificationsIcon from "@mui/icons-material/Notifications";
 
 export default function Topbar() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -27,6 +33,12 @@ export default function Topbar() {
     "HR COORDINATOR SPECIALIST",
     "MIS",
   ];
+
+  const { enqueueSnackbar } = useSnackbar();
+  const [notifs, setNotifs] = useState([]);
+  const [unread, setUnread] = useState(0);
+  const [bellAnchor, setBellAnchor] = useState(null);
+  const socketRef = useRef(null);
 
   const canEdit = allowedRoles.includes(role);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -55,6 +67,50 @@ export default function Topbar() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!role) return;
+    axios
+      .get("https://api-map.bmphrc.com/notifications", { params: { role } })
+      .then((r) => {
+        const items = r.data.data || [];
+        setNotifs(items);
+        setUnread(
+          items.filter((n) => !(n.readBy || []).includes(fullName)).length,
+        );
+      })
+      .catch(() => {});
+  }, [role, fullName]);
+
+  // live channel
+  useEffect(() => {
+    if (!role) return;
+    const socket = io("https://api-map.bmphrc.com", {
+      auth: { role, fullName },
+    });
+    socketRef.current = socket;
+    socket.on("notification", (n) => {
+      console.log("🔔 notification received:", n);
+      if (n.updatedBy === fullName) return; // don't ping myself for my own action
+      setNotifs((prev) => [n, ...prev]);
+      setUnread((u) => u + 1);
+      enqueueSnackbar(n.message, { variant: "info", autoHideDuration: 5000 });
+    });
+    return () => socket.disconnect();
+  }, [role, fullName, enqueueSnackbar]);
+
+  const openBell = (e) => {
+    setBellAnchor(e.currentTarget);
+    if (unread > 0) {
+      axios
+        .post("https://api-map.bmphrc.com/notifications/mark-read", {
+          user: fullName,
+          role,
+        })
+        .catch(() => {});
+      setUnread(0);
+    }
+  };
+
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -65,7 +121,7 @@ export default function Topbar() {
 
   const handleLogout = () => {
     localStorage.clear();
-    window.location.href = "/";
+    window.location.replace("/");
   };
 
   return (
@@ -134,6 +190,51 @@ export default function Topbar() {
               {roleAccount || "Administrator"}
             </Typography>
           </Box>
+
+          <IconButton onClick={openBell} sx={{ color: "white" }}>
+            <Badge badgeContent={unread} color="error">
+              <NotificationsIcon />
+            </Badge>
+          </IconButton>
+
+          <Menu
+            anchorEl={bellAnchor}
+            open={Boolean(bellAnchor)}
+            onClose={() => setBellAnchor(null)}
+            PaperProps={{ sx: { mt: 1.5, width: 340, maxHeight: 420 } }}
+            transformOrigin={{ horizontal: "right", vertical: "top" }}
+            anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+          >
+            {notifs.map((n, i) => (
+              <Box key={n._id || i}>
+                <ListItem sx={{ py: 1, display: "block" }}>
+                  <Typography sx={{ fontSize: 14, fontWeight: 600 }}>
+                    {n.message}
+                  </Typography>
+
+                  {(n.changes || [])
+                    .filter(
+                      (c) => c.field !== "Outlet" && c.field !== "updatedBy",
+                    )
+                    .map((c, j) => (
+                      <Typography
+                        key={j}
+                        sx={{ fontSize: 12, color: "#555", mt: 0.3 }}
+                      >
+                        {n.activityType === "NEW_EMPLOYEE"
+                          ? `${c.field}: ${c.newValue}`
+                          : `${c.field}: ${c.oldValue} → ${c.newValue}`}
+                      </Typography>
+                    ))}
+
+                  <Typography sx={{ fontSize: 11, color: "#999", mt: 0.5 }}>
+                    {new Date(n.date).toLocaleString("en-PH")}
+                  </Typography>
+                </ListItem>
+                {i < notifs.length - 1 && <Divider />}
+              </Box>
+            ))}
+          </Menu>
 
           {/* User Avatar with Dropdown */}
           <IconButton
@@ -204,23 +305,6 @@ export default function Topbar() {
                 {roleAccount || "Administrator"}
               </Typography>
             </Box>
-
-            {/* <MenuItem
-              onClick={() => {
-                handleMenuClose();
-                // Add profile navigation if needed
-              }}
-              sx={{
-                py: 1.5,
-                "&:hover": {
-                  backgroundColor: "rgba(46, 99, 133, 0.08)",
-                },
-              }}
-            >
-              <AccountCircleIcon sx={{ mr: 1.5, color: "#2e6385ff" }} />
-              <Typography variant="body2">My Profile</Typography>
-            </MenuItem> */}
-
             <MenuItem
               onClick={() => {
                 handleMenuClose();

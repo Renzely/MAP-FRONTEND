@@ -45,16 +45,24 @@ import AccountCreationProfile from "./components/pages/AccountCreationProfilecli
 import ViewClientProfile from "./components/pages/ViewClientProfile/ViewClientProfile";
 import OutletList from "./components/pages/Outlets/Outletlist";
 import SPXHub from "./components/pages/Outlets/SPXHub";
+import ProtectedRoute from "./components/landingPage/ProtectedRoute";
 
 function App() {
   return (
     <div>
       <Routes>
-        <Route element={<Path />}>
-          {/* LOGIN */}
+        {/* PUBLIC — no login required */}
+        <Route path="/" element={<Login />} />
+        <Route path="/forgotpassword" element={<ForgotPassword />} />
 
-          <Route path="/" element={<Login />} />
-          <Route path="/forgotpassword" element={<ForgotPassword />} />
+        {/* PROTECTED — everything inside requires login */}
+        <Route
+          element={
+            <ProtectedRoute>
+              <Path />
+            </ProtectedRoute>
+          }
+        >
           <Route path="/view-dashboard" element={<Dashboard />} />
           <Route path="/view-admin-accounts" element={<Admin />} />
           <Route path="/view-recent-activity" element={<RecentActivity />} />
@@ -72,7 +80,6 @@ function App() {
           <Route path="/view-spxhubs" element={<SPXHub />} />
 
           {/* BMPOWER */}
-
           <Route path="/view-bmpowerHO" element={<BmpowerHO />} />
           <Route path="/view-asianstreak" element={<AsianStreak />} />
           <Route path="/view-ecossentialfoods" element={<EcossentialFoods />} />
@@ -80,10 +87,6 @@ function App() {
             path="/view-ecossentialfoodsHO"
             element={<EcossentialFoodsHO />}
           />
-          {/* <Route
-            path="/view-ecossentialfoodsCOORS"
-            element={<EcossentialfoodsCOORS />}
-          /> */}
           <Route path="/view-brolleeexlusive" element={<BrolleeExclusive />} />
           <Route path="/view-engkanto" element={<Engkanto />} />
           <Route path="/view-magis" element={<Magis />} />
@@ -95,7 +98,6 @@ function App() {
           <Route path="/view-galvasteel" element={<UnionGalvasteel />} />
 
           {/* MARABOU */}
-
           <Route path="/view-marabouHO" element={<MarabouHO />} />
           <Route path="/view-longtable" element={<Longtable />} />
           <Route path="/view-carmensbest" element={<CarmensBest />} />

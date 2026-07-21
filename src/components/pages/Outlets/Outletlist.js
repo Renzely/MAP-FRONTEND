@@ -54,6 +54,10 @@ import Topbar from "../../topbar/Topbar";
 import Sidebar from "../../sidebar/Sidebar";
 import EFClogo from "../../Images/Bmpower_Logo/BMP - EFC.jpg";
 
+// ═════════════════════════════════════════════════════════════════════════════
+// 1. CONSTANTS & CONFIGURATION
+// ═════════════════════════════════════════════════════════════════════════════
+
 const REGION_ORDER = [
   "NCR",
   "CAR",
@@ -72,7 +76,6 @@ const REGION_ORDER = [
   "REGION 12",
 ];
 
-// ── Outlet data ───────────────────────────────────────────────────────────────
 export const OUTLET_DATA = [
   { id: 1, region: "NCR", outlet: "WALTERMART SUPERMARKET, INC. - SUCAT" },
   { id: 2, region: "NCR", outlet: "WALTERMART SUPERMARKET, INC. - BICUTAN" },
@@ -2226,16 +2229,14 @@ export const OUTLET_DATA = [
   { id: 1202, region: "REGION 11", outlet: "GEN TRADE - NCCC HB1 BONIFACIO" },
   { id: 1203, region: "REGION 11", outlet: "GEN TRADE - SOUTH SEAS SUPERRAMA" },
   { id: 1204, region: "REGION 12", outlet: "ROBINSONS PLACE - GENERAL SANTOS" },
+  { id: 1205, region: "REGION 12", outlet: "test" },
 ].sort((a, b) => {
   const regionCompare =
     REGION_ORDER.indexOf(a.region) - REGION_ORDER.indexOf(b.region);
-
   if (regionCompare !== 0) return regionCompare;
-
   return a.outlet.localeCompare(b.outlet);
 });
 
-// ── Applicant Status pipeline ─────────────────────────────────────────────────
 export const APPLICANT_STATUS_OPTIONS = [
   {
     value: "For Pooling",
@@ -2281,7 +2282,6 @@ export const APPLICANT_STATUS_OPTIONS = [
   },
 ];
 
-// Stages where applicant dropdown is shown
 const APPLICANT_STAGES = [
   "Applicant Endorsed",
   "Intro Done",
@@ -2289,7 +2289,10 @@ const APPLICANT_STAGES = [
   "For Onboarding",
 ];
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+// ═════════════════════════════════════════════════════════════════════════════
+// 2. HELPER FUNCTIONS
+// ═════════════════════════════════════════════════════════════════════════════
+
 function getApplicantStatusConfig(value) {
   return (
     APPLICANT_STATUS_OPTIONS.find((o) => o.value === value) || {
@@ -2300,15 +2303,13 @@ function getApplicantStatusConfig(value) {
     }
   );
 }
-// Deploy is unlocked when:
-//  1. Role is ACCOUNT SUPERVISOR or MIS → always free to manage deploy/undeploy
-//  2. applicantStatus is empty → already-employed person, no pipeline active
-//  3. applicantStatus is "Onboarded" → applicant completed pipeline, ready to deploy
+
 function isDeployUnlocked(applicantStatus, role) {
   if (["ACCOUNT SUPERVISOR", "MIS"].includes(role)) return true;
   if (!applicantStatus || applicantStatus === "") return true;
   return applicantStatus === "Onboarded";
 }
+
 function formatDate(dateStr) {
   if (!dateStr) return "—";
   const d = new Date(dateStr);
@@ -2319,6 +2320,7 @@ function formatDate(dateStr) {
     day: "numeric",
   });
 }
+
 function calcDaysUndeployed(undeployDate, deployStatus) {
   if (deployStatus === "Deployed" || !undeployDate) return null;
   const from = new Date(undeployDate);
@@ -2329,21 +2331,22 @@ function calcDaysUndeployed(undeployDate, deployStatus) {
   const diff = Math.floor((today - from) / (1000 * 60 * 60 * 24));
   return diff >= 0 ? diff : 0;
 }
+
 function getDaysBadgeColor(days) {
   if (days === null) return null;
   if (days <= 7) return { bg: "#fff9c4", color: "#f57f17", border: "#ffe082" };
   if (days <= 30) return { bg: "#ffe0b2", color: "#e65100", border: "#ffcc80" };
   return { bg: "#ffcdd2", color: "#b71c1c", border: "#ef9a9a" };
 }
+
 function todayISO() {
   return new Date().toISOString().split("T")[0];
 }
 
-// ── Build assignment maps ─────────────────────────────────────────────────────
-// Each outlet can have:
-//   assignments[id].employeeId        → current deployed/assigned employee
-//   assignments[id].incomingApplicantId → applicant being tracked in pipeline
-//                                          (separate from current employee)
+// ═════════════════════════════════════════════════════════════════════════════
+// 3. DATA BUILDING FUNCTIONS
+// ═════════════════════════════════════════════════════════════════════════════
+
 function buildAssignmentMaps(allData) {
   const efcAll = allData.filter(
     (e) => e.clientAssigned?.toUpperCase() === "ECOSSENTIAL FOODS CORP",
@@ -2354,11 +2357,13 @@ function buildAssignmentMaps(allData) {
       ["Merchandiser", "CVS Merchandiser", "Repacker"].includes(e.position) &&
       e.status?.toLowerCase() === "active",
   );
+
   const efcApplicants = efcAll.filter(
     (e) =>
       ["Merchandiser", "CVS Merchandiser", "Repacker"].includes(e.position) &&
       e.status?.toLowerCase() === "applicant",
   );
+
   const coordinators = efcAll.filter(
     (e) =>
       ["Tactical Coordinator", "Account Coordinator"].includes(e.position) &&
@@ -2367,7 +2372,7 @@ function buildAssignmentMaps(allData) {
 
   const assignments = {};
 
-  // 1. Map employed merchandisers first
+  // Map employed merchandisers
   merchandisers.forEach((emp) => {
     const names = new Set();
     if (emp.outletsAssigned?.length > 0)
@@ -2400,9 +2405,7 @@ function buildAssignmentMaps(allData) {
     });
   });
 
-  // 2. Map applicants
-  //    If outlet already has employed → attach as incomingApplicant (pipeline tracking)
-  //    If outlet has no employee yet  → make applicant the primary assignment
+  // Map applicants
   efcApplicants.forEach((emp) => {
     const names = new Set();
     if (emp.outletsAssigned?.length > 0)
@@ -2416,7 +2419,6 @@ function buildAssignmentMaps(allData) {
       const m = OUTLET_DATA.find((o) => o.outlet === outletName);
       if (!m) return;
       if (assignments[m.id]) {
-        // Outlet already has a deployed employee — attach applicant as incoming
         assignments[m.id].incomingApplicantId = emp._id;
         assignments[m.id].incomingApplicantName =
           `${emp.firstName} ${emp.lastName}`;
@@ -2429,6 +2431,7 @@ function buildAssignmentMaps(allData) {
           employeeId: emp._id,
           employeeName: `${emp.firstName} ${emp.lastName}`,
           deployStatus: emp.deployStatus || "Undeployed",
+          deploymentType: emp.deploymentType || "Stationary",
           deployDate: emp.deployDate || null,
           undeployDate: emp.undeployDate || null,
           applicantStatus: emp.applicantStatus || "",
@@ -2444,6 +2447,7 @@ function buildAssignmentMaps(allData) {
     });
   });
 
+  // Map coordinators
   const coordAssignments = {};
   coordinators.forEach((emp) => {
     if (emp.outletsAssigned?.length > 0) {
@@ -2470,29 +2474,31 @@ function buildAssignmentMaps(allData) {
   };
 }
 
-// ── Build summary data ────────────────────────────────────────────────────────
 function buildSummaryData(employees, outletAssignments, type = "MERCHANDISER") {
   const map = {};
   Object.entries(outletAssignments).forEach(([outletId, a]) => {
     const empId = a.employeeId;
     const info = OUTLET_DATA.find((o) => o.id === parseInt(outletId));
     if (!info) return;
-    if (!map[empId])
+    if (!map[empId]) {
       map[empId] = {
         employeeId: empId,
         employeeName: a.employeeName,
         outlets: [],
         status: a.deployStatus || a.status,
       };
+    }
     map[empId].outlets.push({
       outletName: info.outlet,
       account: info.account,
       status: type === "MERCHANDISER" ? a.deployStatus : a.status,
     });
   });
+
   const assigned = Object.values(map).sort((a, b) =>
     a.employeeName.localeCompare(b.employeeName),
   );
+
   const assignedIds = new Set(Object.keys(map));
   const floating = employees
     .filter((e) => !assignedIds.has(e._id))
@@ -2503,11 +2509,103 @@ function buildSummaryData(employees, outletAssignments, type = "MERCHANDISER") {
       position: e.position || "",
     }))
     .sort((a, b) => a.employeeName.localeCompare(b.employeeName));
+
   return { assigned, floating };
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
+// 4. REACT COMPONENTS
+// ═════════════════════════════════════════════════════════════════════════════
+
+const BackOutReasonField = React.memo(function BackOutReasonField({
+  value,
+  onChange,
+  hasError,
+}) {
+  return (
+    <TextField
+      label="Reason for Back Out *"
+      fullWidth
+      multiline
+      rows={2}
+      defaultValue={value}
+      onBlur={(e) => onChange(e.target.value)}
+      placeholder="Enter reason why applicant backed out..."
+      error={!value && hasError}
+      helperText={
+        !value
+          ? "⚠ Required — enter the reason for backing out"
+          : `${value.length} characters`
+      }
+      FormHelperTextProps={{ sx: { color: !value ? "#d32f2f" : "#888" } }}
+      sx={{
+        "& .MuiOutlinedInput-root": {
+          backgroundColor: "#fff8f8",
+          border: "1px solid #ef9a9a",
+        },
+      }}
+    />
+  );
+});
+
+const TerminateReasonField = React.memo(function TerminateReasonField({
+  value,
+  onChange,
+  hasError,
+}) {
+  return (
+    <TextField
+      label="Reason for Termination *"
+      fullWidth
+      multiline
+      rows={2}
+      defaultValue={value}
+      onBlur={(e) => onChange(e.target.value)}
+      placeholder="Enter the specific reason for termination..."
+      error={!value && hasError}
+      helperText={
+        !value
+          ? "⚠ Required — provide the reason for termination"
+          : `${value.length} characters`
+      }
+      FormHelperTextProps={{ sx: { color: !value ? "#d32f2f" : "#888" } }}
+      sx={{ "& .MuiOutlinedInput-root": { backgroundColor: "#fff8f0" } }}
+    />
+  );
+});
+
+function CustomToolbar() {
+  return (
+    <Box
+      sx={{
+        p: 2,
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        backgroundColor: "#f8f9fa",
+        borderBottom: "2px solid #e0e0e0",
+      }}
+    >
+      <GridToolbarQuickFilter
+        sx={{
+          "& .MuiOutlinedInput-root": {
+            backgroundColor: "white",
+            borderRadius: "8px",
+            "& fieldset": { borderColor: "#d0d0d0" },
+            "&:hover fieldset": { borderColor: "#2e6385ff" },
+          },
+        }}
+      />
+    </Box>
+  );
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 5. MAIN COMPONENT - OutletList
+// ═════════════════════════════════════════════════════════════════════════════
+
 export default function OutletList() {
+  // ── State ────────────────────────────────────────────────────────────────
   const [efcEmployees, setEfcEmployees] = useState([]);
   const [efcApplicants, setEfcApplicants] = useState([]);
   const [efcCoordinators, setEfcCoordinators] = useState([]);
@@ -2516,20 +2614,30 @@ export default function OutletList() {
   const [filteredOutlets, setFilteredOutlets] = useState(OUTLET_DATA);
   const [filterRegion, setFilterRegion] = useState("ALL");
   const [filterStatus, setFilterStatus] = useState("ALL");
+  const [filterType, setFilterType] = useState("ALL");
+
+  // Modal states
   const [openEditModal, setOpenEditModal] = useState(false);
   const [selectedOutlet, setSelectedOutlet] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [assignMode, setAssignMode] = useState("employed"); // "employed" | "applicant"
-  const [showIncomingSection, setShowIncomingSection] = useState(false); // manually opened by "Add Incoming Applicant" button
-  const [previousEmployeeRemarks, setPreviousEmployeeRemarks] = useState(""); // remarks for removed employee on onboarding
-  const [backOutReason, setBackOutReason] = useState(""); // reason when applicant backs out
+  const [assignMode, setAssignMode] = useState("employed");
+  const [showIncomingSection, setShowIncomingSection] = useState(false);
+
+  // Form states
+  const [previousEmployeeRemarks, setPreviousEmployeeRemarks] = useState("");
+  const [backOutReason, setBackOutReason] = useState("");
   const [terminateReason, setTerminateReason] = useState("");
-  const [targetOnboardDate, setTargetOnboardDate] = useState(""); // target date when For Onboarding
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [targetOnboardDate, setTargetOnboardDate] = useState("");
   const [dateError, setDateError] = useState("");
+
+  // Summary modal
   const [openSummaryModal, setOpenSummaryModal] = useState(false);
   const [summaryFilter, setSummaryFilter] = useState("MERCHANDISER");
-  const [filterType, setFilterType] = useState("ALL");
+
+  // UI states
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // ── Permissions ──────────────────────────────────────────────────────────
   const role = localStorage.getItem("roleAccount");
   const canEdit = ["ACCOUNT SUPERVISOR", "MIS"].includes(role);
   const canSetApplicantStatus = [
@@ -2541,7 +2649,50 @@ export default function OutletList() {
   ].includes(role);
   const canSetOnboarded = ["ACCOUNT SUPERVISOR", "MIS"].includes(role);
   const canAccessEdit = canEdit || canSetApplicantStatus || canSetOnboarded;
+  const canEditDeploymentType = canEdit || canSetApplicantStatus;
+  const canAddIncoming = [
+    "MIS",
+    "HR HEAD",
+    "HR OFFICER",
+    "HR SPECIALIST",
+    "HR COORDINATOR SPECIALIST",
+  ].includes(role);
 
+  // ── Computed Values ──────────────────────────────────────────────────────
+  const summaryData =
+    summaryFilter === "MERCHANDISER"
+      ? buildSummaryData(efcEmployees, outletAssignments, "MERCHANDISER")
+      : buildSummaryData(
+          efcCoordinators,
+          coordinatorAssignments,
+          "COORDINATOR",
+        );
+
+  const deployUnlocked = selectedOutlet
+    ? isDeployUnlocked(selectedOutlet.applicantStatus, role)
+    : false;
+
+  const hasIncomingPipeline =
+    selectedOutlet &&
+    selectedOutlet.assignedEmployeeId &&
+    !selectedOutlet._isApplicant &&
+    (showIncomingSection ||
+      !!(
+        selectedOutlet.incomingApplicantId ||
+        selectedOutlet.incomingApplicantStatus
+      ));
+
+  const showAddIncomingBtn =
+    isEditing &&
+    selectedOutlet?.assignedEmployeeId &&
+    !selectedOutlet._isApplicant &&
+    !showIncomingSection &&
+    !selectedOutlet.incomingApplicantId &&
+    !selectedOutlet.incomingApplicantStatus &&
+    canAddIncoming &&
+    selectedOutlet.deployStatus === "Undeployed";
+
+  // ── Effects ──────────────────────────────────────────────────────────────
   useEffect(() => {
     const check = () =>
       setSidebarOpen(localStorage.getItem("sidebarOpen") === "true");
@@ -2575,106 +2726,19 @@ export default function OutletList() {
       console.error("Error fetching:", e);
     }
   };
+
   useEffect(() => {
     fetchAndApply();
   }, []);
 
-  const summaryData =
-    summaryFilter === "MERCHANDISER"
-      ? buildSummaryData(efcEmployees, outletAssignments, "MERCHANDISER")
-      : buildSummaryData(
-          efcCoordinators,
-          coordinatorAssignments,
-          "COORDINATOR",
-        );
-
-  const BackOutReasonField = React.memo(function BackOutReasonField({
-    value,
-    onChange,
-    hasError,
-  }) {
-    return (
-      <TextField
-        label="Reason for Back Out *"
-        fullWidth
-        multiline
-        rows={2}
-        defaultValue={value} // ← use defaultValue (uncontrolled) for typing performance
-        onBlur={(e) => onChange(e.target.value)} // ← sync to parent only on blur
-        placeholder="Enter reason why applicant backed out..."
-        error={!value && hasError}
-        helperText={
-          !value
-            ? "⚠ Required — enter the reason for backing out"
-            : `${value.length} characters`
-        }
-        FormHelperTextProps={{ sx: { color: !value ? "#d32f2f" : "#888" } }}
-        sx={{
-          "& .MuiOutlinedInput-root": {
-            backgroundColor: "#fff8f8",
-            border: "1px solid #ef9a9a",
-          },
-        }}
-      />
-    );
-  });
-
-  const TerminateReasonField = React.memo(function TerminateReasonField({
-    value,
-    onChange,
-    hasError,
-  }) {
-    return (
-      <TextField
-        label="Reason for Termination *"
-        fullWidth
-        multiline
-        rows={2}
-        defaultValue={value}
-        onBlur={(e) => onChange(e.target.value)}
-        placeholder="Enter the specific reason for termination..."
-        error={!value && hasError}
-        helperText={
-          !value
-            ? "⚠ Required — provide the reason for termination"
-            : `${value.length} characters`
-        }
-        FormHelperTextProps={{ sx: { color: !value ? "#d32f2f" : "#888" } }}
-        sx={{ "& .MuiOutlinedInput-root": { backgroundColor: "#fff8f0" } }}
-      />
-    );
-  });
-
-  function CustomToolbar() {
-    return (
-      <Box
-        sx={{
-          p: 2,
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          backgroundColor: "#f8f9fa",
-          borderBottom: "2px solid #e0e0e0",
-        }}
-      >
-        <GridToolbarQuickFilter
-          sx={{
-            "& .MuiOutlinedInput-root": {
-              backgroundColor: "white",
-              borderRadius: "8px",
-              "& fieldset": { borderColor: "#d0d0d0" },
-              "&:hover fieldset": { borderColor: "#2e6385ff" },
-            },
-          }}
-        />
-      </Box>
-    );
-  }
+  // ── Helper Functions ────────────────────────────────────────────────────
+  const findPersonById = (id) =>
+    efcEmployees.find((e) => e._id === id) ||
+    efcApplicants.find((e) => e._id === id);
 
   const applyFilters = (region, status, type = "ALL") => {
     let filtered = [...OUTLET_DATA];
 
-    // Filter by region
     if (region !== "ALL") {
       filtered = filtered.filter((o) => o.region === region);
     }
@@ -2687,23 +2751,14 @@ export default function OutletList() {
       });
     }
 
-    // Filter by status
     if (status !== "ALL") {
       filtered = filtered.filter((o) => {
         const deployStatus = outletAssignments[o.id]?.deployStatus;
-
-        if (status === "Deployed") {
-          return deployStatus === "Deployed";
-        }
-
-        if (status === "Reliever Deployed") {
+        if (status === "Deployed") return deployStatus === "Deployed";
+        if (status === "Reliever Deployed")
           return deployStatus === "Reliever Deployed";
-        }
-
-        if (status === "Undeployed") {
+        if (status === "Undeployed")
           return !deployStatus || deployStatus === "Undeployed";
-        }
-
         return true;
       });
     }
@@ -2711,35 +2766,83 @@ export default function OutletList() {
     setFilteredOutlets(filtered);
   };
 
+  const validateDates = (data) => {
+    if (
+      data.incomingApplicantId &&
+      data.incomingApplicantStatus === "Onboarded"
+    ) {
+      if (!data.incomingDeployDate) {
+        setDateError("Please select a Deploy Date for the incoming applicant.");
+        return false;
+      }
+      if (data.assignedEmployeeId && !previousEmployeeRemarks) {
+        setDateError(
+          "Please select a Remarks for the previous employee before saving.",
+        );
+        return false;
+      }
+      setDateError("");
+      return true;
+    }
+
+    if (!data.assignedEmployeeId) return true;
+
+    if (data.deployStatus === "Deployed") {
+      if (!isDeployUnlocked(data.applicantStatus, role)) {
+        setDateError(
+          'Deployment is locked. Applicant Status must be "Onboarded" before deploying.',
+        );
+        return false;
+      }
+      if (!data.deployDate) {
+        setDateError("Please select a Deploy Date before saving.");
+        return false;
+      }
+    }
+
+    if (
+      data.deployStatus === "Undeployed" &&
+      data._originalDeployStatus === "Deployed" &&
+      !data.undeployDate
+    ) {
+      setDateError("Please select an Undeploy Date before saving.");
+      return false;
+    }
+
+    setDateError("");
+    return true;
+  };
+
+  // ── Event Handlers ──────────────────────────────────────────────────────
   const handleRegionFilter = (e) => {
     const value = e.target.value;
     setFilterRegion(value);
-
-    applyFilters(value, filterStatus);
+    applyFilters(value, filterStatus, filterType);
   };
 
   const handleStatusFilter = (e) => {
     const value = e.target.value;
     setFilterStatus(value);
-    applyFilters(filterRegion, value, filterType); // ← add filterType
+    applyFilters(filterRegion, value, filterType);
   };
 
   const handleTypeFilter = (e) => {
     const value = e.target.value;
     setFilterType(value);
-    applyFilters(filterRegion, filterStatus, value); // ← pass type as 3rd arg
+    applyFilters(filterRegion, filterStatus, value);
   };
 
   const handleEdit = (outletRow) => {
     const a = outletAssignments[outletRow.id];
     const co = coordinatorAssignments[outletRow.id];
+
     setSelectedOutlet({
       outletId: outletRow.id,
       outletName: outletRow.outlet,
       accountName: outletRow.account,
-      // ── Current employee ──────────────────────────────────────
       assignedEmployeeId: a?.employeeId || "",
       deployStatus: a?.deployStatus || "Undeployed",
+      deploymentType: a?.deploymentType || "Stationary",
       deployDate: a?.deployDate
         ? new Date(a.deployDate).toISOString().split("T")[0]
         : "",
@@ -2752,7 +2855,6 @@ export default function OutletList() {
       applicantStatus: a?.applicantStatus || "",
       _originalDeployStatus: a?.deployStatus || "Undeployed",
       _isApplicant: a?.isApplicant || false,
-      // ── Incoming applicant pipeline ───────────────────────────
       incomingApplicantId: a?.incomingApplicantId || "",
       incomingApplicantStatus: a?.incomingApplicantStatus || "",
       incomingDeployDate: "",
@@ -2760,23 +2862,19 @@ export default function OutletList() {
       incomingTargetOnboardDate: a?.incomingTargetOnboardDate
         ? new Date(a.incomingTargetOnboardDate).toISOString().split("T")[0]
         : "",
-
-      // ── Coordinator ──────────────────────────────────────────
       assignedCoordinatorId: co?.employeeId || "",
       coordinatorDeployStatus: co ? co.status : "Inactive",
     });
+
     setDateError("");
     setIsEditing(false);
-    // Set assignMode based on current assignment: applicant or employed
-    // Set assignMode: if outlet has existing assignment use its type,
-    // otherwise default based on role — Account Supervisor → employed, HR → applicant
+
     const defaultMode = a?.isApplicant
       ? "applicant"
       : canEdit
         ? "employed"
         : "applicant";
     setAssignMode(defaultMode);
-    // Auto-show Section 2 if incoming pipeline already exists in DB
     setShowIncomingSection(
       !!(a?.incomingApplicantId || a?.incomingApplicantStatus),
     );
@@ -2801,53 +2899,9 @@ export default function OutletList() {
     setDateError("");
   };
 
-  const validateDates = (data) => {
-    // If incoming applicant is being onboarded, require incomingDeployDate AND previousEmployeeRemarks
-    if (
-      data.incomingApplicantId &&
-      data.incomingApplicantStatus === "Onboarded"
-    ) {
-      if (!data.incomingDeployDate) {
-        setDateError("Please select a Deploy Date for the incoming applicant.");
-        return false;
-      }
-      if (data.assignedEmployeeId && !previousEmployeeRemarks) {
-        setDateError(
-          "Please select a Remarks for the previous employee before saving.",
-        );
-        return false;
-      }
-      setDateError("");
-      return true;
-    }
-    if (!data.assignedEmployeeId) return true;
-    if (data.deployStatus === "Deployed") {
-      if (!isDeployUnlocked(data.applicantStatus, role)) {
-        setDateError(
-          'Deployment is locked. Applicant Status must be "Onboarded" before deploying.',
-        );
-        return false;
-      }
-      if (!data.deployDate) {
-        setDateError("Please select a Deploy Date before saving.");
-        return false;
-      }
-    }
-    if (
-      data.deployStatus === "Undeployed" &&
-      data._originalDeployStatus === "Deployed" &&
-      !data.undeployDate
-    ) {
-      setDateError("Please select an Undeploy Date before saving.");
-      return false;
-    }
-    setDateError("");
-    return true;
-  };
-
   const handleSaveChanges = async (data) => {
     if (!validateDates(data)) return;
-    // ── DEBUG: log the data being saved ──────────────────────────────────────
+
     console.log("[handleSaveChanges] data:", {
       assignedEmployeeId: data.assignedEmployeeId,
       incomingApplicantId: data.incomingApplicantId,
@@ -2856,13 +2910,12 @@ export default function OutletList() {
       deployStatus: data.deployStatus,
       previousEmployeeRemarks,
     });
-    // ─────────────────────────────────────────────────────────────────────────
+
     try {
       const adminFullName = localStorage.getItem("adminFullName");
       const adminRole = localStorage.getItem("roleAccount");
       const today = todayISO();
 
-      // Safety check: if status is Onboarded but no applicant selected, block save
       if (
         data.incomingApplicantStatus === "Onboarded" &&
         !data.incomingApplicantId
@@ -2878,8 +2931,6 @@ export default function OutletList() {
         data.incomingApplicantStatus === "Onboarded";
 
       if (isIncomingOnboarded) {
-        // ── SCENARIO: Incoming applicant is onboarded ──────────────────────
-        // 1. Remove previous employee — set Inactive + selected remarks + dateResigned today
         if (data.assignedEmployeeId) {
           await axios.put(
             "https://api-map.bmphrc.com/remove-outlet-assignment",
@@ -2895,7 +2946,7 @@ export default function OutletList() {
             },
           );
         }
-        // 2. Assign incoming applicant as new deployed employee
+
         await axios.put("https://api-map.bmphrc.com/assign-outlet", {
           outletId: data.outletId,
           outletName: data.outletName,
@@ -2905,26 +2956,24 @@ export default function OutletList() {
               ? data.temporaryDeployEndDate || null
               : null,
           deployStatus: "Deployed",
-          deploymentType: "Stationary",
+          deploymentType: data.deploymentType || "Stationary", // <-- Use the selected value
           deployDate: data.incomingDeployDate || today,
           undeployDate: null,
           applicantStatus: "",
           updatedBy: adminFullName,
           updatedByRole: adminRole,
         });
-        // 3. Promote applicant → Active/Employed
+
         await axios.put("https://api-map.bmphrc.com/promote-applicant", {
           employeeId: data.incomingApplicantId,
           updatedBy: adminFullName,
           updatedByRole: adminRole,
         });
       } else {
-        // ── SCENARIO: Normal save ──────────────────────────────────────────
         const origStatus = data.applicantStatus;
         const finalStatus =
           data.deployStatus === "Deployed" ? "" : data.applicantStatus;
 
-        // Save current employee
         if (data.assignedEmployeeId || data.applicantStatus === "For Pooling") {
           await axios.put("https://api-map.bmphrc.com/assign-outlet", {
             outletId: data.outletId,
@@ -2935,7 +2984,6 @@ export default function OutletList() {
             deployDate: data.deployDate || null,
             undeployDate: data.undeployDate || null,
             applicantStatus: finalStatus,
-            // ← add
             temporaryDeployEndDate:
               data.deployStatus === "Reliever Deployed"
                 ? data.temporaryDeployEndDate || null
@@ -2945,7 +2993,6 @@ export default function OutletList() {
           });
         }
 
-        // Save incoming applicant pipeline update (stages 1-4, not onboarding)
         if (
           data.incomingApplicantId &&
           data.incomingApplicantStatus !== "Onboarded"
@@ -2969,7 +3016,7 @@ export default function OutletList() {
             updatedByRole: adminRole,
           });
         }
-        // Promote if primary (no-incoming) was just onboarded
+
         if (
           origStatus === "Onboarded" &&
           data.assignedEmployeeId &&
@@ -2983,7 +3030,6 @@ export default function OutletList() {
         }
       }
 
-      // Coordinator always saved
       await axios.put("https://api-map.bmphrc.com/assign-coordinator", {
         outletName: data.outletName,
         employeeId: data.assignedCoordinatorId,
@@ -3009,57 +3055,7 @@ export default function OutletList() {
     }
   };
 
-  const findPersonById = (id) =>
-    efcEmployees.find((e) => e._id === id) ||
-    efcApplicants.find((e) => e._id === id);
-
-  const deployUnlocked = selectedOutlet
-    ? isDeployUnlocked(selectedOutlet.applicantStatus, role)
-    : false;
-
-  // ── Section 2 (Incoming Applicant Pipeline) visibility ──
-  // Shows when outlet has ANY assigned employee (deployed OR undeployed, not an applicant as primary)
-  // AND either:
-  //   - There is already a tracked incomingApplicantId/Status in the DB
-  //   - OR the user manually clicked "Add Incoming Applicant" button (showIncomingSection)
-  const hasIncomingPipeline =
-    selectedOutlet &&
-    selectedOutlet.assignedEmployeeId &&
-    !selectedOutlet._isApplicant &&
-    (showIncomingSection ||
-      !!(
-        selectedOutlet.incomingApplicantId ||
-        selectedOutlet.incomingApplicantStatus
-      ));
-
-  // Whether to show the "Add Incoming Applicant" button:
-  // "Add Incoming Applicant" button rules:
-  //   - Edit mode only
-  //   - Current employee exists (not an applicant as primary)
-  //   - Section 2 not already open
-  //   - No incoming applicant already tracked in DB
-  //   - Role must be HR HEAD, HR OFFICER, HR SPECIALIST, HR COORDINATOR SPECIALIST, or MIS
-  //   - Current deploy status must be UNDEPLOYED
-  //     (Account Supervisor sets undeploy first, then HR can add the incoming pipeline)
-  const canAddIncoming = [
-    "MIS",
-    "HR HEAD",
-    "HR OFFICER",
-    "HR SPECIALIST",
-    "HR COORDINATOR SPECIALIST",
-  ].includes(role);
-
-  const showAddIncomingBtn =
-    isEditing &&
-    selectedOutlet?.assignedEmployeeId &&
-    !selectedOutlet._isApplicant &&
-    !showIncomingSection &&
-    !selectedOutlet.incomingApplicantId &&
-    !selectedOutlet.incomingApplicantStatus &&
-    canAddIncoming &&
-    selectedOutlet.deployStatus === "Undeployed";
-
-  // ── Columns ───────────────────────────────────────────────────────────────
+  // ── Columns Definition ──────────────────────────────────────────────────
   const columns = [
     {
       field: "count",
@@ -3159,7 +3155,6 @@ export default function OutletList() {
               No assignment
             </Typography>
           )}
-          {/* Incoming applicant pipeline indicator */}
           {p.row._incomingApplicantName && (
             <Box
               sx={{
@@ -3262,7 +3257,6 @@ export default function OutletList() {
       headerName: "Applicant Status",
       width: 175,
       renderCell: (p) => {
-        // Show incoming applicant status if outlet has a deployed employee + incoming pipeline
         const status = p.row._incomingApplicantStatus || p.row._applicantStatus;
         const deployStatus = p.row._deployStatus;
         if (deployStatus === "Deployed" && !p.row._incomingApplicantStatus)
@@ -3430,6 +3424,7 @@ export default function OutletList() {
     },
   ];
 
+  // ── Rows Data ─────────────────────────────────────────────────────────────
   const rows = filteredOutlets.map((outlet, index) => {
     const a = outletAssignments[outlet.id];
     const c = coordinatorAssignments[outlet.id];
@@ -3437,7 +3432,7 @@ export default function OutletList() {
       ...outlet,
       count: index + 1,
       _deployStatus: a?.deployStatus || "",
-      _deploymentType: a?.deploymentType || "Stationary", // ← ADD
+      _deploymentType: a?.deploymentType || "Stationary",
       _applicantStatus: a?.applicantStatus || "",
       _employeeName: a?.employeeName || "",
       _deployDate: a?.deployDate || null,
@@ -3452,7 +3447,10 @@ export default function OutletList() {
     };
   });
 
-  // ══════════════════════════════════════════════════════════════════════════
+  // ═════════════════════════════════════════════════════════════════════════
+  // 6. RENDER
+  // ═════════════════════════════════════════════════════════════════════════
+
   return (
     <>
       <Topbar />
@@ -3467,7 +3465,7 @@ export default function OutletList() {
         }}
       >
         <Box sx={{ p: 3, maxWidth: "1800px", margin: "0 auto" }}>
-          {/* Header */}
+          {/* ── Header ────────────────────────────────────────────────────── */}
           <Paper
             elevation={0}
             sx={{
@@ -3507,7 +3505,7 @@ export default function OutletList() {
             </Box>
           </Paper>
 
-          {/* Filter Bar */}
+          {/* ── Filter Bar ────────────────────────────────────────────────── */}
           <Paper
             elevation={0}
             sx={{
@@ -3614,7 +3612,7 @@ export default function OutletList() {
             </Box>
           </Paper>
 
-          {/* DataGrid */}
+          {/* ── DataGrid ──────────────────────────────────────────────────── */}
           <Paper
             elevation={0}
             sx={{
@@ -3649,9 +3647,7 @@ export default function OutletList() {
             />
           </Paper>
 
-          {/* ══════════════════════════════════════════════════════
-               PERSONNEL SUMMARY MODAL
-          ══════════════════════════════════════════════════════ */}
+          {/* ── Personnel Summary Modal ──────────────────────────────────── */}
           <Modal
             open={openSummaryModal}
             onClose={() => setOpenSummaryModal(false)}
@@ -3679,6 +3675,7 @@ export default function OutletList() {
                   overflow: "hidden",
                 }}
               >
+                {/* Summary Modal Header */}
                 <Box
                   sx={{
                     background:
@@ -3725,6 +3722,8 @@ export default function OutletList() {
                     <CloseIcon />
                   </IconButton>
                 </Box>
+
+                {/* Summary Modal Controls */}
                 <Box
                   sx={{
                     px: 3,
@@ -3802,7 +3801,10 @@ export default function OutletList() {
                     />
                   </Box>
                 </Box>
+
+                {/* Summary Modal Content */}
                 <Box sx={{ overflowY: "auto", flex: 1, px: 3, py: 2 }}>
+                  {/* Assigned Personnel Table */}
                   <Box sx={{ mb: 3 }}>
                     <Box
                       sx={{
@@ -4019,7 +4021,10 @@ export default function OutletList() {
                       </TableContainer>
                     )}
                   </Box>
+
                   <Divider sx={{ my: 2 }} />
+
+                  {/* Floating Personnel Table */}
                   <Box>
                     <Box
                       sx={{
@@ -4186,9 +4191,7 @@ export default function OutletList() {
             </Fade>
           </Modal>
 
-          {/* ══════════════════════════════════════════════════════
-               ASSIGN EMPLOYEE MODAL
-          ══════════════════════════════════════════════════════ */}
+          {/* ── Edit/Assign Modal ────────────────────────────────────────── */}
           <Modal
             open={openEditModal}
             onClose={handleCloseEditModal}
@@ -4223,7 +4226,7 @@ export default function OutletList() {
                   },
                 }}
               >
-                {/* Modal Header */}
+                {/* Edit Modal Header */}
                 <Box
                   sx={{
                     position: "sticky",
@@ -4275,11 +4278,10 @@ export default function OutletList() {
                   </IconButton>
                 </Box>
 
+                {/* Edit Modal Content */}
                 {selectedOutlet && (
                   <Box sx={{ p: 4 }}>
-                    {/* ════════════════════════════════════════════
-                         SECTION 1: CURRENT DEPLOYED EMPLOYEE
-                    ════════════════════════════════════════════ */}
+                    {/* ── SECTION 1: Current Deployed Employee ── */}
                     <Card
                       elevation={0}
                       sx={{
@@ -4320,408 +4322,422 @@ export default function OutletList() {
                             />
                           </Grid>
 
-                          {/* ── Assign Employee/Applicant — toggle when outlet is vacant ── */}
-                          {/* When outlet has a deployed employee (hasIncomingPipeline), show read-only */}
-                          {/* When outlet is vacant, show a toggle: Employed | Applicant */}
-                          {isEditing && !hasIncomingPipeline ? (
+                          {/* ── Assign Employee/Applicant ── */}
+                          {isEditing &&
+                          !hasIncomingPipeline &&
+                          !selectedOutlet.assignedEmployeeId ? (
                             <>
-                              {/* Toggle: only shown when outlet is vacant (no current assignment) */}
-                              {!selectedOutlet.assignedEmployeeId && (
-                                <Grid item xs={12}>
-                                  <Box
+                              <Grid item xs={12}>
+                                <Box
+                                  sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 1.5,
+                                    mb: 0.5,
+                                  }}
+                                >
+                                  <Typography
+                                    variant="caption"
+                                    sx={{ fontWeight: 600, color: "#555" }}
+                                  >
+                                    Assign as:
+                                  </Typography>
+                                  <ToggleButtonGroup
+                                    value={assignMode}
+                                    exclusive
+                                    size="small"
+                                    onChange={(e, v) => {
+                                      if (!v) return;
+                                      setAssignMode(v);
+                                      setSelectedOutlet({
+                                        ...selectedOutlet,
+                                        assignedEmployeeId: "",
+                                        applicantStatus: "",
+                                        deployDate: "",
+                                        undeployDate: "",
+                                        deploymentType: "Stationary",
+                                      });
+                                    }}
                                     sx={{
-                                      display: "flex",
-                                      alignItems: "center",
-                                      gap: 1.5,
-                                      mb: 0.5,
+                                      "& .MuiToggleButton-root": {
+                                        px: 2,
+                                        py: 0.5,
+                                        fontWeight: 600,
+                                        textTransform: "none",
+                                        fontSize: "13px",
+                                        "&.Mui-selected": {
+                                          backgroundColor:
+                                            assignMode === "employed"
+                                              ? "#e8f5e9"
+                                              : "#e3f2fd",
+                                          color:
+                                            assignMode === "employed"
+                                              ? "#2e7d32"
+                                              : "#1565c0",
+                                        },
+                                        "&.Mui-disabled": { opacity: 0.38 },
+                                      },
                                     }}
                                   >
-                                    <Typography
-                                      variant="caption"
-                                      sx={{ fontWeight: 600, color: "#555" }}
+                                    <Tooltip
+                                      title={
+                                        !canEdit
+                                          ? "Only Account Supervisor / MIS can assign an employed person"
+                                          : ""
+                                      }
+                                      arrow
                                     >
-                                      Assign as:
-                                    </Typography>
-                                    <ToggleButtonGroup
-                                      value={assignMode}
-                                      exclusive
-                                      size="small"
-                                      onChange={(e, v) => {
-                                        if (!v) return;
-                                        setAssignMode(v);
-                                        setSelectedOutlet({
-                                          ...selectedOutlet,
-                                          assignedEmployeeId: "",
-                                          applicantStatus: "",
-                                          deployDate: "",
-                                          undeployDate: "",
-                                        });
-                                      }}
-                                      sx={{
-                                        "& .MuiToggleButton-root": {
-                                          px: 2,
-                                          py: 0.5,
-                                          fontWeight: 600,
-                                          textTransform: "none",
-                                          fontSize: "13px",
-                                          "&.Mui-selected": {
-                                            backgroundColor:
-                                              assignMode === "employed"
-                                                ? "#e8f5e9"
-                                                : "#e3f2fd",
-                                            color:
-                                              assignMode === "employed"
-                                                ? "#2e7d32"
-                                                : "#1565c0",
-                                          },
-                                          "&.Mui-disabled": { opacity: 0.38 },
-                                        },
-                                      }}
+                                      <span>
+                                        <ToggleButton
+                                          value="employed"
+                                          disabled={!canEdit}
+                                        >
+                                          <WorkIcon
+                                            sx={{ fontSize: 15, mr: 0.6 }}
+                                          />{" "}
+                                          Employed
+                                        </ToggleButton>
+                                      </span>
+                                    </Tooltip>
+                                    <Tooltip
+                                      title={
+                                        !canSetApplicantStatus
+                                          ? "Only HR roles / MIS can assign an applicant"
+                                          : ""
+                                      }
+                                      arrow
                                     >
-                                      {/* Employed — Account Supervisor and MIS only */}
-                                      <Tooltip
-                                        title={
-                                          !canEdit
-                                            ? "Only Account Supervisor / MIS can assign an employed person"
-                                            : ""
-                                        }
-                                        arrow
-                                      >
-                                        <span>
-                                          <ToggleButton
-                                            value="employed"
-                                            disabled={!canEdit}
-                                          >
-                                            <WorkIcon
-                                              sx={{ fontSize: 15, mr: 0.6 }}
-                                            />{" "}
-                                            Employed
-                                          </ToggleButton>
-                                        </span>
-                                      </Tooltip>
-                                      {/* Applicant — HR roles and MIS only */}
-                                      <Tooltip
-                                        title={
-                                          !canSetApplicantStatus
-                                            ? "Only HR roles / MIS can assign an applicant"
-                                            : ""
-                                        }
-                                        arrow
-                                      >
-                                        <span>
-                                          <ToggleButton
-                                            value="applicant"
-                                            disabled={!canSetApplicantStatus}
-                                          >
-                                            <PersonIcon
-                                              sx={{ fontSize: 15, mr: 0.6 }}
-                                            />{" "}
-                                            Applicant
-                                          </ToggleButton>
-                                        </span>
-                                      </Tooltip>
-                                    </ToggleButtonGroup>
-                                    <Typography
-                                      variant="caption"
-                                      sx={{
-                                        color: "#888",
-                                        fontStyle: "italic",
-                                      }}
-                                    >
-                                      {assignMode === "employed"
-                                        ? `${efcEmployees.length} active employee(s)`
-                                        : `${efcApplicants.length} applicant(s)`}
-                                    </Typography>
-                                  </Box>
-                                </Grid>
-                              )}
-                              {/* Show Assign dropdown only when:
-                                   - assignMode = "employed" (Account Supervisor/MIS assigning an employee), OR
-                                   - MIS in applicant mode (canSetApplicantStatus = true, can do both)
-                                   Hide when Account Supervisor is in applicant mode (they use Section 2) */}
+                                      <span>
+                                        <ToggleButton
+                                          value="applicant"
+                                          disabled={!canSetApplicantStatus}
+                                        >
+                                          <PersonIcon
+                                            sx={{ fontSize: 15, mr: 0.6 }}
+                                          />{" "}
+                                          Applicant
+                                        </ToggleButton>
+                                      </span>
+                                    </Tooltip>
+                                  </ToggleButtonGroup>
+                                  <Typography
+                                    variant="caption"
+                                    sx={{
+                                      color: "#888",
+                                      fontStyle: "italic",
+                                    }}
+                                  >
+                                    {assignMode === "employed"
+                                      ? `${efcEmployees.length} active employee(s)`
+                                      : `${efcApplicants.length} applicant(s)`}
+                                  </Typography>
+                                </Box>
+                              </Grid>
+
                               {assignMode === "employed" ||
                               (assignMode === "applicant" &&
                                 canSetApplicantStatus) ? (
-                                <Grid item xs={12} sm={6}>
-                                  <FormControl fullWidth>
-                                    <InputLabel>
-                                      {assignMode === "applicant"
-                                        ? "Assign Applicant"
-                                        : "Assign Employee"}
-                                    </InputLabel>
-                                    <Select
-                                      value={
-                                        selectedOutlet.assignedEmployeeId || ""
-                                      }
-                                      label={
-                                        assignMode === "applicant"
+                                <>
+                                  <Grid item xs={12} sm={6}>
+                                    <FormControl fullWidth>
+                                      <InputLabel>
+                                        {assignMode === "applicant"
                                           ? "Assign Applicant"
-                                          : "Assign Employee"
-                                      }
-                                      onChange={(e) => {
-                                        const isApplicant =
-                                          assignMode === "applicant";
-                                        const newId = e.target.value;
-                                        setSelectedOutlet({
-                                          ...selectedOutlet,
-                                          assignedEmployeeId: newId,
-                                          _isApplicant: isApplicant,
-                                          deployStatus:
-                                            newId && !isApplicant
-                                              ? "Deployed"
-                                              : "Undeployed",
-                                          deployDate:
-                                            newId && !isApplicant
-                                              ? todayISO()
-                                              : "",
-                                          undeployDate: "",
-                                          applicantStatus: "",
-                                        });
-                                      }}
-                                    >
-                                      <MenuItem value="">
-                                        <em>— No Assignment —</em>
-                                      </MenuItem>
-                                      {(assignMode === "applicant"
-                                        ? efcApplicants
-                                        : efcEmployees
-                                      ).map((emp) => (
-                                        <MenuItem key={emp._id} value={emp._id}>
-                                          <Box
-                                            sx={{
-                                              display: "flex",
-                                              alignItems: "center",
-                                              gap: 1,
-                                            }}
-                                          >
-                                            <span>
-                                              {emp.firstName}{" "}
-                                              {emp.middleName
-                                                ? emp.middleName + " "
-                                                : ""}
-                                              {emp.lastName}
-                                              {emp.position
-                                                ? ` — ${emp.position}`
-                                                : ""}
-                                            </span>
-                                            {assignMode === "applicant" && (
-                                              <Chip
-                                                label="Applicant"
-                                                size="small"
-                                                sx={{
-                                                  height: 16,
-                                                  fontSize: "10px",
-                                                  backgroundColor: "#e3f2fd",
-                                                  color: "#1565c0",
-                                                }}
-                                              />
-                                            )}
-                                          </Box>
+                                          : "Assign Employee"}
+                                      </InputLabel>
+                                      <Select
+                                        value={
+                                          selectedOutlet.assignedEmployeeId ||
+                                          ""
+                                        }
+                                        label={
+                                          assignMode === "applicant"
+                                            ? "Assign Applicant"
+                                            : "Assign Employee"
+                                        }
+                                        onChange={(e) => {
+                                          const isApplicant =
+                                            assignMode === "applicant";
+                                          const newId = e.target.value;
+                                          setSelectedOutlet({
+                                            ...selectedOutlet,
+                                            assignedEmployeeId: newId,
+                                            _isApplicant: isApplicant,
+                                            deployStatus:
+                                              newId && !isApplicant
+                                                ? "Deployed"
+                                                : "Undeployed",
+                                            deployDate:
+                                              newId && !isApplicant
+                                                ? todayISO()
+                                                : "",
+                                            undeployDate: "",
+                                            applicantStatus: "",
+                                          });
+                                        }}
+                                      >
+                                        <MenuItem value="">
+                                          <em>— No Assignment —</em>
                                         </MenuItem>
-                                      ))}
-                                    </Select>
-                                    <FormHelperText>
-                                      {assignMode === "applicant"
-                                        ? "Applicants will go through the endorsement pipeline below"
-                                        : "Active/Employed merchandisers for direct deployment"}
-                                    </FormHelperText>
-                                  </FormControl>
-                                </Grid>
+                                        {(assignMode === "applicant"
+                                          ? efcApplicants
+                                          : efcEmployees
+                                        ).map((emp) => (
+                                          <MenuItem
+                                            key={emp._id}
+                                            value={emp._id}
+                                          >
+                                            <Box
+                                              sx={{
+                                                display: "flex",
+                                                alignItems: "center",
+                                                gap: 1,
+                                              }}
+                                            >
+                                              <span>
+                                                {emp.firstName}{" "}
+                                                {emp.middleName
+                                                  ? emp.middleName + " "
+                                                  : ""}
+                                                {emp.lastName}
+                                                {emp.position
+                                                  ? ` — ${emp.position}`
+                                                  : ""}
+                                              </span>
+                                              {assignMode === "applicant" && (
+                                                <Chip
+                                                  label="Applicant"
+                                                  size="small"
+                                                  sx={{
+                                                    height: 16,
+                                                    fontSize: "10px",
+                                                    backgroundColor: "#e3f2fd",
+                                                    color: "#1565c0",
+                                                  }}
+                                                />
+                                              )}
+                                            </Box>
+                                          </MenuItem>
+                                        ))}
+                                      </Select>
+                                      <FormHelperText>
+                                        {assignMode === "applicant"
+                                          ? "Applicants will go through the endorsement pipeline below"
+                                          : "Active/Employed merchandisers for direct deployment"}
+                                      </FormHelperText>
+                                    </FormControl>
+                                  </Grid>
+                                </>
                               ) : null}
                             </>
-                          ) : !isEditing ? (
-                            <Grid item xs={12} sm={6}>
-                              <TextField
-                                label={
-                                  hasIncomingPipeline
-                                    ? "Current Employee (Deployed)"
-                                    : "Assigned Person"
-                                }
+                          ) : (
+                            /* ── Show current employee when not editing or when outlet has an employee ── */
+                            (isEditing || !isEditing) &&
+                            selectedOutlet.assignedEmployeeId && (
+                              <Grid item xs={12} sm={6}>
+                                <TextField
+                                  label={
+                                    hasIncomingPipeline
+                                      ? "Current Employee (Deployed)"
+                                      : "Assigned Person"
+                                  }
+                                  fullWidth
+                                  value={(() => {
+                                    if (!selectedOutlet.assignedEmployeeId)
+                                      return "No assignment";
+                                    const p = findPersonById(
+                                      selectedOutlet.assignedEmployeeId,
+                                    );
+                                    if (!p) return "No assignment";
+                                    const tag =
+                                      p.status === "Applicant"
+                                        ? " (Applicant)"
+                                        : "";
+                                    return `${p.firstName} ${p.lastName}${p.position ? " — " + p.position : ""}${tag}`;
+                                  })()}
+                                  InputProps={{ readOnly: true }}
+                                  sx={{
+                                    "& .MuiOutlinedInput-root": {
+                                      backgroundColor: hasIncomingPipeline
+                                        ? "#f0fdf4"
+                                        : "#f5f5f5",
+                                    },
+                                  }}
+                                />
+                              </Grid>
+                            )
+                          )}
+
+                          {/* ── Deploy Status ── */}
+                          {!hasIncomingPipeline &&
+                            !selectedOutlet._isApplicant && (
+                              <Grid item xs={12} sm={6}>
+                                {isEditing && canEdit ? (
+                                  <FormControl
+                                    fullWidth
+                                    disabled={
+                                      !selectedOutlet.assignedEmployeeId
+                                    }
+                                  >
+                                    <InputLabel>Deploy Status</InputLabel>
+                                    <Select
+                                      value={
+                                        selectedOutlet.assignedEmployeeId
+                                          ? selectedOutlet.deployStatus ||
+                                            "Undeployed"
+                                          : "Undeployed"
+                                      }
+                                      label="Deploy Status"
+                                      onChange={(e) => {
+                                        const s = e.target.value;
+                                        setSelectedOutlet({
+                                          ...selectedOutlet,
+                                          deployStatus: s,
+                                          deployDate:
+                                            s === "Deployed" ||
+                                            s === "Reliever Deployed"
+                                              ? ""
+                                              : selectedOutlet.deployDate,
+                                          undeployDate:
+                                            s === "Undeployed"
+                                              ? ""
+                                              : selectedOutlet.undeployDate,
+                                        });
+                                        setDateError("");
+                                      }}
+                                    >
+                                      <MenuItem value="Deployed">
+                                        Deployed
+                                      </MenuItem>
+                                      <MenuItem value="Reliever Deployed">
+                                        Reliever Deployed
+                                      </MenuItem>
+                                      <MenuItem value="Undeployed">
+                                        Undeployed
+                                      </MenuItem>
+                                    </Select>
+                                  </FormControl>
+                                ) : (
+                                  <TextField
+                                    label="Deploy Status"
+                                    fullWidth
+                                    value={
+                                      selectedOutlet.deployStatus ||
+                                      "Undeployed"
+                                    }
+                                    InputProps={{
+                                      readOnly: true,
+                                      endAdornment:
+                                        isEditing && !canEdit ? (
+                                          <LockIcon
+                                            sx={{
+                                              fontSize: 16,
+                                              color: "#bbb",
+                                              mr: 1,
+                                            }}
+                                          />
+                                        ) : null,
+                                    }}
+                                    helperText={
+                                      isEditing && !canEdit
+                                        ? "Managed by Account Supervisor"
+                                        : ""
+                                    }
+                                    FormHelperTextProps={{
+                                      sx: {
+                                        color: "#bbb",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: 0.5,
+                                      },
+                                    }}
+                                  />
+                                )}
+                              </Grid>
+                            )}
+
+                          {/* ── Type of Deployment ── */}
+                          <Grid item xs={12} sm={6}>
+                            {isEditing && canEditDeploymentType ? (
+                              <FormControl
                                 fullWidth
-                                value={(() => {
-                                  if (!selectedOutlet.assignedEmployeeId)
-                                    return "No assignment";
-                                  const p = findPersonById(
-                                    selectedOutlet.assignedEmployeeId,
-                                  );
-                                  if (!p) return "No assignment";
-                                  const tag =
-                                    p.status === "Applicant"
-                                      ? " (Applicant)"
-                                      : "";
-                                  return `${p.firstName} ${p.lastName}${p.position ? " — " + p.position : ""}${tag}`;
-                                })()}
-                                InputProps={{ readOnly: true }}
-                                sx={{
-                                  "& .MuiOutlinedInput-root": {
-                                    backgroundColor: hasIncomingPipeline
-                                      ? "#f0fdf4"
-                                      : "inherit",
+                                disabled={
+                                  // Only disable if there's no assigned employee AND no applicant being assigned
+                                  !selectedOutlet.assignedEmployeeId &&
+                                  !(
+                                    assignMode === "applicant" &&
+                                    selectedOutlet._isApplicant
+                                  )
+                                }
+                              >
+                                <InputLabel>Type of Deployment</InputLabel>
+                                <Select
+                                  value={
+                                    selectedOutlet.assignedEmployeeId ||
+                                    selectedOutlet._isApplicant
+                                      ? selectedOutlet.deploymentType ||
+                                        "Stationary"
+                                      : "Stationary"
+                                  }
+                                  label="Type of Deployment"
+                                  onChange={(e) => {
+                                    setSelectedOutlet({
+                                      ...selectedOutlet,
+                                      deploymentType: e.target.value,
+                                    });
+                                  }}
+                                >
+                                  <MenuItem value="Stationary">
+                                    Stationary
+                                  </MenuItem>
+                                  <MenuItem value="Roving">Roving</MenuItem>
+                                </Select>
+                                <FormHelperText>
+                                  {selectedOutlet?.deploymentType === "Roving"
+                                    ? "Roving merchandiser covers multiple outlets"
+                                    : "Stationary merchandiser stays at this outlet"}
+                                </FormHelperText>
+                              </FormControl>
+                            ) : (
+                              <TextField
+                                label="Type of Deployment"
+                                fullWidth
+                                value={
+                                  selectedOutlet.deploymentType || "Stationary"
+                                }
+                                InputProps={{
+                                  readOnly: true,
+                                  endAdornment:
+                                    isEditing && !canEditDeploymentType ? (
+                                      <LockIcon
+                                        sx={{
+                                          fontSize: 16,
+                                          color: "#bbb",
+                                          mr: 1,
+                                        }}
+                                      />
+                                    ) : null,
+                                }}
+                                helperText={
+                                  isEditing && !canEditDeploymentType
+                                    ? "Managed by Account Supervisor or HR"
+                                    : ""
+                                }
+                                FormHelperTextProps={{
+                                  sx: {
+                                    color: "#bbb",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 0.5,
                                   },
                                 }}
                               />
-                            </Grid>
-                          ) : null}
+                            )}
+                          </Grid>
 
-                          {/* Deploy Status — Account Supervisor/MIS: editable. HR: always read-only/disabled */}
-                          {!hasIncomingPipeline && (
-                            <Grid item xs={12} sm={6}>
-                              {isEditing && canEdit ? (
-                                <FormControl
-                                  fullWidth
-                                  disabled={!selectedOutlet.assignedEmployeeId}
-                                >
-                                  <InputLabel>Deploy Status</InputLabel>
-                                  <Select
-                                    value={
-                                      selectedOutlet.assignedEmployeeId
-                                        ? selectedOutlet.deployStatus ||
-                                          "Undeployed"
-                                        : "Undeployed"
-                                    }
-                                    label="Deploy Status"
-                                    onChange={(e) => {
-                                      const s = e.target.value;
-                                      setSelectedOutlet({
-                                        ...selectedOutlet,
-                                        deployStatus: s,
-                                        deployDate:
-                                          s === "Deployed" ||
-                                          s === "Reliever Deployed"
-                                            ? ""
-                                            : selectedOutlet.deployDate,
-                                        undeployDate:
-                                          s === "Undeployed"
-                                            ? ""
-                                            : selectedOutlet.undeployDate,
-                                      });
-                                      setDateError("");
-                                    }}
-                                  >
-                                    <MenuItem value="Deployed">
-                                      Deployed
-                                    </MenuItem>
-                                    <MenuItem value="Reliever Deployed">
-                                      Reliever Deployed
-                                    </MenuItem>
-                                    <MenuItem value="Undeployed">
-                                      Undeployed
-                                    </MenuItem>
-                                  </Select>
-                                </FormControl>
-                              ) : (
-                                <TextField
-                                  label="Deploy Status"
-                                  fullWidth
-                                  value={
-                                    selectedOutlet.deployStatus || "Undeployed"
-                                  }
-                                  InputProps={{
-                                    readOnly: true,
-                                    endAdornment:
-                                      isEditing && !canEdit ? (
-                                        <LockIcon
-                                          sx={{
-                                            fontSize: 16,
-                                            color: "#bbb",
-                                            mr: 1,
-                                          }}
-                                        />
-                                      ) : null,
-                                  }}
-                                  helperText={
-                                    isEditing && !canEdit
-                                      ? "Managed by Account Supervisor"
-                                      : ""
-                                  }
-                                  FormHelperTextProps={{
-                                    sx: {
-                                      color: "#bbb",
-                                      display: "flex",
-                                      alignItems: "center",
-                                      gap: 0.5,
-                                    },
-                                  }}
-                                />
-                              )}
-                            </Grid>
-                          )}
-
-                          {!hasIncomingPipeline && (
-                            <Grid item xs={12} sm={6}>
-                              {isEditing && canEdit ? (
-                                <FormControl
-                                  fullWidth
-                                  disabled={!selectedOutlet.assignedEmployeeId}
-                                >
-                                  <InputLabel>Type of Deployment</InputLabel>
-                                  <Select
-                                    value={
-                                      selectedOutlet.assignedEmployeeId
-                                        ? selectedOutlet.deploymentType ||
-                                          "Stationary"
-                                        : "Stationary"
-                                    }
-                                    label="Type of Deployment"
-                                    onChange={(e) => {
-                                      setSelectedOutlet({
-                                        ...selectedOutlet,
-                                        deploymentType: e.target.value,
-                                      });
-                                    }}
-                                  >
-                                    <MenuItem value="Stationary">
-                                      Stationary
-                                    </MenuItem>
-                                    <MenuItem value="Roving">Roving</MenuItem>
-                                  </Select>
-                                  <FormHelperText>
-                                    Roving lets one merchandiser cover multiple
-                                    outlets
-                                  </FormHelperText>
-                                </FormControl>
-                              ) : (
-                                <TextField
-                                  label="Type of Deployment"
-                                  fullWidth
-                                  value={
-                                    selectedOutlet.deploymentType ||
-                                    "Stationary"
-                                  }
-                                  InputProps={{
-                                    readOnly: true,
-                                    endAdornment:
-                                      isEditing && !canEdit ? (
-                                        <LockIcon
-                                          sx={{
-                                            fontSize: 16,
-                                            color: "#bbb",
-                                            mr: 1,
-                                          }}
-                                        />
-                                      ) : null,
-                                  }}
-                                  helperText={
-                                    isEditing && !canEdit
-                                      ? "Managed by Account Supervisor"
-                                      : ""
-                                  }
-                                  FormHelperTextProps={{
-                                    sx: {
-                                      color: "#bbb",
-                                      display: "flex",
-                                      alignItems: "center",
-                                      gap: 0.5,
-                                    },
-                                  }}
-                                />
-                              )}
-                            </Grid>
-                          )}
-
-                          {/* Days Undeployed */}
+                          {/* ── Days Undeployed ── */}
                           {selectedOutlet.deployStatus === "Undeployed" &&
-                            selectedOutlet.undeployDate &&
+                            !selectedOutlet._isApplicant &&
                             (() => {
                               const days = calcDaysUndeployed(
                                 selectedOutlet.undeployDate,
@@ -4781,12 +4797,10 @@ export default function OutletList() {
                               );
                             })()}
 
-                          {/* Applicant Status + dates — only when no incoming pipeline */}
+                          {/* ── Applicant Status + Dates ── */}
                           {!hasIncomingPipeline &&
                             selectedOutlet.assignedEmployeeId && (
                               <>
-                                {/* Applicant Status (primary pipeline) — only for Account Supervisor/MIS
-                                  HR roles manage applicant status exclusively through Section 2 (Incoming Pipeline) */}
                                 {(selectedOutlet._isApplicant ||
                                   assignMode === "applicant") &&
                                   selectedOutlet.deployStatus ===
@@ -4830,8 +4844,6 @@ export default function OutletList() {
                                                       ns === "For Pooling"
                                                         ? ""
                                                         : selectedOutlet.assignedEmployeeId,
-                                                    // When Onboarded → auto-set Deployed + today's date
-                                                    // When anything else that was Deployed → revert to Undeployed
                                                     deployStatus:
                                                       ns === "Onboarded"
                                                         ? "Deployed"
@@ -4858,14 +4870,18 @@ export default function OutletList() {
                                                   (opt) => {
                                                     const isOB =
                                                       opt.value === "Onboarded";
-                                                    // Account Supervisor / MIS: can ONLY set Onboarded (when current = "For Onboarding")
-                                                    // HR roles: can set stages 1–4 but NOT Onboarded
+                                                    const ACCT_SUP_STAGES = [
+                                                      "Intro Done",
+                                                      "Back Out",
+                                                      "For Onboarding",
+                                                      "Onboarded",
+                                                    ];
                                                     const acctSupDis =
                                                       canEdit &&
                                                       !canSetApplicantStatus
-                                                        ? !isOB ||
-                                                          cur !==
-                                                            "For Onboarding"
+                                                        ? !ACCT_SUP_STAGES.includes(
+                                                            opt.value,
+                                                          )
                                                         : false;
                                                     const obDis =
                                                       isOB &&
@@ -5043,217 +5059,218 @@ export default function OutletList() {
                                     </Grid>
                                   )}
 
-                                {/* Deploy Date — editable only for Account Supervisor/MIS, read-only for HR */}
-                                {(selectedOutlet.deployStatus === "Deployed" ||
-                                  selectedOutlet.deployStatus ===
-                                    "Reliever Deployed") && (
-                                  <Grid item xs={12} sm={6}>
-                                    <TextField
-                                      label="Deploy Date"
-                                      type="date"
-                                      fullWidth
-                                      value={selectedOutlet.deployDate || ""}
-                                      InputLabelProps={{ shrink: true }}
-                                      InputProps={{
-                                        readOnly: !isEditing || !canEdit,
-                                        startAdornment: (
-                                          <EventIcon
-                                            sx={{
-                                              fontSize: 18,
-                                              color:
-                                                selectedOutlet.deployStatus ===
-                                                "Reliever Deployed"
+                                {/* ── Deploy Date ── */}
+                                {!selectedOutlet._isApplicant &&
+                                  (selectedOutlet.deployStatus === "Deployed" ||
+                                    selectedOutlet.deployStatus ===
+                                      "Reliever Deployed") && (
+                                    <Grid item xs={12} sm={6}>
+                                      <TextField
+                                        label="Deploy Date"
+                                        type="date"
+                                        fullWidth
+                                        value={selectedOutlet.deployDate || ""}
+                                        InputLabelProps={{ shrink: true }}
+                                        InputProps={{
+                                          readOnly: !isEditing || !canEdit,
+                                          startAdornment: (
+                                            <EventIcon
+                                              sx={{
+                                                fontSize: 18,
+                                                color:
+                                                  selectedOutlet.deployStatus ===
+                                                  "Reliever Deployed"
+                                                    ? "#e65100"
+                                                    : "#2e7d32",
+                                                mr: 1,
+                                              }}
+                                            />
+                                          ),
+                                        }}
+                                        onChange={(e) => {
+                                          if (isEditing && canEdit) {
+                                            setSelectedOutlet({
+                                              ...selectedOutlet,
+                                              deployDate: e.target.value,
+                                            });
+                                            setDateError("");
+                                          }
+                                        }}
+                                        sx={{
+                                          "& .MuiOutlinedInput-root": {
+                                            backgroundColor:
+                                              isEditing && canEdit
+                                                ? selectedOutlet.deployStatus ===
+                                                  "Reliever Deployed"
+                                                  ? "#fff8f0"
+                                                  : "#f0fdf4"
+                                                : "#fafafa",
+                                          },
+                                        }}
+                                        helperText={
+                                          isEditing &&
+                                          canEdit &&
+                                          !selectedOutlet.deployDate
+                                            ? "Required when status is Deployed"
+                                            : selectedOutlet.deployDate
+                                              ? `Deployed on ${formatDate(selectedOutlet.deployDate)}`
+                                              : ""
+                                        }
+                                        FormHelperTextProps={{
+                                          sx: {
+                                            color:
+                                              isEditing &&
+                                              canEdit &&
+                                              !selectedOutlet.deployDate
+                                                ? "#d32f2f"
+                                                : selectedOutlet.deployStatus ===
+                                                    "Reliever Deployed"
                                                   ? "#e65100"
                                                   : "#2e7d32",
-                                              mr: 1,
-                                            }}
-                                          />
-                                        ),
-                                      }}
-                                      onChange={(e) => {
-                                        if (isEditing && canEdit) {
-                                          setSelectedOutlet({
-                                            ...selectedOutlet,
-                                            deployDate: e.target.value,
-                                          });
-                                          setDateError("");
-                                        }
-                                      }}
-                                      sx={{
-                                        "& .MuiOutlinedInput-root": {
-                                          backgroundColor:
-                                            isEditing && canEdit
-                                              ? selectedOutlet.deployStatus ===
-                                                "Reliever Deployed"
-                                                ? "#fff8f0"
-                                                : "#f0fdf4"
-                                              : "#fafafa",
-                                        },
-                                      }}
-                                      helperText={
-                                        isEditing &&
-                                        canEdit &&
-                                        !selectedOutlet.deployDate
-                                          ? "Required when status is Deployed"
-                                          : selectedOutlet.deployDate
-                                            ? `Deployed on ${formatDate(selectedOutlet.deployDate)}`
-                                            : ""
-                                      }
-                                      FormHelperTextProps={{
-                                        sx: {
-                                          color:
-                                            isEditing &&
-                                            canEdit &&
-                                            !selectedOutlet.deployDate
-                                              ? "#d32f2f"
-                                              : selectedOutlet.deployStatus ===
-                                                  "Reliever Deployed"
-                                                ? "#e65100"
-                                                : "#2e7d32",
-                                        },
-                                      }}
-                                    />
-                                  </Grid>
-                                )}
+                                          },
+                                        }}
+                                      />
+                                    </Grid>
+                                  )}
 
-                                {/* Reliever Deploy End Date — only shown when Reliever Deployed */}
+                                {/* ── Reliever Deploy End Date ── */}
                                 {selectedOutlet.deployStatus ===
-                                  "Reliever Deployed" && (
-                                  <Grid item xs={12} sm={6}>
-                                    <TextField
-                                      label="Reliever Deploy Until"
-                                      type="date"
-                                      fullWidth
-                                      value={
-                                        selectedOutlet.temporaryDeployEndDate ||
-                                        ""
-                                      }
-                                      InputLabelProps={{ shrink: true }}
-                                      InputProps={{
-                                        readOnly: !isEditing || !canEdit,
-                                        startAdornment: (
-                                          <EventIcon
-                                            sx={{
-                                              fontSize: 18,
-                                              color: "#e65100",
-                                              mr: 1,
-                                            }}
-                                          />
-                                        ),
-                                      }}
-                                      onChange={(e) => {
-                                        if (isEditing && canEdit) {
-                                          setSelectedOutlet({
-                                            ...selectedOutlet,
-                                            temporaryDeployEndDate:
-                                              e.target.value,
-                                          });
-                                          setDateError("");
+                                  "Reliever Deployed" &&
+                                  !selectedOutlet._isApplicant && (
+                                    <Grid item xs={12} sm={6}>
+                                      <TextField
+                                        label="Reliever Deploy Until"
+                                        type="date"
+                                        fullWidth
+                                        value={
+                                          selectedOutlet.temporaryDeployEndDate ||
+                                          ""
                                         }
-                                      }}
-                                      sx={{
-                                        "& .MuiOutlinedInput-root": {
-                                          backgroundColor:
-                                            isEditing && canEdit
-                                              ? "#fff8f0"
-                                              : "#fafafa",
-                                          border:
-                                            isEditing && canEdit
-                                              ? "1px solid #ffcc80"
-                                              : "none",
-                                        },
-                                      }}
-                                      helperText={
-                                        isEditing &&
-                                        canEdit &&
-                                        !selectedOutlet.temporaryDeployEndDate
-                                          ? "Required — select the end date of temporary deployment"
-                                          : selectedOutlet.temporaryDeployEndDate
-                                            ? `Temporary until ${formatDate(selectedOutlet.temporaryDeployEndDate)}`
-                                            : ""
-                                      }
-                                      FormHelperTextProps={{
-                                        sx: {
-                                          color:
-                                            isEditing &&
-                                            canEdit &&
-                                            !selectedOutlet.temporaryDeployEndDate
-                                              ? "#d32f2f"
-                                              : "#e65100",
-                                        },
-                                      }}
-                                    />
-                                  </Grid>
-                                )}
-                                {/* Undeploy Date — editable only for Account Supervisor/MIS, read-only for HR */}
-                                {selectedOutlet.deployStatus ===
-                                  "Undeployed" && (
-                                  <Grid item xs={12} sm={6}>
-                                    <TextField
-                                      label="Undeploy Date"
-                                      type="date"
-                                      fullWidth
-                                      value={selectedOutlet.undeployDate || ""}
-                                      InputLabelProps={{ shrink: true }}
-                                      InputProps={{
-                                        readOnly: !isEditing || !canEdit,
-                                        startAdornment: (
-                                          <EventIcon
-                                            sx={{
-                                              fontSize: 18,
-                                              color: "#e65100",
-                                              mr: 1,
-                                            }}
-                                          />
-                                        ),
-                                      }}
-                                      onChange={(e) => {
-                                        if (isEditing && canEdit) {
-                                          setSelectedOutlet({
-                                            ...selectedOutlet,
-                                            undeployDate: e.target.value,
-                                          });
-                                          setDateError("");
+                                        InputLabelProps={{ shrink: true }}
+                                        InputProps={{
+                                          readOnly: !isEditing || !canEdit,
+                                          startAdornment: (
+                                            <EventIcon
+                                              sx={{
+                                                fontSize: 18,
+                                                color: "#e65100",
+                                                mr: 1,
+                                              }}
+                                            />
+                                          ),
+                                        }}
+                                        onChange={(e) => {
+                                          if (isEditing && canEdit) {
+                                            setSelectedOutlet({
+                                              ...selectedOutlet,
+                                              temporaryDeployEndDate:
+                                                e.target.value,
+                                            });
+                                            setDateError("");
+                                          }
+                                        }}
+                                        sx={{
+                                          "& .MuiOutlinedInput-root": {
+                                            backgroundColor:
+                                              isEditing && canEdit
+                                                ? "#fff8f0"
+                                                : "#fafafa",
+                                            border:
+                                              isEditing && canEdit
+                                                ? "1px solid #ffcc80"
+                                                : "none",
+                                          },
+                                        }}
+                                        helperText={
+                                          isEditing &&
+                                          canEdit &&
+                                          !selectedOutlet.temporaryDeployEndDate
+                                            ? "Required — select the end date of temporary deployment"
+                                            : selectedOutlet.temporaryDeployEndDate
+                                              ? `Temporary until ${formatDate(selectedOutlet.temporaryDeployEndDate)}`
+                                              : ""
                                         }
-                                      }}
-                                      sx={{
-                                        "& .MuiOutlinedInput-root": {
-                                          backgroundColor:
-                                            isEditing && canEdit
-                                              ? "#fff8f0"
-                                              : "#fafafa",
-                                        },
-                                      }}
-                                      helperText={
-                                        isEditing &&
-                                        canEdit &&
-                                        !selectedOutlet.undeployDate
-                                          ? "Select the date this outlet became undeployed"
-                                          : selectedOutlet.undeployDate
-                                            ? `Undeployed on ${formatDate(selectedOutlet.undeployDate)}`
-                                            : ""
-                                      }
-                                      FormHelperTextProps={{
-                                        sx: {
-                                          color:
-                                            isEditing &&
-                                            canEdit &&
-                                            !selectedOutlet.undeployDate
-                                              ? "#d32f2f"
-                                              : "#e65100",
-                                        },
-                                      }}
-                                    />
-                                  </Grid>
-                                )}
+                                        FormHelperTextProps={{
+                                          sx: {
+                                            color:
+                                              isEditing &&
+                                              canEdit &&
+                                              !selectedOutlet.temporaryDeployEndDate
+                                                ? "#d32f2f"
+                                                : "#e65100",
+                                          },
+                                        }}
+                                      />
+                                    </Grid>
+                                  )}
+
+                                {/* ── Undeploy Date ── */}
+                                {selectedOutlet.deployStatus === "Undeployed" &&
+                                  !selectedOutlet._isApplicant && (
+                                    <Grid item xs={12} sm={6}>
+                                      <TextField
+                                        label="Undeploy Date"
+                                        type="date"
+                                        fullWidth
+                                        value={
+                                          selectedOutlet.undeployDate || ""
+                                        }
+                                        InputLabelProps={{ shrink: true }}
+                                        InputProps={{
+                                          readOnly: !isEditing || !canEdit,
+                                          startAdornment: (
+                                            <EventIcon
+                                              sx={{
+                                                fontSize: 18,
+                                                color: "#e65100",
+                                                mr: 1,
+                                              }}
+                                            />
+                                          ),
+                                        }}
+                                        onChange={(e) => {
+                                          if (isEditing && canEdit) {
+                                            setSelectedOutlet({
+                                              ...selectedOutlet,
+                                              undeployDate: e.target.value,
+                                            });
+                                            setDateError("");
+                                          }
+                                        }}
+                                        sx={{
+                                          "& .MuiOutlinedInput-root": {
+                                            backgroundColor:
+                                              isEditing && canEdit
+                                                ? "#fff8f0"
+                                                : "#fafafa",
+                                          },
+                                        }}
+                                        helperText={
+                                          isEditing &&
+                                          canEdit &&
+                                          !selectedOutlet.undeployDate
+                                            ? "Select the date this outlet became undeployed"
+                                            : selectedOutlet.undeployDate
+                                              ? `Undeployed on ${formatDate(selectedOutlet.undeployDate)}`
+                                              : ""
+                                        }
+                                        FormHelperTextProps={{
+                                          sx: {
+                                            color:
+                                              isEditing &&
+                                              canEdit &&
+                                              !selectedOutlet.undeployDate
+                                                ? "#d32f2f"
+                                                : "#e65100",
+                                          },
+                                        }}
+                                      />
+                                    </Grid>
+                                  )}
                               </>
                             )}
 
-                          {/* ── Add Incoming Applicant button ────────────────────────────────
-                               Shown in edit mode when the outlet has an employee (any status)
-                               but no incoming pipeline has been started yet.
-                               Clicking it opens Section 2 below without requiring DB data.
-                          ── */}
+                          {/* ── Add Incoming Applicant Button ── */}
                           {showAddIncomingBtn && (
                             <Grid item xs={12}>
                               <Box
@@ -5318,7 +5335,7 @@ export default function OutletList() {
                             </Grid>
                           )}
 
-                          {/* Error / lock alerts */}
+                          {/* ── Error / Lock Alerts ── */}
                           {dateError && (
                             <Grid item xs={12}>
                               <Alert
@@ -5366,11 +5383,7 @@ export default function OutletList() {
                       </CardContent>
                     </Card>
 
-                    {/* ════════════════════════════════════════════
-                         SECTION 2: INCOMING APPLICANT PIPELINE
-                         Shown when outlet has a deployed employee
-                         so you can track the next merchandiser
-                    ════════════════════════════════════════════ */}
+                    {/* ── SECTION 2: Incoming Applicant Pipeline ── */}
                     {(hasIncomingPipeline ||
                       selectedOutlet.incomingApplicantId) && (
                       <Card
@@ -5415,7 +5428,6 @@ export default function OutletList() {
                                 }}
                               />
                             </Typography>
-                            {/* Allow dismissing the section if it was manually opened and nothing saved yet */}
                             {isEditing &&
                               showIncomingSection &&
                               !selectedOutlet.incomingApplicantId &&
@@ -5473,9 +5485,6 @@ export default function OutletList() {
                                         helperText="No permission"
                                       />
                                     );
-                                  // ── Access rules per stage ──────────────────────────────
-                                  // For Pooling / Applicant Endorsed → HR only
-                                  // Intro Done / Back Out / For Onboarding / Onboarded → Account Supervisor / MIS only
                                   const ACCT_SUP_STAGES = [
                                     "Intro Done",
                                     "Back Out",
@@ -5526,7 +5535,6 @@ export default function OutletList() {
                                             canEdit &&
                                             !canSetApplicantStatus
                                           ) {
-                                            // Account Supervisor: only Acct Sup stages; Onboarded only when cur = "For Onboarding"
                                             if (isHRStage) dis = true;
                                             else if (
                                               isOB &&
@@ -5534,7 +5542,6 @@ export default function OutletList() {
                                             )
                                               dis = true;
                                           } else {
-                                            // HR roles: only HR stages
                                             if (isAcctSupStage) dis = true;
                                           }
                                           const cfg = getApplicantStatusConfig(
@@ -5721,6 +5728,7 @@ export default function OutletList() {
                                 </Box>
                               )}
                             </Grid>
+
                             {/* Incoming Applicant Dropdown */}
                             <Grid item xs={12} sm={6}>
                               {isEditing ? (
@@ -5741,9 +5749,6 @@ export default function OutletList() {
                                         }
                                       />
                                     );
-
-                                  // Account Supervisor can only set Onboarded — HR selects the actual applicant
-                                  // If Acct Sup opens this and an applicant is already selected, show read-only
                                   if (canEdit && !canSetApplicantStatus) {
                                     const p = selectedOutlet.incomingApplicantId
                                       ? findPersonById(
@@ -5783,8 +5788,6 @@ export default function OutletList() {
                                       />
                                     );
                                   }
-
-                                  // HR roles — editable dropdown
                                   const list = efcApplicants;
                                   return (
                                     <FormControl fullWidth>
@@ -5860,12 +5863,18 @@ export default function OutletList() {
                                       selectedOutlet.incomingApplicantId,
                                     );
                                     if (!p) return "Not assigned";
-                                    return `${p.firstName} ${p.lastName}${p.position ? " — " + p.position : ""}${p.status === "Applicant" ? " (Applicant)" : ""}`;
+                                    return `${p.firstName} ${p.lastName}${p.position ? " — " + p.position : ""}${
+                                      p.status === "Applicant"
+                                        ? " (Applicant)"
+                                        : ""
+                                    }`;
                                   })()}
                                   InputProps={{ readOnly: true }}
                                 />
                               )}
                             </Grid>
+
+                            {/* Back Out Reason */}
                             {selectedOutlet.incomingApplicantStatus ===
                               "Back Out" && (
                               <Grid item xs={12} sm={6}>
@@ -5908,7 +5917,7 @@ export default function OutletList() {
                               </Grid>
                             )}
 
-                            {/* ── Target Onboard Date — shown when status = "For Onboarding" ── */}
+                            {/* Target Onboard Date */}
                             {selectedOutlet.incomingApplicantStatus ===
                               "For Onboarding" && (
                               <Grid item xs={12} sm={6}>
@@ -5981,7 +5990,8 @@ export default function OutletList() {
                                 )}
                               </Grid>
                             )}
-                            {/* Deploy date for incoming applicant — only when Onboarded */}
+
+                            {/* Deploy Date for Incoming Applicant */}
                             {selectedOutlet.incomingApplicantStatus ===
                               "Onboarded" && (
                               <Grid item xs={12} sm={6}>
@@ -6038,7 +6048,8 @@ export default function OutletList() {
                                 />
                               </Grid>
                             )}
-                            {/* ── Previous Employee Remarks — required when Onboarded ── */}
+
+                            {/* Previous Employee Remarks */}
                             {selectedOutlet.incomingApplicantStatus ===
                               "Onboarded" &&
                               selectedOutlet.assignedEmployeeId && (
@@ -6222,6 +6233,8 @@ export default function OutletList() {
                                   )}
                                 </Grid>
                               )}
+
+                            {/* Termination Reason */}
                             {previousEmployeeRemarks === "Terminated" && (
                               <Grid item xs={12}>
                                 {isEditing ? (
@@ -6261,7 +6274,8 @@ export default function OutletList() {
                                 )}
                               </Grid>
                             )}
-                            {/* Onboarding alert */}
+
+                            {/* Onboarding Alert */}
                             {selectedOutlet.incomingApplicantStatus ===
                               "Onboarded" &&
                               selectedOutlet.incomingApplicantId && (
@@ -6302,9 +6316,7 @@ export default function OutletList() {
                       </Card>
                     )}
 
-                    {/* ════════════════════════════════════════════
-                         SECTION 3: COORDINATOR
-                    ════════════════════════════════════════════ */}
+                    {/* ── SECTION 3: Coordinator Assignment ── */}
                     <Card
                       elevation={0}
                       sx={{
@@ -6420,7 +6432,7 @@ export default function OutletList() {
                       </CardContent>
                     </Card>
 
-                    {/* Action Buttons */}
+                    {/* ── Action Buttons ── */}
                     <Box
                       sx={{
                         display: "flex",
