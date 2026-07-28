@@ -1310,15 +1310,35 @@ export default function BmpowerHO() {
                                 <Select
                                   value={selectedEmployee.status || ""}
                                   label="Status"
-                                  onChange={(e) =>
+                                  onChange={(e) => {
+                                    const newStatus = e.target.value;
+
+                                    // Auto-map Status → Remarks
+                                    const statusToRemarks = {
+                                      Active: "Employed",
+                                      Applicant: "Applicant",
+                                    };
+                                    const autoRemarks =
+                                      statusToRemarks[newStatus];
+
                                     setSelectedEmployee({
                                       ...selectedEmployee,
-                                      status: e.target.value,
-                                    })
-                                  }
+                                      status: newStatus,
+                                      // only overwrite when we have a mapping; otherwise keep what's there
+                                      ...(autoRemarks
+                                        ? {
+                                            remarks: autoRemarks,
+                                            reasonForLeaving: "",
+                                          }
+                                        : {}),
+                                    });
+                                  }}
                                 >
                                   <MenuItem value="Active">Active</MenuItem>
                                   <MenuItem value="Inactive">Inactive</MenuItem>
+                                  <MenuItem value="Applicant">
+                                    Applicant
+                                  </MenuItem>
                                 </Select>
                               </FormControl>
                             ) : (
