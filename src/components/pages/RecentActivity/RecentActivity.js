@@ -35,6 +35,15 @@ export default function RecentActivity() {
 
   const itemsPerPage = 6;
 
+  const renderValue = (v) => {
+    if (v === null || v === undefined || v === "") return "Empty";
+    if (typeof v === "object") {
+      // an outlet/hub history object slipped in — show something readable
+      return v.outletName || v.deployStatus || JSON.stringify(v);
+    }
+    return String(v);
+  };
+
   // ── Role-based filtering ────────────────────────────────────────────────
   const currentRole = localStorage.getItem("roleAccount");
   const SPX_VIEWER_ROLES = [
@@ -735,9 +744,9 @@ export default function RecentActivity() {
                                               "NEW_EMPLOYEE" && (
                                               <>
                                                 <Chip
-                                                  label={
-                                                    change.oldValue || "Empty"
-                                                  }
+                                                  label={renderValue(
+                                                    change.oldValue,
+                                                  )}
                                                   size="small"
                                                   sx={{
                                                     bgcolor: "#ffebee",
@@ -756,7 +765,9 @@ export default function RecentActivity() {
                                               </>
                                             )}
                                             <Chip
-                                              label={change.newValue || "Empty"}
+                                              label={renderValue(
+                                                change.newValue,
+                                              )}
                                               size="small"
                                               sx={{
                                                 bgcolor: "#e8f5e9",

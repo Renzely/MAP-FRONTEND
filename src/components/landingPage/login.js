@@ -1,4 +1,5 @@
 import * as React from "react";
+import { Navigate } from "react-router-dom";
 import {
   Container,
   TextField,
@@ -46,6 +47,11 @@ export default function Login() {
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
   const handleMouseDownPassword = (event) => event.preventDefault();
+
+  const isLoggedIn = localStorage.getItem("isLoggedIn") === "admin";
+  if (isLoggedIn) {
+    return <Navigate to="/view-dashboard" replace />;
+  }
 
   const handleSubmit = async (event) => {
     event.preventDefault();

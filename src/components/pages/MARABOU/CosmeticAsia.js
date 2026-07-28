@@ -1240,15 +1240,32 @@ export default function BmpowerHO() {
                                 <Select
                                   value={selectedEmployee.status || ""}
                                   label="Status"
-                                  onChange={(e) =>
+                                  onChange={(e) => {
+                                    const newStatus = e.target.value;
+
+                                    // Each status dictates what Remarks is allowed to be
+                                    let autoRemarks = "";
+                                    if (newStatus === "Applicant")
+                                      autoRemarks = "Applicant";
+                                    else if (newStatus === "Active")
+                                      autoRemarks = "Employed";
+                                    else if (newStatus === "Inactive")
+                                      autoRemarks = ""; // force a fresh pick
+
                                     setSelectedEmployee({
                                       ...selectedEmployee,
-                                      status: e.target.value,
-                                    })
-                                  }
+                                      status: newStatus,
+                                      remarks: autoRemarks,
+                                      // clear leaving reason unless they'll pick a leaving remark next
+                                      reasonForLeaving: "",
+                                    });
+                                  }}
                                 >
                                   <MenuItem value="Active">Active</MenuItem>
                                   <MenuItem value="Inactive">Inactive</MenuItem>
+                                  <MenuItem value="Applicant">
+                                    Applicant
+                                  </MenuItem>
                                 </Select>
                               </FormControl>
                             ) : (
@@ -1260,6 +1277,7 @@ export default function BmpowerHO() {
                               />
                             )}
                           </Grid>
+
                           <Grid item xs={12} sm={6}>
                             {isEditing ? (
                               <FormControl fullWidth>
@@ -1267,9 +1285,13 @@ export default function BmpowerHO() {
                                 <Select
                                   value={selectedEmployee.remarks || ""}
                                   label="Remarks"
+                                  // Applicant & Active have exactly one valid remark → lock the dropdown
+                                  disabled={
+                                    selectedEmployee.status === "Applicant" ||
+                                    selectedEmployee.status === "Active"
+                                  }
                                   onChange={(e) => {
                                     const newRemarks = e.target.value;
-                                    // Auto-map Remarks → Reason for Leaving
                                     const leavingRemarks = [
                                       "Resigned",
                                       "End of Contract",
@@ -1289,21 +1311,40 @@ export default function BmpowerHO() {
                                     });
                                   }}
                                 >
-                                  <MenuItem value="Applicant">
-                                    Applicant
-                                  </MenuItem>
-                                  <MenuItem value="Employed">Employed</MenuItem>
-                                  <MenuItem value="Resigned">Resigned</MenuItem>
-                                  <MenuItem value="End of Contract">
-                                    End of Contract
-                                  </MenuItem>
-                                  <MenuItem value="Retrenchment">
-                                    Retrenchment
-                                  </MenuItem>
-                                  <MenuItem value="Terminated">
-                                    Terminated
-                                  </MenuItem>
-                                  <MenuItem value="AWOL">AWOL</MenuItem>
+                                  {/* Options shown depend on the selected Status */}
+                                  {selectedEmployee.status === "Applicant" && (
+                                    <MenuItem value="Applicant">
+                                      Applicant
+                                    </MenuItem>
+                                  )}
+                                  {selectedEmployee.status === "Active" && (
+                                    <MenuItem value="Employed">
+                                      Employed
+                                    </MenuItem>
+                                  )}
+                                  {selectedEmployee.status === "Inactive" && [
+                                    <MenuItem key="resigned" value="Resigned">
+                                      Resigned
+                                    </MenuItem>,
+                                    <MenuItem key="eoc" value="End of Contract">
+                                      End of Contract
+                                    </MenuItem>,
+                                    <MenuItem
+                                      key="retrench"
+                                      value="Retrenchment"
+                                    >
+                                      Retrenchment
+                                    </MenuItem>,
+                                    <MenuItem
+                                      key="terminated"
+                                      value="Terminated"
+                                    >
+                                      Terminated
+                                    </MenuItem>,
+                                    <MenuItem key="awol" value="AWOL">
+                                      AWOL
+                                    </MenuItem>,
+                                  ]}
                                 </Select>
                               </FormControl>
                             ) : (
