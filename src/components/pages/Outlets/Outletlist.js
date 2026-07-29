@@ -11,6 +11,7 @@ import {
   FormControl,
   InputLabel,
   Select,
+  Autocomplete,
   Chip,
   Paper,
   IconButton,
@@ -7647,6 +7648,9 @@ export default function OutletList() {
   const [selectedOutlet, setSelectedOutlet] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [assignMode, setAssignMode] = useState("employed");
+  // TRANSFER/SWAP (TEST): when true, show the assign dropdown even though the
+  // outlet already has someone, so the user can replace/transfer them.
+  const [showChangeMerchandiser, setShowChangeMerchandiser] = useState(false);
   const [showIncomingSection, setShowIncomingSection] = useState(false);
 
   // Form states
@@ -7761,6 +7765,38 @@ export default function OutletList() {
   const findPersonById = (id) =>
     efcEmployees.find((e) => e._id === id) ||
     efcApplicants.find((e) => e._id === id);
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // TRANSFER / SWAP (TEST FEATURE) — helpers
+  // Returns the outlet a given employee is currently DEPLOYED at (if any),
+  // by reading their live record. Used so the Assign dropdown can show
+  // "deployed elsewhere" merchandisers and so save can decide move vs swap.
+  // ══════════════════════════════════════════════════════════════════════════
+  const getEmployeeCurrentOutlet = (emp) => {
+    if (!emp) return null;
+    const outlets = Array.isArray(emp.outletsAssigned)
+      ? emp.outletsAssigned.filter(Boolean)
+      : [];
+    // For Stationary, there is one outlet; take the first.
+    const currentOutletName = outlets[0] || null;
+    if (!currentOutletName) return null;
+    return {
+      outletName: currentOutletName,
+      deployStatus: emp.deployStatus || "Undeployed",
+      deploymentType: emp.deploymentType || "Stationary",
+    };
+  };
+
+  // Is this employee currently deployed somewhere (any outlet)?
+  const isEmployeeDeployedElsewhere = (emp, exceptOutletName) => {
+    const info = getEmployeeCurrentOutlet(emp);
+    if (!info) return false;
+    if (info.outletName === exceptOutletName) return false;
+    return (
+      info.deployStatus === "Deployed" ||
+      info.deployStatus === "Reliever Deployed"
+    );
+  };
 
   const applyFilters = (region, status, type = "ALL", supervisor = "ALL") => {
     let filtered = [...OUTLET_DATA];
@@ -8011,6 +8047,7 @@ export default function OutletList() {
         : "",
       applicantStatus: a?.applicantStatus || "",
       _originalDeployStatus: a?.deployStatus || "Undeployed",
+      _originalAssignedEmployeeId: a?.employeeId || null,
       _isApplicant: a?.isApplicant || false,
       incomingApplicantId: a?.incomingApplicantId || "",
       incomingApplicantStatus: a?.incomingApplicantStatus || "",
@@ -8032,6 +8069,7 @@ export default function OutletList() {
         ? "employed"
         : "applicant";
     setAssignMode(defaultMode);
+    setShowChangeMerchandiser(false);
     setShowIncomingSection(
       !!(a?.incomingApplicantId || a?.incomingApplicantStatus),
     );
@@ -8072,6 +8110,83 @@ export default function OutletList() {
       const adminFullName = localStorage.getItem("adminFullName");
       const adminRole = localStorage.getItem("roleAccount");
       const today = todayISO();
+
+      // ════════════════════════════════════════════════════════════════════
+      // TRANSFER / SWAP (TEST FEATURE) — Option A (auto move-vs-swap)
+      // Runs only when the picked merchandiser is deployed at ANOTHER outlet.
+      // • If THIS outlet already had a deployed merchandiser  → SWAP (they trade)
+      // • If THIS outlet was empty                            → MOVE (one-way)
+      // Both use the existing /assign-outlet route. New deploy date = today.
+      // ════════════════════════════════════════════════════════════════════
+      if (data._transferFromOutlet && data._transferPersonId) {
+        const outletA = data.outletName; // where we're assigning TO
+        const outletB = data._transferFromOutlet; // where the picked person came FROM
+        const incomingPersonId = data._transferPersonId; // Y (was at B)
+        const sittingPersonId = data._originalAssignedEmployeeId || null; // X (was at A), if any
+
+        const confirmMsg =
+          sittingPersonId && sittingPersonId !== incomingPersonId
+            ? `SWAP: the merchandiser currently at "${outletA}" will move to "${outletB}", and the selected merchandiser will move from "${outletB}" to "${outletA}". Continue?`
+            : `MOVE: the selected merchandiser will transfer from "${outletB}" to "${outletA}". "${outletB}" will be left empty. Continue?`;
+
+        if (!window.confirm(confirmMsg)) return;
+
+        // Step 1 — move the picked person (Y) INTO outlet A (today's date).
+        // The route's own Step-1 pull removes Y from outlet B automatically.
+        await axios.put("https://api-map.bmphrc.com/assign-outlet", {
+          outletName: outletA,
+          employeeId: incomingPersonId,
+          deployStatus: "Deployed",
+          deploymentType: data.deploymentType || "Stationary",
+          deployDate: today,
+          undeployDate: null,
+          applicantStatus: "",
+          updatedBy: adminFullName,
+          updatedByRole: adminRole,
+        });
+
+        // Step 2 — if outlet A had someone (X), move X INTO outlet B (swap).
+        if (sittingPersonId && sittingPersonId !== incomingPersonId) {
+          await axios.put("https://api-map.bmphrc.com/assign-outlet", {
+            outletName: outletB,
+            employeeId: sittingPersonId,
+            deployStatus: "Deployed",
+            deploymentType: "Stationary",
+            deployDate: today,
+            undeployDate: null,
+            applicantStatus: "",
+            updatedBy: adminFullName,
+            updatedByRole: adminRole,
+          });
+        }
+
+        // Also update the coordinator on outlet A as usual.
+        await axios.put("https://api-map.bmphrc.com/assign-coordinator", {
+          outletName: outletA,
+          employeeId: data.assignedCoordinatorId,
+          deployStatus: data.coordinatorDeployStatus,
+          updatedBy: adminFullName,
+          updatedByRole: adminRole,
+        });
+
+        await fetchAndApply();
+        setFilterStatus("ALL");
+        setFilteredOutlets(OUTLET_DATA);
+        alert(
+          sittingPersonId && sittingPersonId !== incomingPersonId
+            ? "Swap completed. Please verify BOTH outlets below."
+            : "Transfer completed. Please verify both outlets below.",
+        );
+        setOpenEditModal(false);
+        setIsEditing(false);
+        setShowChangeMerchandiser(false);
+        setPreviousEmployeeRemarks("");
+        setBackOutReason("");
+        setTerminateReason("");
+        setTargetOnboardDate("");
+        setDateError("");
+        return; // <-- transfer handled; skip the normal save path
+      }
 
       if (
         data.incomingApplicantStatus === "Onboarded" &&
@@ -8201,6 +8316,7 @@ export default function OutletList() {
       alert("Outlet assignment updated successfully!");
       setOpenEditModal(false);
       setIsEditing(false);
+      setShowChangeMerchandiser(false);
       setPreviousEmployeeRemarks("");
       setBackOutReason("");
       setTerminateReason("");
@@ -9522,7 +9638,8 @@ export default function OutletList() {
                           {/* ── Assign Employee/Applicant ── */}
                           {isEditing &&
                           !hasIncomingPipeline &&
-                          !selectedOutlet.assignedEmployeeId ? (
+                          (!selectedOutlet.assignedEmployeeId ||
+                            showChangeMerchandiser) ? (
                             <>
                               <Grid item xs={12}>
                                 <Box
@@ -9637,25 +9754,64 @@ export default function OutletList() {
                                 <>
                                   <Grid item xs={12} sm={6}>
                                     <FormControl fullWidth>
-                                      <InputLabel>
-                                        {assignMode === "applicant"
-                                          ? "Assign Applicant"
-                                          : "Assign Employee"}
-                                      </InputLabel>
-                                      <Select
-                                        value={
-                                          selectedOutlet.assignedEmployeeId ||
-                                          ""
-                                        }
-                                        label={
+                                      <Autocomplete
+                                        options={
                                           assignMode === "applicant"
-                                            ? "Assign Applicant"
-                                            : "Assign Employee"
+                                            ? efcApplicants
+                                            : efcEmployees
                                         }
-                                        onChange={(e) => {
+                                        value={
+                                          (assignMode === "applicant"
+                                            ? efcApplicants
+                                            : efcEmployees
+                                          ).find(
+                                            (emp) =>
+                                              emp._id ===
+                                              selectedOutlet.assignedEmployeeId,
+                                          ) || null
+                                        }
+                                        getOptionLabel={(emp) =>
+                                          emp
+                                            ? `${emp.firstName}${
+                                                emp.middleName
+                                                  ? " " + emp.middleName
+                                                  : ""
+                                              } ${emp.lastName}${
+                                                emp.position
+                                                  ? " — " + emp.position
+                                                  : ""
+                                              }`
+                                            : ""
+                                        }
+                                        isOptionEqualToValue={(opt, val) =>
+                                          opt._id === val._id
+                                        }
+                                        onChange={(event, picked) => {
                                           const isApplicant =
                                             assignMode === "applicant";
-                                          const newId = e.target.value;
+                                          const newId = picked?._id || "";
+
+                                          // TRANSFER/SWAP: detect if the picked
+                                          // person is deployed elsewhere.
+                                          const pickedEmp = efcEmployees.find(
+                                            (x) => x._id === newId,
+                                          );
+                                          const transferFrom =
+                                            !isApplicant && pickedEmp
+                                              ? getEmployeeCurrentOutlet(
+                                                  pickedEmp,
+                                                )
+                                              : null;
+                                          const isTransfer =
+                                            !isApplicant &&
+                                            transferFrom &&
+                                            transferFrom.outletName !==
+                                              selectedOutlet.outletName &&
+                                            (transferFrom.deployStatus ===
+                                              "Deployed" ||
+                                              transferFrom.deployStatus ===
+                                                "Reliever Deployed");
+
                                           setSelectedOutlet({
                                             ...selectedOutlet,
                                             assignedEmployeeId: newId,
@@ -9670,25 +9826,36 @@ export default function OutletList() {
                                                 : "",
                                             undeployDate: "",
                                             applicantStatus: "",
+                                            _transferFromOutlet: isTransfer
+                                              ? transferFrom.outletName
+                                              : null,
+                                            _transferPersonId: isTransfer
+                                              ? newId
+                                              : null,
                                           });
                                         }}
-                                      >
-                                        <MenuItem value="">
-                                          <em>— No Assignment —</em>
-                                        </MenuItem>
-                                        {(assignMode === "applicant"
-                                          ? efcApplicants
-                                          : efcEmployees
-                                        ).map((emp) => (
-                                          <MenuItem
-                                            key={emp._id}
-                                            value={emp._id}
-                                          >
+                                        renderOption={(props, emp) => {
+                                          const deployedElsewhere =
+                                            assignMode !== "applicant" &&
+                                            isEmployeeDeployedElsewhere(
+                                              emp,
+                                              selectedOutlet.outletName,
+                                            );
+                                          const currentOutlet =
+                                            deployedElsewhere
+                                              ? getEmployeeCurrentOutlet(emp)
+                                                  ?.outletName
+                                              : null;
+                                          return (
                                             <Box
+                                              component="li"
+                                              {...props}
+                                              key={emp._id}
                                               sx={{
                                                 display: "flex",
                                                 alignItems: "center",
                                                 gap: 1,
+                                                flexWrap: "wrap",
                                               }}
                                             >
                                               <span>
@@ -9713,10 +9880,34 @@ export default function OutletList() {
                                                   }}
                                                 />
                                               )}
+                                              {deployedElsewhere && (
+                                                <Chip
+                                                  label={`🔴 Deployed at ${currentOutlet}`}
+                                                  size="small"
+                                                  sx={{
+                                                    height: 18,
+                                                    fontSize: "10px",
+                                                    fontWeight: 600,
+                                                    backgroundColor: "#ffebee",
+                                                    color: "#c62828",
+                                                  }}
+                                                />
+                                              )}
                                             </Box>
-                                          </MenuItem>
-                                        ))}
-                                      </Select>
+                                          );
+                                        }}
+                                        renderInput={(params) => (
+                                          <TextField
+                                            {...params}
+                                            label={
+                                              assignMode === "applicant"
+                                                ? "Assign Applicant"
+                                                : "Assign Employee"
+                                            }
+                                            placeholder="Type to search…"
+                                          />
+                                        )}
+                                      />
                                       <FormHelperText>
                                         {assignMode === "applicant"
                                           ? "Applicants will go through the endorsement pipeline below"
@@ -9761,6 +9952,35 @@ export default function OutletList() {
                                     },
                                   }}
                                 />
+                                {/* TRANSFER/SWAP (TEST): reveal dropdown to replace/transfer */}
+                                {isEditing &&
+                                  canEdit &&
+                                  !hasIncomingPipeline && (
+                                    <Button
+                                      size="small"
+                                      startIcon={<SwapHorizIcon />}
+                                      onClick={() => {
+                                        setShowChangeMerchandiser(true);
+                                        // keep original person id for swap detection,
+                                        // clear the current selection so the dropdown opens
+                                        setSelectedOutlet({
+                                          ...selectedOutlet,
+                                          _originalAssignedEmployeeId:
+                                            selectedOutlet._originalAssignedEmployeeId ||
+                                            selectedOutlet.assignedEmployeeId,
+                                          assignedEmployeeId: "",
+                                        });
+                                      }}
+                                      sx={{
+                                        mt: 1,
+                                        textTransform: "none",
+                                        color: "#2e6385",
+                                        fontWeight: 600,
+                                      }}
+                                    >
+                                      Change / Transfer merchandiser
+                                    </Button>
+                                  )}
                               </Grid>
                             )
                           )}
