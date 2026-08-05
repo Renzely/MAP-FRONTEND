@@ -68,6 +68,7 @@ export default function BmpowerHO() {
     "HR SPECIALIST",
     "HR COMPENSATION AND BENEFITS",
     "HR COORDINATOR SPECIALIST",
+    "SPX HR SPECIALIST",
     "MIS",
   ];
 

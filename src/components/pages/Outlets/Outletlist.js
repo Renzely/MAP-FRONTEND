@@ -265,12 +265,12 @@ export const OUTLET_DATA = [
     outlet: "EVERPLUS SUPERSTORE INC. - SUCAT",
     accountSupervisor: "ZABALLA, FERCEY",
   },
-  {
-    id: 32,
-    region: "NCR",
-    outlet: "ULTRAMEGA - MUNTINLUPA",
-    accountSupervisor: "ZABALLA, FERCEY",
-  },
+  // {
+  //   id: 32,
+  //   region: "NCR",
+  //   outlet: "ULTRAMEGA - MUNTINLUPA",
+  //   accountSupervisor: "ZABALLA, FERCEY",
+  // },
   {
     id: 33,
     region: "NCR",
@@ -685,18 +685,18 @@ export const OUTLET_DATA = [
     outlet: "ULTRAMEGA - DEPARO",
     accountSupervisor: "CASERES, JAYSON",
   },
-  {
-    id: 102,
-    region: "NCR",
-    outlet: "ULTRAMEGA - NOVALICHES",
-    accountSupervisor: "CASERES, JAYSON",
-  },
-  {
-    id: 103,
-    region: "NCR",
-    outlet: "ULTRAMEGA - BAGONG SILANG",
-    accountSupervisor: "CASERES, JAYSON",
-  },
+  // {
+  //   id: 102,
+  //   region: "NCR",
+  //   outlet: "ULTRAMEGA - NOVALICHES",
+  //   accountSupervisor: "CASERES, JAYSON",
+  // },
+  // {
+  //   id: 103,
+  //   region: "NCR",
+  //   outlet: "ULTRAMEGA - BAGONG SILANG",
+  //   accountSupervisor: "CASERES, JAYSON",
+  // },
   {
     id: 104,
     region: "NCR",
@@ -1351,12 +1351,12 @@ export const OUTLET_DATA = [
     outlet: "ULTRAMEGA - ARAYAT",
     accountSupervisor: "CASERES, JAYSON",
   },
-  {
-    id: 213,
-    region: "NCR",
-    outlet: "ULTRAMEGA - TARLAC",
-    accountSupervisor: "CASERES, JAYSON",
-  },
+  // {
+  //   id: 213,
+  //   region: "NCR",
+  //   outlet: "ULTRAMEGA - TARLAC",
+  //   accountSupervisor: "CASERES, JAYSON",
+  // },
   {
     id: 214,
     region: "NCR",
@@ -1603,18 +1603,18 @@ export const OUTLET_DATA = [
     outlet: "ROBINSONS EASYMART - SAN MATEO",
     accountSupervisor: "VIGIL, BERNIE",
   },
-  {
-    id: 255,
-    region: "NCR",
-    outlet: "ULTRAMEGA - BALIUAG HIGHWAY",
-    accountSupervisor: "CASERES, JAYSON",
-  },
-  {
-    id: 256,
-    region: "NCR",
-    outlet: "ULTRAMEGA - BALIUAG BAYAN",
-    accountSupervisor: "CASERES, JAYSON",
-  },
+  // {
+  //   id: 255,
+  //   region: "NCR",
+  //   outlet: "ULTRAMEGA - BALIUAG HIGHWAY",
+  //   accountSupervisor: "CASERES, JAYSON",
+  // },
+  // {
+  //   id: 256,
+  //   region: "NCR",
+  //   outlet: "ULTRAMEGA - BALIUAG BAYAN",
+  //   accountSupervisor: "CASERES, JAYSON",
+  // },
   {
     id: 257,
     region: "NCR",
@@ -1915,18 +1915,18 @@ export const OUTLET_DATA = [
     outlet: "ROBINSONS EASYMART -AMAIA",
     accountSupervisor: "VIGIL, BERNIE",
   },
-  {
-    id: 307,
-    region: "NCR",
-    outlet: "ULTRAMEGA - CANDABA",
-    accountSupervisor: "CASERES, JAYSON",
-  },
-  {
-    id: 308,
-    region: "NCR",
-    outlet: "ULTRAMEGA - BALIBAGO",
-    accountSupervisor: "CASERES, JAYSON",
-  },
+  // {
+  //   id: 307,
+  //   region: "NCR",
+  //   outlet: "ULTRAMEGA - CANDABA",
+  //   accountSupervisor: "CASERES, JAYSON",
+  // },
+  // {
+  //   id: 308,
+  //   region: "NCR",
+  //   outlet: "ULTRAMEGA - BALIBAGO",
+  //   accountSupervisor: "CASERES, JAYSON",
+  // },
   {
     id: 309,
     region: "NCR",
@@ -1945,30 +1945,30 @@ export const OUTLET_DATA = [
     outlet: "ROBINSONS-MIRANILA",
     accountSupervisor: "VIGIL, BERNIE",
   },
-  {
-    id: 312,
-    region: "NCR",
-    outlet: "ULTRAMEGA - BALAGTAS",
-    accountSupervisor: "CASERES, JAYSON",
-  },
+  // {
+  //   id: 312,
+  //   region: "NCR",
+  //   outlet: "ULTRAMEGA - BALAGTAS",
+  //   accountSupervisor: "CASERES, JAYSON",
+  // },
   {
     id: 313,
     region: "NCR",
     outlet: "PUREGOLD PRICE CLUB - MALANDAY",
     accountSupervisor: "CASERES, JAYSON",
   },
-  {
-    id: 314,
-    region: "NCR",
-    outlet: "ULTRAMEGA - SAPANG PALAY",
-    accountSupervisor: "CASERES, JAYSON",
-  },
-  {
-    id: 315,
-    region: "NCR",
-    outlet: "ULTRAMEGA - SAN MIGUEL",
-    accountSupervisor: "CASERES, JAYSON",
-  },
+  // {
+  //   id: 314,
+  //   region: "NCR",
+  //   outlet: "ULTRAMEGA - SAPANG PALAY",
+  //   accountSupervisor: "CASERES, JAYSON",
+  // },
+  // {
+  //   id: 315,
+  //   region: "NCR",
+  //   outlet: "ULTRAMEGA - SAN MIGUEL",
+  //   accountSupervisor: "CASERES, JAYSON",
+  // },
   {
     id: 316,
     region: "NCR",
@@ -6785,7 +6785,7 @@ export const OUTLET_DATA = [
     id: 1118,
     region: "REGION 8",
     outlet: "PUREGOLD PRICE CLUB - TANAUAN",
-    accountSupervisor: "ZABALLA, FERCEY",
+    accountSupervisor: "DOBLE, RYAN",
   },
   {
     id: 1119,
@@ -8290,7 +8290,34 @@ export default function OutletList() {
         const finalStatus =
           data.deployStatus === "Deployed" ? "" : data.applicantStatus;
 
-        if (data.assignedEmployeeId || data.applicantStatus === "For Pooling") {
+        // ── FOR POOLING: vacate the outlet ──────────────────────────────────
+        // When the status is set to "For Pooling", the current merchandiser is
+        // removed so the outlet becomes VACANT. (Works whether or not a separate
+        // incoming applicant was selected — the status alone triggers it.)
+        const isIncomingForPooling =
+          data.incomingApplicantStatus === "For Pooling" ||
+          data.applicantStatus === "For Pooling";
+
+        if (isIncomingForPooling && data.assignedEmployeeId) {
+          await axios.put(
+            "https://api-map.bmphrc.com/remove-outlet-assignment",
+            {
+              outletName: data.outletName,
+              employeeId: data.assignedEmployeeId,
+              remarks: previousEmployeeRemarks || "Resign",
+              terminateReason:
+                previousEmployeeRemarks === "Terminated" ? terminateReason : "",
+              dateResigned: today,
+              updatedBy: adminFullName,
+              updatedByRole: adminRole,
+            },
+          );
+        }
+
+        if (
+          !isIncomingForPooling &&
+          (data.assignedEmployeeId || data.applicantStatus === "For Pooling")
+        ) {
           await axios.put("https://api-map.bmphrc.com/assign-outlet", {
             outletId: data.outletId,
             outletName: data.outletName,

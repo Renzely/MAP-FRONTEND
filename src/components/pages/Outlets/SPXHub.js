@@ -29,6 +29,7 @@ import {
   TableRow,
   Divider,
   Alert,
+  Autocomplete,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
@@ -126,6 +127,9 @@ export const HUBS_BY_REGION = {
     "Congressional Hub",
     "Del Monte Ave Hub",
     "Reliance Hub",
+    "MFM Pasig Hub",
+    "Mercedes Hub",
+    "Ugong Hub",
   ].sort((a, b) => a.localeCompare(b)),
   "NCR 4 North": [
     "North East Caloocan Hub",
@@ -171,6 +175,201 @@ export const HUBS_BY_REGION = {
     "MB Crossing Hub",
     "RC Hub",
   ].sort((a, b) => a.localeCompare(b)),
+  "MIN 3 Davao": [
+    "Bangkal hub",
+    "Boulevard Hub",
+    "Davao Buhangin Hub",
+    "Davao Calinan Hub",
+    "Davao Carmen Hub",
+    "Davao Hub",
+    "Davao Ma-a Hub",
+    "Davao Marfori Hub",
+    "Davao Matina Aplaya Hub",
+    "Davao Obrero Hub",
+    "Davao RC/DC",
+    "Davao RC/DC - MIDMILE",
+    "Davao Tibungco Hub",
+    "Davao Toril Hub",
+    "Davao Tugbok Hub",
+    "Digos Hub",
+    "Digos Aurora Hub",
+    "Gov. Gen Hub",
+    "Laak Hub",
+    "Lupon Hub",
+    "Maragusan Hub",
+    "Mati Hub",
+    "MB Bansalan Hub",
+    "MB Digos Hub",
+    "MB Malabog",
+    "MB Malalag Hub",
+    "MB Mandug Hub",
+    "MB Mawab Hub",
+    "MB Padada Hub",
+    "MB Sta. Maria Hub",
+    "MB Tibungol Hub",
+    "MB Mabunao Hub",
+    "Montevista Hub",
+    "New Corella Hub",
+    "Panabo Hub",
+    "Pantukan Hub",
+    "Santo Tomas Davao Hub",
+    "Tagum Hub",
+    "Tagum Magugpo East Hub",
+    "PHM_SDD",
+    "Davao Dumoy Hub",
+  ].sort((a, b) => a.localeCompare(b)),
+};
+
+export const HUB_COORDINATORS = {
+  "Apelo Hub": "Arnel Curiba",
+  "Arnaiz Hub": "Arnel Curiba",
+  "Bagumbayan Hub": "Arnel Curiba",
+  "CAA Hub": "Arnel Curiba",
+  "Cupang Hub": "Arnel Curiba",
+  "Dasa Hub": "Arnel Curiba",
+  "FTI Hub": "Arnel Curiba",
+  "Las Pinas Hub": "Arnel Curiba",
+  "Makati Hub": "Arnel Curiba",
+  "Makati-Magallanes Hub": "Arnel Curiba",
+  "Manuyo Uno Hub": "Arnel Curiba",
+  "Marcelo Green Hub": "Arnel Curiba",
+  "Pasay Hub": "Arnel Curiba",
+  "Tambo Hub": "Arnel Curiba",
+  "Tunasan Hub": "Arnel Curiba",
+  "Angono Hub": "Jerome Demayo",
+  "Antipolo Hub": "Jerome Demayo",
+  "Baltao Hub": "Jerome Demayo",
+  "Baras Hub": "Jerome Demayo",
+  "Binangonan Hub": "Jerome Demayo",
+  "Cainta Hub": "Jerome Demayo",
+  "Mambugan Hub": "Jerome Demayo",
+  "Morong Rizal Hub": "Jerome Demayo",
+  "Q Plaza Hub": "Jerome Demayo",
+  "Redgold Hub": "Jerome Demayo",
+  "Rodriguez Hub": "Jerome Demayo",
+  "San Isidro Rodriguez Hub": "Jerome Demayo",
+  "San Mateo Hub": "Jerome Demayo",
+  "Tanay Hub": "Jerome Demayo",
+  "Taytay Hub": "Jerome Demayo",
+  "Teresa Rizal Hub": "Jerome Demayo",
+  "Upper Antipolo Hub": "Jerome Demayo",
+  "Payatas Hub": "Jerome Demayo",
+  "Cubao Hub": "Jerome Demayo",
+  "Lower QC Hub": "Jerome Demayo",
+  "Tandang Sora Hub": "Jerome Demayo",
+  "West QC Hub": "Jerome Demayo",
+  "Batasan Hub": "Jerome Demayo",
+  "Culiat Hub": "Jerome Demayo",
+  "East QC Hub": "Jerome Demayo",
+  "Holy Spirit Hub": "Jerome Demayo",
+  "M.Balara Hub": "Jerome Demayo",
+  "Wack Wack Hub": "Arnel Curiba",
+  "San Juan Hub": "Arnel Curiba",
+  "Escoda Hub": "Arnel Curiba",
+  "Jaboneros Hub": "Arnel Curiba",
+  "Paco Hub": "Arnel Curiba",
+  "Palanca Hub": "Arnel Curiba",
+  "Pandacan Hub": "Arnel Curiba",
+  "Tondo Hub": "Arnel Curiba",
+  "Vitas Tondo Hub": "Arnel Curiba",
+  "Mandaluyong Hub": "Arnel Curiba",
+  "Malaya Ibaba Hub": "Arnel Curiba",
+  "Daanghari Navotas Hub": "Arnel Curiba",
+  "MINI Hub Lavezares": "Arnel Curiba",
+  "Navotas Hub": "Arnel Curiba",
+  "Second Avenue Hub": "Arnel Curiba",
+  "Marikina Hub": "Jerome Demayo",
+  "Upper Marikina Hub": "Jerome Demayo",
+  "Pasig Hub": "Jerome Demayo",
+  "Pasig-Rosario Hub": "Jerome Demayo",
+  "Maybunga Hub": "Jerome Demayo",
+  "Amang Rodriguez Hub": "Jerome Demayo",
+  "Bambang Pasig Hub": "Jerome Demayo",
+  "Congressional Hub": "Jerome Demayo",
+  "Del Monte Ave Hub": "Jerome Demayo",
+  "Reliance Hub": "Jerome Demayo",
+  "MFM Pasig Hub": "Jerome Demayo",
+  "Mercedes Hub": "Jerome Demayo",
+  "Ugong Hub": "Jerome Demayo",
+  "North East Caloocan Hub": "Jerome Demayo",
+  "Upper QC Hub": "Jerome Demayo",
+  "West Grace Park Hub": "Arnel Curiba",
+  "M Lozada": "Arnel Curiba",
+  "Pateros Hub": "Arnel Curiba",
+  "Ruhale Hub": "Arnel Curiba",
+  "Camanava Hub": "Arnel Curiba",
+  "Canumay East Hub": "Arnel Curiba",
+  "Caybiga Hub": "Arnel Curiba",
+  "Coloong Hub": "Arnel Curiba",
+  "Malabon Hub": "Arnel Curiba",
+  "South Caloocan Hub": "Arnel Curiba",
+  "Tinajeros Hub": "Arnel Curiba",
+  "Valenzuela Hub": "Arnel Curiba",
+  "Viente Reales Hub": "Arnel Curiba",
+  "Balingasa Hub": "Jerome Demayo",
+  "Amparo Hub": "Jerome Demayo",
+  "Bagumbong Hub": "Jerome Demayo",
+  "Caloocan Hub": "Jerome Demayo",
+  "Northwest Caloocan Hub": "Jerome Demayo",
+  "Tala Hub": "Jerome Demayo",
+  "Surigao City Downtown Hub": "Jay Boticario",
+  "Surigao Del Norte Hub": "Jay Boticario",
+  "Mainit Hub": "Jay Boticario",
+  "Cantilan Hub": "Jay Boticario",
+  "Butuan Hub": "Erll Dave Jose",
+  "Ampayon Hub": "Erll Dave Jose",
+  "Butuan Ambago Hub": "Erll Dave Jose",
+  "Buenavista Hub": "Jay Boticario",
+  "Cabadbaran Hub": "Erll Dave Jose",
+  "Bayugan Hub": "Erll Dave Jose",
+  "San Francisco Hub": "Erll Dave Jose",
+  "MB Taganaan Hub": "Jay Boticario",
+  "MB Placer Hub": "Jay Boticario",
+  "MB Malimono Hub": "Jay Boticario",
+  "MB Hinatuan Hub": "Jay Boticario",
+  "MB Lingig Hub": "Jay Boticario",
+  "MB Crossing Hub": "Erll Dave Jose",
+  "RC Hub": "Jay Boticario",
+  "Bangkal hub": "",
+  "Boulevard Hub": "",
+  "Davao Buhangin Hub": "",
+  "Davao Calinan Hub": "",
+  "Davao Carmen Hub": "",
+  "Davao Hub": "",
+  "Davao Ma-a Hub": "",
+  "Davao Marfori Hub": "",
+  "Davao Matina Aplaya Hub": "",
+  "Davao Obrero Hub": "",
+  "Davao RC/DC": "",
+  "Davao RC/DC - MIDMILE": "",
+  "Davao Tibungco Hub": "",
+  "Davao Toril Hub": "",
+  "Davao Tugbok Hub": "",
+  "Digos Hub": "",
+  "Digos Aurora Hub": "",
+  "Gov. Gen Hub": "",
+  "Laak Hub": "",
+  "Lupon Hub": "",
+  "Maragusan Hub": "",
+  "Mati Hub": "",
+  "MB Bansalan Hub": "",
+  "MB Digos Hub": "",
+  "MB Malabog": "",
+  "MB Malalag Hub": "",
+  "MB Mandug Hub": "",
+  "MB Mawab Hub": "",
+  "MB Padada Hub": "",
+  "MB Sta. Maria Hub": "",
+  "MB Tibungol Hub": "",
+  "MB Mabunao Hub": "",
+  "Montevista Hub": "",
+  "New Corella Hub": "",
+  "Panabo Hub": "",
+  "Pantukan Hub": "",
+  "Santo Tomas Davao Hub": "",
+  "Tagum Hub": "",
+  "Tagum Magugpo East Hub": "",
+  "Davao Dumoy Hub": "",
 };
 
 // ── Flat OUTLET_DATA ──────────────────────────────────────────────────────────
@@ -182,6 +381,7 @@ export const OUTLET_DATA = Object.entries(HUBS_BY_REGION).flatMap(
       account: "SPX EXPRESS",
       region,
       outlet: hub,
+      coordinator: HUB_COORDINATORS[hub] || "",
     })),
 );
 
@@ -192,6 +392,7 @@ const REGION_COLORS = {
   "NCR 3 Central": { bg: "#f3e5f5", color: "#6a1b9a" },
   "NCR 4 North": { bg: "#e8f5e9", color: "#2e7d32" },
   "MIN 2 Caraga": { bg: "#fce4ec", color: "#880e4f" },
+  "MIN 3 Davao": { bg: "#fce4ec", color: "#ff1635" },
 };
 const SPX_BLUE = "#2e6385ff";
 const SPX_DARK = "#0c2e3fff";
@@ -324,6 +525,7 @@ export default function SPXHubs() {
   const [filteredOutlets, setFilteredOutlets] = useState(OUTLET_DATA);
   const [filterStatus, setFilterStatus] = useState("ALL");
   const [filterRegion, setFilterRegion] = useState("ALL");
+  const [filterCoordinator, setFilterCoordinator] = useState("ALL");
 
   // Hub modal
   const [openHubModal, setOpenHubModal] = useState(false);
@@ -404,10 +606,12 @@ export default function SPXHubs() {
   }, []);
 
   // ── Filters ───────────────────────────────────────────────────────────────
-  const applyFilters = (status, region) => {
+  const applyFilters = (status, region, coordinator = "ALL") => {
     let result = OUTLET_DATA;
     if (region && region !== "ALL")
       result = result.filter((o) => o.region === region);
+    if (coordinator && coordinator !== "ALL")
+      result = result.filter((o) => (o.coordinator || "") === coordinator);
     if (status === "Has Riders")
       result = result.filter(
         (o) => (hubAssignments[o.id]?.riders?.length || 0) > 0,
@@ -420,12 +624,23 @@ export default function SPXHubs() {
   };
   const handleStatusFilter = (e) => {
     setFilterStatus(e.target.value);
-    applyFilters(e.target.value, filterRegion);
+    applyFilters(e.target.value, filterRegion, filterCoordinator);
   };
   const handleRegionFilter = (e) => {
     setFilterRegion(e.target.value);
-    applyFilters(filterStatus, e.target.value);
+    applyFilters(filterStatus, e.target.value, filterCoordinator);
   };
+  const handleCoordinatorFilter = (e) => {
+    setFilterCoordinator(e.target.value);
+    applyFilters(filterStatus, filterRegion, e.target.value);
+  };
+
+  // Unique, sorted list of hub coordinators for the dropdown
+  const coordinatorOptions = Array.from(
+    new Set(
+      OUTLET_DATA.map((o) => o.coordinator).filter((c) => c && c.trim() !== ""),
+    ),
+  ).sort();
 
   const handleOpenHub = (row) => {
     const hData = hubAssignments[row.id] || { riders: [] };
@@ -936,8 +1151,8 @@ export default function SPXHubs() {
       _deployedCount: hData.riders.filter((r) => r.deployStatus === "Deployed")
         .length,
       _riders: hData.riders,
-      _coordName: coord ? `${coord.firstName} ${coord.lastName}` : "",
-      _coordStatus: coord ? "Active" : "",
+      _coordName: outlet.coordinator || "",
+      _coordStatus: outlet.coordinator ? "Active" : "",
     };
   });
   const handleExportHubs = () => {
@@ -981,7 +1196,7 @@ export default function SPXHubs() {
         totalRiders: hData.riders.length,
         deployed: deployedCount,
         assignedRiders: riderLines,
-        coordinator: coord ? `${coord.firstName} ${coord.lastName}` : "—",
+        coordinator: outlet.coordinator || "—",
       };
     });
 
@@ -1118,7 +1333,7 @@ export default function SPXHubs() {
                   { label: "Hubs Active", value: hubsWithRiders },
                   { label: "Total Riders", value: totalRiders },
                   { label: "Deployed", value: deployedRiders },
-                  { label: "Undeployed", value: floatingRiders.length },
+                  { label: "Pending", value: floatingRiders.length },
                 ].map((s) => (
                   <Box
                     key={s.label}
@@ -1216,6 +1431,27 @@ export default function SPXHubs() {
                   <MenuItem value="ALL">All Hubs</MenuItem>
                   <MenuItem value="Has Riders">Has Riders</MenuItem>
                   <MenuItem value="No Riders">No Riders</MenuItem>
+                </Select>
+              </FormControl>
+              <FormControl sx={{ minWidth: 200 }}>
+                <InputLabel>Filter by Coordinator</InputLabel>
+                <Select
+                  value={filterCoordinator}
+                  onChange={handleCoordinatorFilter}
+                  label="Filter by Coordinator"
+                  sx={{ backgroundColor: "white", borderRadius: "8px" }}
+                  startAdornment={
+                    <FilterListIcon
+                      sx={{ color: "#bbb", mr: 1, fontSize: 20 }}
+                    />
+                  }
+                >
+                  <MenuItem value="ALL">All Coordinators</MenuItem>
+                  {coordinatorOptions.map((c) => (
+                    <MenuItem key={c} value={c}>
+                      {c}
+                    </MenuItem>
+                  ))}
                 </Select>
               </FormControl>
               <Box sx={{ flexGrow: 1 }} />
@@ -1963,53 +2199,64 @@ export default function SPXHubs() {
                             </Typography>
                             <Grid container spacing={2} alignItems="flex-end">
                               <Grid item xs={12} sm={5}>
-                                <FormControl fullWidth size="small">
-                                  <InputLabel>Select Rider</InputLabel>
-                                  <Select
-                                    value={addRiderId}
-                                    label="Select Rider"
-                                    onChange={(e) => {
-                                      setAddRiderId(e.target.value);
-                                      setSaveError("");
-                                    }}
-                                  >
-                                    <MenuItem value="">
-                                      <em>— Select a rider —</em>
-                                    </MenuItem>
-                                    {availableRiders.length === 0 && (
-                                      <MenuItem disabled>
-                                        <em>No available riders</em>
-                                      </MenuItem>
-                                    )}
-                                    {availableRiders.map((emp) => (
-                                      <MenuItem key={emp._id} value={emp._id}>
-                                        <Box>
-                                          <Typography
-                                            variant="body2"
-                                            sx={{
-                                              fontWeight: 600,
-                                              fontSize: "13px",
-                                            }}
-                                          >
-                                            {emp.firstName} {emp.lastName}
-                                          </Typography>
-                                          <Typography
-                                            variant="caption"
-                                            sx={{ color: "#888" }}
-                                          >
-                                            {emp.position || "No position"}
-                                            {emp.region
-                                              ? ` · ${emp.region}`
-                                              : ""}
-                                            {emp.outlet
-                                              ? ` · ${emp.outlet}`
-                                              : " · No hub"}
-                                          </Typography>
-                                        </Box>
-                                      </MenuItem>
-                                    ))}
-                                  </Select>
-                                </FormControl>
+                                <Autocomplete
+                                  size="small"
+                                  options={availableRiders}
+                                  value={
+                                    availableRiders.find(
+                                      (emp) => emp._id === addRiderId,
+                                    ) || null
+                                  }
+                                  getOptionLabel={(emp) =>
+                                    emp
+                                      ? `${emp.firstName} ${emp.lastName}`
+                                      : ""
+                                  }
+                                  isOptionEqualToValue={(opt, val) =>
+                                    opt._id === val._id
+                                  }
+                                  onChange={(event, picked) => {
+                                    setAddRiderId(picked?._id || "");
+                                    setSaveError("");
+                                  }}
+                                  noOptionsText="No available riders"
+                                  renderOption={(props, emp) => (
+                                    <Box
+                                      component="li"
+                                      {...props}
+                                      key={emp._id}
+                                    >
+                                      <Box>
+                                        <Typography
+                                          variant="body2"
+                                          sx={{
+                                            fontWeight: 600,
+                                            fontSize: "13px",
+                                          }}
+                                        >
+                                          {emp.firstName} {emp.lastName}
+                                        </Typography>
+                                        <Typography
+                                          variant="caption"
+                                          sx={{ color: "#888" }}
+                                        >
+                                          {emp.position || "No position"}
+                                          {emp.region ? ` · ${emp.region}` : ""}
+                                          {emp.outlet
+                                            ? ` · ${emp.outlet}`
+                                            : " · No hub"}
+                                        </Typography>
+                                      </Box>
+                                    </Box>
+                                  )}
+                                  renderInput={(params) => (
+                                    <TextField
+                                      {...params}
+                                      label="Select Rider"
+                                      placeholder="Type to search rider…"
+                                    />
+                                  )}
+                                />
                               </Grid>
                               <Grid item xs={12} sm={4}>
                                 <TextField
@@ -2069,108 +2316,6 @@ export default function SPXHubs() {
                             {saveError}
                           </Alert>
                         )}
-                      </CardContent>
-                    </Card>
-
-                    {/* Coordinator Card */}
-                    <Card
-                      elevation={0}
-                      sx={{
-                        mb: 3,
-                        border: "1px solid #e0e0e0",
-                        borderRadius: "12px",
-                      }}
-                    >
-                      <CardContent sx={{ p: 3 }}>
-                        <Typography
-                          variant="subtitle2"
-                          sx={{
-                            fontWeight: 600,
-                            color: "#64748b",
-                            borderBottom: "1px solid #e2e8f0",
-                            pb: 1,
-                            mb: 2,
-                          }}
-                        >
-                          Coordinator Assignment
-                        </Typography>
-                        <Grid container spacing={2}>
-                          <Grid item xs={12} sm={6}>
-                            {isEditing ? (
-                              <FormControl fullWidth size="small">
-                                <InputLabel>Assign Coordinator</InputLabel>
-                                <Select
-                                  value={assignedCoordId || ""}
-                                  label="Assign Coordinator"
-                                  onChange={(e) =>
-                                    setAssignedCoordId(e.target.value)
-                                  }
-                                >
-                                  <MenuItem value="">
-                                    <em>— No Coordinator —</em>
-                                  </MenuItem>
-                                  {spxCoordinators.map((emp) => (
-                                    <MenuItem key={emp._id} value={emp._id}>
-                                      {emp.firstName}{" "}
-                                      {emp.middleName
-                                        ? emp.middleName + " "
-                                        : ""}
-                                      {emp.lastName}
-                                      {emp.position ? ` — ${emp.position}` : ""}
-                                    </MenuItem>
-                                  ))}
-                                </Select>
-                              </FormControl>
-                            ) : (
-                              <TextField
-                                label="Assigned Coordinator"
-                                fullWidth
-                                size="small"
-                                value={(() => {
-                                  if (!assignedCoordId) return "No coordinator";
-                                  const e = spxCoordinators.find(
-                                    (c) => c._id === assignedCoordId,
-                                  );
-                                  return e
-                                    ? `${e.firstName} ${e.lastName}${e.position ? " — " + e.position : ""}`
-                                    : "No coordinator";
-                                })()}
-                                InputProps={{ readOnly: true }}
-                              />
-                            )}
-                          </Grid>
-                          <Grid item xs={12} sm={6}>
-                            {isEditing ? (
-                              <FormControl
-                                fullWidth
-                                size="small"
-                                disabled={!assignedCoordId}
-                              >
-                                <InputLabel>Coordinator Status</InputLabel>
-                                <Select
-                                  value={
-                                    assignedCoordId ? coordStatus : "Inactive"
-                                  }
-                                  label="Coordinator Status"
-                                  onChange={(e) =>
-                                    setCoordStatus(e.target.value)
-                                  }
-                                >
-                                  <MenuItem value="Active">Active</MenuItem>
-                                  <MenuItem value="Inactive">Inactive</MenuItem>
-                                </Select>
-                              </FormControl>
-                            ) : (
-                              <TextField
-                                label="Coordinator Status"
-                                fullWidth
-                                size="small"
-                                value={coordStatus || "Inactive"}
-                                InputProps={{ readOnly: true }}
-                              />
-                            )}
-                          </Grid>
-                        </Grid>
                       </CardContent>
                     </Card>
 

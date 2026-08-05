@@ -11,6 +11,7 @@ import axios from "axios";
 import {
   Button,
   Stack,
+  Divider,
   Typography,
   Modal,
   Box,
@@ -129,6 +130,12 @@ export default function Admin() {
   const [adminViewFullName, setAdminViewFullName] = useState("");
   const [adminViewEmail, setAdminViewEmail] = useState("");
   const [adminViewPhone, setAdminViewPhone] = useState("");
+  // Editable admin info (edit modal)
+  const [editFirstName, setEditFirstName] = useState("");
+  const [editMiddleName, setEditMiddleName] = useState("");
+  const [editLastName, setEditLastName] = useState("");
+  const [editContact, setEditContact] = useState("");
+  const [editRole, setEditRole] = useState("");
 
   const [selectedBranches, setSelectedBranches] = useState(
     adminViewBranch || [],
@@ -161,7 +168,6 @@ export default function Admin() {
           outlet: selectedBranches,
         },
       );
-
       const updatedUserData = userData.map((user) => {
         if (user.emailAddress === email) {
           return {
@@ -185,6 +191,54 @@ export default function Admin() {
   };
 
   const outlets = ["BMPOWER OFFICE", "BMPOWER CEBU OFFICE"];
+
+  // Save edited admin info + role (uses email as the identifier)
+  const handleInfoSave = async (email) => {
+    if (!editFirstName.trim() || !editLastName.trim()) {
+      alert("First name and last name are required.");
+      return;
+    }
+    if (!editRole) {
+      alert("Please select a role.");
+      return;
+    }
+    try {
+      await axios.put("https://api-map.bmphrc.com/update-admin-info", {
+        emailAddress: email,
+        firstName: editFirstName.trim(),
+        middleName: editMiddleName.trim() || "Null",
+        lastName: editLastName.trim(),
+        contactNum: editContact.trim(),
+        roleAccount: editRole,
+      });
+
+      const updatedUserData = userData.map((user) =>
+        user.emailAddress === email
+          ? {
+              ...user,
+              firstName: editFirstName.trim(),
+              middleName: editMiddleName.trim() || "Null",
+              lastName: editLastName.trim(),
+              contactNum: editContact.trim(),
+              roleAccount: editRole,
+            }
+          : user,
+      );
+
+      setUserData(updatedUserData);
+      handleViewCloseModal();
+      setTimeout(() => window.location.reload(), 1000);
+    } catch (error) {
+      console.error(
+        "Error updating admin info:",
+        error.response?.data || error.message,
+      );
+      alert(
+        error.response?.data?.message ||
+          "Failed to update admin info. Please try again.",
+      );
+    }
+  };
 
   const handleRoleChange = (event) => {
     setSelectedRole(event.target.value);
@@ -398,6 +452,14 @@ export default function Admin() {
           setAdminViewFullName(rFullname);
           setAdminViewEmail(rEmail);
           setAdminViewPhone(rPhone);
+          // populate editable fields
+          setEditFirstName(params.row.firstName || "");
+          setEditMiddleName(
+            params.row.middleName === "Null" ? "" : params.row.middleName || "",
+          );
+          setEditLastName(params.row.lastName || "");
+          setEditContact(rPhone === "Null" ? "" : rPhone || "");
+          setEditRole(params.row.roleAccount || "");
           setOpenViewModal(true);
         };
 
@@ -899,26 +961,102 @@ export default function Admin() {
               {/* Modal Body */}
               <Box sx={{ p: 3 }}>
                 <Stack spacing={2.5}>
-                  <TextField
-                    label="Full Name"
-                    value={adminViewFullName}
-                    InputProps={{ readOnly: true }}
-                    fullWidth
-                  />
+                  <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+                    <TextField
+                      label="First Name"
+                      value={editFirstName}
+                      onChange={(e) => setEditFirstName(e.target.value)}
+                      fullWidth
+                    />
+                    <TextField
+                      label="Middle Name"
+                      value={editMiddleName}
+                      onChange={(e) => setEditMiddleName(e.target.value)}
+                      fullWidth
+                    />
+                    <TextField
+                      label="Last Name"
+                      value={editLastName}
+                      onChange={(e) => setEditLastName(e.target.value)}
+                      fullWidth
+                    />
+                  </Stack>
                   <TextField
                     label="Email"
                     value={adminViewEmail}
                     InputProps={{ readOnly: true }}
+                    helperText="Email is the account identifier and cannot be changed here."
                     fullWidth
                   />
                   <TextField
                     label="Contact Number"
-                    value={adminViewPhone}
-                    InputProps={{ readOnly: true }}
+                    value={editContact}
+                    onChange={(e) => setEditContact(e.target.value)}
                     fullWidth
                   />
+                  <FormControl fullWidth>
+                    <InputLabel>Role</InputLabel>
+                    <Select
+                      value={editRole}
+                      label="Role"
+                      onChange={(e) => setEditRole(e.target.value)}
+                    >
+                      <MenuItem value="EXECUTIVE DIRECTOR">
+                        EXECUTIVE DIRECTOR
+                      </MenuItem>
+                      <MenuItem value="OPERATION DIRECTOR">
+                        OPERATION DIRECTOR
+                      </MenuItem>
+                      <MenuItem value="ACCOUNT SUPERVISOR">
+                        ACCOUNT SUPERVISOR
+                      </MenuItem>
+                      <MenuItem value="SPX ACCOUNT SUPERVISOR">
+                        SPX ACCOUNT SUPERVISOR
+                      </MenuItem>
+                      <MenuItem value="SPX OPERATION HEAD & LOGISTICS">
+                        SPX OPERATION HEAD & LOGISTICS
+                      </MenuItem>
+                      <MenuItem value="SPX PAYROLL SPECIALIST">
+                        SPX PAYROLL SPECIALIST
+                      </MenuItem>
+                      <MenuItem value="SPX PAYROLL & BILLING">
+                        SPX PAYROLL & BILLING
+                      </MenuItem>
+                      <MenuItem value="HR HEAD">HR HEAD</MenuItem>
+                      <MenuItem value="HR OFFICER">HR OFFICER</MenuItem>
+                      <MenuItem value="HR COORDINATOR SPECIALIST">
+                        HR COORDINATOR SPECIALIST
+                      </MenuItem>
+                      <MenuItem value="HR COMPENSATION AND BENEFITS">
+                        HR COMPENSATION AND BENEFITS
+                      </MenuItem>
+                      <MenuItem value="HR SPECIALIST">HR SPECIALIST</MenuItem>
+                      <MenuItem value="SPX HR SPECIALIST">
+                        SPX HR SPECIALIST
+                      </MenuItem>
+                    </Select>
+                  </FormControl>
+
+                  <Button
+                    onClick={() => handleInfoSave(adminViewEmail)}
+                    variant="contained"
+                    fullWidth
+                    sx={{
+                      backgroundColor: "#2e6385ff",
+                      color: "white",
+                      textTransform: "none",
+                      fontWeight: 600,
+                      py: 1.5,
+                      "&:hover": { backgroundColor: "#0c2e3fff" },
+                    }}
+                  >
+                    Save Info & Role Changes
+                  </Button>
+
+                  <Divider sx={{ my: 1 }}>Outlets</Divider>
+
                   <TextField
-                    label="Outlets"
+                    label="Current Outlets"
                     value={
                       Array.isArray(adminViewBranch)
                         ? adminViewBranch.join(", ")
