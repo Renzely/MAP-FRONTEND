@@ -1016,6 +1016,9 @@ export default function Admin() {
                       <MenuItem value="SPX OPERATION HEAD & LOGISTICS">
                         SPX OPERATION HEAD & LOGISTICS
                       </MenuItem>
+                      <MenuItem value="SPX COORDINATOR">
+                        SPX COORDINATOR
+                      </MenuItem>
                       <MenuItem value="SPX PAYROLL SPECIALIST">
                         SPX PAYROLL SPECIALIST
                       </MenuItem>
