@@ -3019,12 +3019,12 @@ export const OUTLET_DATA = [
     outlet: "PUREGOLD PRICE CLUB (JR.)- MARIKINA",
     accountSupervisor: "VIGIL, BERNIE",
   },
-  {
-    id: 491,
-    region: "NCR",
-    outlet: "ULTRAMEGA - LEMERY",
-    accountSupervisor: "ZABALLA, FERCEY",
-  },
+  // {
+  //   id: 491,
+  //   region: "NCR",
+  //   outlet: "ULTRAMEGA - LEMERY",
+  //   accountSupervisor: "ZABALLA, FERCEY",
+  // },
   {
     id: 492,
     region: "NCR",

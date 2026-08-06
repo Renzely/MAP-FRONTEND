@@ -330,6 +330,7 @@ export default function AccountCreationEnhanced() {
       "3-Wheel Delivery Rider",
       "4-Wheel Delivery Rider",
       "Walker",
+      "Mega First Mile Same Day Delivery",
     ],
     "DEL MONTE": ["Push Girl", "Cook", "Helper", "Coordinator", "Team Leader"],
     // Marabou Clients
