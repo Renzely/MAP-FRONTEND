@@ -542,9 +542,12 @@ export default function SPXHubs() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const role = localStorage.getItem("roleAccount");
-  const canEdit = ["SPX COORDINATOR", "MIS", "SPX ACCOUNT SUPERVISOR"].includes(
-    role,
-  );
+  const canEdit = [
+    "SPX COORDINATOR",
+    "MIS",
+    "SPX ACCOUNT SUPERVISOR",
+    "SPX HR SPECIALIST",
+  ].includes(role);
   const XLSX = require("sheetjs-style");
 
   const canAccessEdit =
