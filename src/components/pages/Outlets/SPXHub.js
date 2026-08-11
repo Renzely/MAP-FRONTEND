@@ -102,6 +102,7 @@ export const HUBS_BY_REGION = {
     "M.Balara Hub",
     "Wack Wack Hub",
     "San Juan Hub",
+    "MLQ Hub",
   ].sort((a, b) => a.localeCompare(b)),
   "NCR 3 Central": [
     "Escoda Hub",
@@ -266,6 +267,7 @@ export const HUB_COORDINATORS = {
   "Amparo Hub": "Jerome Demayo",
   "Bagumbong Hub": "Jerome Demayo",
   "Caloocan Hub": "Jerome Demayo",
+  "MLQ Hub": "Jerome Demayo",
   "Northwest Caloocan Hub": "Jerome Demayo",
   "Tala Hub": "Jerome Demayo",
   "Surigao Downtown Hub": "",
@@ -794,6 +796,16 @@ export default function SPXHubs() {
       !hubRiders.find((r) => r.employeeId === e._id),
   );
 
+  // Two pools for the Add-Rider dropdowns (both exclude riders already on THIS hub):
+  //  • floatingPool → no hub assignment (uses the app's existing floatingRiders)
+  //  • assignedPool → already assigned to some hub (emp.outlet has a value)
+  const floatingPool = floatingRiders.filter(
+    (e) => !hubRiders.find((r) => r.employeeId === e._id),
+  );
+  const assignedPool = availableRiders.filter(
+    (e) => e.outlet && String(e.outlet).trim() !== "",
+  );
+
   const totalRiders = activeRiders.length;
   const deployedRiders = activeRiders.filter(
     (r) => r.deployStatus === "Deployed",
@@ -934,19 +946,32 @@ export default function SPXHubs() {
     {
       field: "riderNames",
       headerName: "Assigned Riders",
-      flex: 1,
-      minWidth: 280,
+      flex: 0.6,
+      minWidth: 220,
+      maxWidth: 320,
+      align: "center",
+      headerAlign: "center",
       renderCell: (p) => {
         const rList = p.row._riders || [];
         if (rList.length === 0)
           return (
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              sx={{ fontStyle: "italic", fontSize: "12px" }}
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                height: "100%",
+                width: "100%",
+              }}
             >
-              No riders assigned
-            </Typography>
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ fontStyle: "italic", fontSize: "12px" }}
+              >
+                No riders assigned
+              </Typography>
+            </Box>
           );
         return (
           <Box
@@ -954,7 +979,9 @@ export default function SPXHubs() {
               display: "flex",
               flexDirection: "column",
               justifyContent: "center",
+              alignItems: "center",
               height: "100%",
+              width: "100%",
               gap: 0.35,
               py: 0.5,
             }}
@@ -962,7 +989,12 @@ export default function SPXHubs() {
             {rList.slice(0, 3).map((r, i) => (
               <Box
                 key={i}
-                sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 0.5,
+                }}
               >
                 <TwoWheelerIcon
                   sx={{
@@ -2113,12 +2145,12 @@ export default function SPXHubs() {
                               Add Rider to Hub
                             </Typography>
                             <Grid container spacing={2} alignItems="flex-end">
-                              <Grid item xs={12} sm={5}>
+                              <Grid item xs={12} sm={6} md={3}>
                                 <Autocomplete
                                   size="small"
-                                  options={availableRiders}
+                                  options={assignedPool}
                                   value={
-                                    availableRiders.find(
+                                    assignedPool.find(
                                       (emp) => emp._id === addRiderId,
                                     ) || null
                                   }
@@ -2134,7 +2166,7 @@ export default function SPXHubs() {
                                     setAddRiderId(picked?._id || "");
                                     setSaveError("");
                                   }}
-                                  noOptionsText="No available riders"
+                                  noOptionsText="No assigned riders"
                                   renderOption={(props, emp) => (
                                     <Box
                                       component="li"
@@ -2157,9 +2189,7 @@ export default function SPXHubs() {
                                         >
                                           {emp.position || "No position"}
                                           {emp.region ? ` · ${emp.region}` : ""}
-                                          {emp.outlet
-                                            ? ` · ${emp.outlet}`
-                                            : " · No hub"}
+                                          {emp.outlet ? ` · ${emp.outlet}` : ""}
                                         </Typography>
                                       </Box>
                                     </Box>
@@ -2167,13 +2197,71 @@ export default function SPXHubs() {
                                   renderInput={(params) => (
                                     <TextField
                                       {...params}
-                                      label="Select Rider"
-                                      placeholder="Type to search rider…"
+                                      label="Assigned Riders"
+                                      placeholder="With hub…"
                                     />
                                   )}
                                 />
                               </Grid>
-                              <Grid item xs={12} sm={4}>
+                              <Grid item xs={12} sm={6} md={3}>
+                                <Autocomplete
+                                  size="small"
+                                  options={floatingPool}
+                                  value={
+                                    floatingPool.find(
+                                      (emp) => emp._id === addRiderId,
+                                    ) || null
+                                  }
+                                  getOptionLabel={(emp) =>
+                                    emp
+                                      ? `${emp.firstName} ${emp.lastName}`
+                                      : ""
+                                  }
+                                  isOptionEqualToValue={(opt, val) =>
+                                    opt._id === val._id
+                                  }
+                                  onChange={(event, picked) => {
+                                    setAddRiderId(picked?._id || "");
+                                    setSaveError("");
+                                  }}
+                                  noOptionsText="No floating riders"
+                                  renderOption={(props, emp) => (
+                                    <Box
+                                      component="li"
+                                      {...props}
+                                      key={emp._id}
+                                    >
+                                      <Box>
+                                        <Typography
+                                          variant="body2"
+                                          sx={{
+                                            fontWeight: 600,
+                                            fontSize: "13px",
+                                          }}
+                                        >
+                                          {emp.firstName} {emp.lastName}
+                                        </Typography>
+                                        <Typography
+                                          variant="caption"
+                                          sx={{ color: "#888" }}
+                                        >
+                                          {emp.position || "No position"}
+                                          {emp.region ? ` · ${emp.region}` : ""}
+                                          {" · No hub"}
+                                        </Typography>
+                                      </Box>
+                                    </Box>
+                                  )}
+                                  renderInput={(params) => (
+                                    <TextField
+                                      {...params}
+                                      label="Floating Riders"
+                                      placeholder="No hub…"
+                                    />
+                                  )}
+                                />
+                              </Grid>
+                              <Grid item xs={12} sm={6} md={3}>
                                 <TextField
                                   label="Deploy Date"
                                   type="date"
@@ -2197,7 +2285,7 @@ export default function SPXHubs() {
                                   }}
                                 />
                               </Grid>
-                              <Grid item xs={12} sm={3}>
+                              <Grid item xs={12} sm={6} md={3}>
                                 <Button
                                   fullWidth
                                   variant="contained"
