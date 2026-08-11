@@ -12,6 +12,9 @@ import ContactPhoneIcon from "@mui/icons-material/ContactPhone";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import ContactPageIcon from "@mui/icons-material/ContactPage";
+import LocalShippingIcon from "@mui/icons-material/LocalShipping";
+import HowToRegIcon from "@mui/icons-material/HowToReg";
+import PersonOffIcon from "@mui/icons-material/PersonOff";
 
 // Role groups — define once, reuse everywhere
 const ALL_HR = [
@@ -37,24 +40,28 @@ export const NAV_CONFIG = [
     label: "Dashboard",
     path: "/view-dashboard",
     icon: Dashboard,
+    section: "MAIN",
     allowedRoles: null, // null = everyone
   },
   {
     label: "Employee Registration",
     path: "/view-AccountCreationEmployee",
     icon: PersonAddIcon,
+    section: "MAIN",
     allowedRoles: ALL_HR,
   },
   {
     label: "Admin Accounts",
     path: "/view-admin-accounts",
     icon: AdminPanelSettingsIcon,
+    section: "MAIN",
     allowedRoles: ["MIS", "HR HEAD"],
   },
   {
     label: "Recent Activity",
     path: "/view-recent-activity",
     icon: ListAlt,
+    section: "OPERATIONS",
     allowedRoles: [
       "MIS",
       "HR HEAD",
@@ -66,6 +73,7 @@ export const NAV_CONFIG = [
   {
     label: "Client Profiles",
     icon: ContactPageIcon,
+    section: "OPERATIONS",
     allowedRoles: CLIENT_ACCESS,
     children: [
       {
@@ -86,6 +94,7 @@ export const NAV_CONFIG = [
     label: "EFC Outlets",
     path: "/view-Outletlist",
     icon: StoreIcon,
+    section: "OPERATIONS",
     allowedRoles: [
       ...ALL_HR,
       "ACCOUNT SUPERVISOR",
@@ -96,7 +105,8 @@ export const NAV_CONFIG = [
   {
     label: "SPX Hubs",
     path: "/view-spxhubs",
-    icon: StoreIcon,
+    icon: LocalShippingIcon,
+    section: "OPERATIONS",
     allowedRoles: [
       ...ALL_HR,
       "SPX COORDINATOR",
@@ -109,14 +119,23 @@ export const NAV_CONFIG = [
     ],
   },
   {
-    label: "Applicants",
+    label: "Applicant Employees",
     path: "/view-applicants",
-    icon: AssignmentInd,
+    icon: HowToRegIcon,
+    section: "RECORDS",
+    allowedRoles: ALL_HR,
+  },
+  {
+    label: "Inactive Employees",
+    path: "/view-inactives",
+    icon: PersonOffIcon,
+    section: "RECORDS",
     allowedRoles: ALL_HR,
   },
   {
     label: "Employee Management",
     icon: GroupsIcon,
+    section: "RECORDS",
     allowedRoles: [
       ...HR_MANAGEMENT,
       "ACCOUNT SUPERVISOR",
@@ -161,7 +180,7 @@ export const NAV_CONFIG = [
             allowedRoles: [
               ...HR_MANAGEMENT,
               "ACCOUNT SUPERVISOR",
-              "COODINATOR",
+              "COORDINATOR",
             ],
           },
           {

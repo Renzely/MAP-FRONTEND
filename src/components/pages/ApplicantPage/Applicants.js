@@ -673,13 +673,13 @@ export default function BmpowerHO() {
                   variant="h4"
                   sx={{ color: "white", fontWeight: 700, mb: 0.5 }}
                 >
-                  APPLICANTS
+                  APPLICANT EMPLOYEES
                 </Typography>
                 <Typography
                   variant="body1"
                   sx={{ color: "rgba(255,255,255,0.9)" }}
                 >
-                  APPLICANTS
+                  All applicant employees across every client
                 </Typography>
               </Box>
             </Box>

@@ -16,11 +16,13 @@ import RecentActivity from "./components/pages/RecentActivity/RecentActivity";
 import ForgotPassword from "./components/landingPage/forgotpassword";
 import Path from "./path/Path";
 
+import ApplicantPage from "./components/pages/ApplicantPage/Applicants";
+import InactivePage from "./components/pages/ApplicantPage/Inactives";
+
 import BmpowerHO from "./components/pages/BMPOWER/BmpowerHO";
 import AsianStreak from "./components/pages/BMPOWER/AsianStreak";
 import EcossentialFoods from "./components/pages/BMPOWER/EcossentialFoods";
 import EcossentialFoodsHO from "./components/pages/BMPOWER/EcossentialFoodsHO";
-import ApplicantPage from "./components/pages/ApplicantPage/Applicants";
 import BrolleeExclusive from "./components/pages/BMPOWER/BrolleeExclusive";
 import Engkanto from "./components/pages/BMPOWER/Engkanto";
 import Magis from "./components/pages/BMPOWER/Magis";
@@ -66,7 +68,10 @@ function App() {
           <Route path="/view-dashboard" element={<Dashboard />} />
           <Route path="/view-admin-accounts" element={<Admin />} />
           <Route path="/view-recent-activity" element={<RecentActivity />} />
+
           <Route path="/view-applicants" element={<ApplicantPage />} />
+          <Route path="/view-inactives" element={<InactivePage />} />
+
           <Route
             path="/view-AccountCreationEmployee"
             element={<AccountCreationEmployee />}

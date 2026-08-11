@@ -402,7 +402,15 @@ export default function BmpowerHO() {
             acc.status?.toUpperCase() !== "APPLICANT" &&
             acc.remarks?.toUpperCase() !== "APPLICANT";
 
-          return isCorrectCompany && isCorrectClient && isNotApplicant;
+          // ❌ EXCLUDE INACTIVES (they live on the Inactives page now)
+          const isNotInactive = acc.status?.toUpperCase() !== "INACTIVE";
+
+          return (
+            isCorrectCompany &&
+            isCorrectClient &&
+            isNotApplicant &&
+            isNotInactive
+          );
         });
 
         setAccounts(bmpowerAccounts);
@@ -790,31 +798,6 @@ export default function BmpowerHO() {
                 gap: 2,
               }}
             >
-              <FormControl sx={{ minWidth: 220 }}>
-                <InputLabel>Filter by Remarks</InputLabel>
-                <Select
-                  value={selectedRemarks}
-                  onChange={handleRemarksChange}
-                  label="Filter by Remarks"
-                  sx={{
-                    backgroundColor: "white",
-                    borderRadius: "8px",
-                  }}
-                >
-                  <MenuItem value="">
-                    <em>Select Remarks</em>
-                  </MenuItem>
-                  <MenuItem value="UNFILTERED">All Records</MenuItem>
-                  <MenuItem value="Applicant">Applicant</MenuItem>
-                  <MenuItem value="Employed">Employed</MenuItem>
-                  <MenuItem value="Resigned">Resigned</MenuItem>
-                  <MenuItem value="End of Contract">End of Contract</MenuItem>
-                  <MenuItem value="Retrenchment">Retrenchment</MenuItem>
-                  <MenuItem value="Terminated">Terminated</MenuItem>
-                  <MenuItem value="AWOL">AWOL</MenuItem>
-                </Select>
-              </FormControl>
-
               <Button
                 onClick={getExportData}
                 variant="contained"
