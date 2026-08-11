@@ -402,7 +402,15 @@ export default function BmpowerHO() {
             acc.status?.toUpperCase() !== "APPLICANT" &&
             acc.remarks?.toUpperCase() !== "APPLICANT";
 
-          return isCorrectCompany && isCorrectClient && isNotApplicant;
+          // ❌ EXCLUDE INACTIVES (they live on the Inactives page now)
+          const isNotInactive = acc.status?.toUpperCase() !== "INACTIVE";
+
+          return (
+            isCorrectCompany &&
+            isCorrectClient &&
+            isNotApplicant &&
+            isNotInactive
+          );
         });
 
         setAccounts(bmpowerAccounts);

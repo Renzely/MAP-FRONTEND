@@ -6035,7 +6035,7 @@ export const OUTLET_DATA = [
     id: 993,
     region: "REGION 6",
     outlet: "PUREGOLD PRICE CLUB - CABATUAN",
-    accountSupervisor: "CASERES, JAYSON",
+    accountSupervisor: "DOBLE, RYAN",
   },
   {
     id: 994,
@@ -6813,13 +6813,13 @@ export const OUTLET_DATA = [
   },
   {
     id: 1123,
-    region: "REGION 9",
+    region: "REGION 12",
     outlet: "PUREGOLD PRICE CLUB - TANDAG",
     accountSupervisor: "DOBLE, RYAN",
   },
   {
     id: 1124,
-    region: "REGION 9",
+    region: "REGION 12",
     outlet: "ROBINSONS - TANDAG",
     accountSupervisor: "DOBLE, RYAN",
   },
@@ -7133,18 +7133,6 @@ export const OUTLET_DATA = [
     id: 1176,
     region: "REGION 12",
     outlet: "ROBINSONS PLACE - GENERAL SANTOS",
-    accountSupervisor: "DOBLE, RYAN",
-  },
-  {
-    id: 1177,
-    region: "REGION 12",
-    outlet: "ROBINSON TANDAG",
-    accountSupervisor: "DOBLE, RYAN",
-  },
-  {
-    id: 1178,
-    region: "REGION 12",
-    outlet: "PUREGOLD TANDAG",
     accountSupervisor: "DOBLE, RYAN",
   },
   {

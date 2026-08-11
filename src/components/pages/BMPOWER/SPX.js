@@ -69,6 +69,7 @@ export default function BmpowerHO() {
     "HR COMPENSATION AND BENEFITS",
     "HR COORDINATOR SPECIALIST",
     "SPX HR SPECIALIST",
+    "SPX ACCOUNT SUPERVISOR",
     "MIS",
   ];
 
@@ -503,18 +504,35 @@ export default function BmpowerHO() {
         ...updatedEmployee,
         updatedBy: adminFullName || "Unknown",
       };
-      await axios.put(
+      const response = await axios.put(
         `https://api-map.bmphrc.com/update-employee/${updatedEmployee._id}`,
         payload,
       );
-      alert("Employee details updated successfully!");
-      setDateResignedError(false);
-      setOpenEditModal(false);
-      setIsEditing(false);
-      window.location.reload();
+
+      // Treat it as success only if the server says so
+      if (response.status >= 200 && response.status < 300) {
+        alert("Employee details updated successfully!");
+        setDateResignedError(false);
+        setOpenEditModal(false);
+        setIsEditing(false);
+        window.location.reload();
+      } else {
+        alert(
+          `Update returned status ${response.status}: ${
+            response.data?.message || "Unexpected response."
+          }`,
+        );
+      }
     } catch (error) {
       console.error("Error updating employee:", error);
-      alert("Failed to update employee details.");
+      // Surface the REAL reason so we're not guessing
+      const status = error.response?.status;
+      const serverMsg = error.response?.data?.message;
+      alert(
+        `Failed to update employee details.\n` +
+          (status ? `Status: ${status}\n` : "") +
+          (serverMsg ? `Server said: ${serverMsg}` : error.message),
+      );
     }
   };
 
@@ -538,7 +556,15 @@ export default function BmpowerHO() {
             acc.status?.toUpperCase() !== "APPLICANT" &&
             acc.remarks?.toUpperCase() !== "APPLICANT";
 
-          return isCorrectCompany && isCorrectClient && isNotApplicant;
+          // ❌ EXCLUDE INACTIVES (they live on the Inactives page now)
+          const isNotInactive = acc.status?.toUpperCase() !== "INACTIVE";
+
+          return (
+            isCorrectCompany &&
+            isCorrectClient &&
+            isNotApplicant &&
+            isNotInactive
+          );
         });
 
         setAccounts(bmpowerAccounts);
@@ -1314,24 +1340,21 @@ export default function BmpowerHO() {
                                   onChange={(e) => {
                                     const newStatus = e.target.value;
 
-                                    // Auto-map Status → Remarks
-                                    const statusToRemarks = {
-                                      Active: "Employed",
-                                      Applicant: "Applicant",
-                                    };
-                                    const autoRemarks =
-                                      statusToRemarks[newStatus];
+                                    // Each status dictates what Remarks is allowed to be
+                                    let autoRemarks = "";
+                                    if (newStatus === "Applicant")
+                                      autoRemarks = "Applicant";
+                                    else if (newStatus === "Active")
+                                      autoRemarks = "Employed";
+                                    else if (newStatus === "Inactive")
+                                      autoRemarks = ""; // force a fresh pick
 
                                     setSelectedEmployee({
                                       ...selectedEmployee,
                                       status: newStatus,
-                                      // only overwrite when we have a mapping; otherwise keep what's there
-                                      ...(autoRemarks
-                                        ? {
-                                            remarks: autoRemarks,
-                                            reasonForLeaving: "",
-                                          }
-                                        : {}),
+                                      remarks: autoRemarks,
+                                      // clear leaving reason unless they'll pick a leaving remark next
+                                      reasonForLeaving: "",
                                     });
                                   }}
                                 >
@@ -1351,6 +1374,7 @@ export default function BmpowerHO() {
                               />
                             )}
                           </Grid>
+
                           <Grid item xs={12} sm={6}>
                             {isEditing ? (
                               <FormControl fullWidth>
@@ -1358,12 +1382,17 @@ export default function BmpowerHO() {
                                 <Select
                                   value={selectedEmployee.remarks || ""}
                                   label="Remarks"
+                                  // Applicant & Active have exactly one valid remark → lock the dropdown
+                                  disabled={
+                                    selectedEmployee.status === "Applicant" ||
+                                    selectedEmployee.status === "Active"
+                                  }
                                   onChange={(e) => {
                                     const newRemarks = e.target.value;
-                                    // Auto-map Remarks → Reason for Leaving
                                     const leavingRemarks = [
                                       "Resigned",
                                       "End of Contract",
+                                      "Retrenchment",
                                       "Terminated",
                                       "AWOL",
                                     ];
@@ -1379,19 +1408,40 @@ export default function BmpowerHO() {
                                     });
                                   }}
                                 >
-                                  <MenuItem value="Employed">Employed</MenuItem>
-                                  <MenuItem value="Resigned">Resigned</MenuItem>
-                                  <MenuItem value="Deployed">Deployed</MenuItem>
-                                  <MenuItem value="Undeployed">
-                                    Undeployed
-                                  </MenuItem>
-                                  <MenuItem value="End of Contract">
-                                    End of Contract
-                                  </MenuItem>
-                                  <MenuItem value="Terminated">
-                                    Terminated
-                                  </MenuItem>
-                                  <MenuItem value="AWOL">AWOL</MenuItem>
+                                  {/* Options shown depend on the selected Status */}
+                                  {selectedEmployee.status === "Applicant" && (
+                                    <MenuItem value="Applicant">
+                                      Applicant
+                                    </MenuItem>
+                                  )}
+                                  {selectedEmployee.status === "Active" && (
+                                    <MenuItem value="Employed">
+                                      Employed
+                                    </MenuItem>
+                                  )}
+                                  {selectedEmployee.status === "Inactive" && [
+                                    <MenuItem key="resigned" value="Resigned">
+                                      Resigned
+                                    </MenuItem>,
+                                    <MenuItem key="eoc" value="End of Contract">
+                                      End of Contract
+                                    </MenuItem>,
+                                    <MenuItem
+                                      key="retrench"
+                                      value="Retrenchment"
+                                    >
+                                      Retrenchment
+                                    </MenuItem>,
+                                    <MenuItem
+                                      key="terminated"
+                                      value="Terminated"
+                                    >
+                                      Terminated
+                                    </MenuItem>,
+                                    <MenuItem key="awol" value="AWOL">
+                                      AWOL
+                                    </MenuItem>,
+                                  ]}
                                 </Select>
                               </FormControl>
                             ) : (

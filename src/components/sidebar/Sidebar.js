@@ -4,6 +4,7 @@ import { NavLink, useLocation } from "react-router-dom";
 import { Collapse, IconButton, Tooltip } from "@mui/material";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import MenuIcon from "@mui/icons-material/Menu";
+import StorefrontIcon from "@mui/icons-material/Storefront";
 import { NAV_CONFIG } from "./sidebarConfig";
 import "./sidebar.css";
 
@@ -110,20 +111,54 @@ export default function Sidebar() {
   // compute once per render — only items this role can see
   const visibleNav = filterNav(NAV_CONFIG, roleAccount);
 
+  // Group the visible items by their section, preserving first-seen order.
+  const sections = [];
+  visibleNav.forEach((item) => {
+    const key = item.section || "";
+    let group = sections.find((s) => s.name === key);
+    if (!group) {
+      group = { name: key, items: [] };
+      sections.push(group);
+    }
+    group.items.push(item);
+  });
+
   return (
     <div className={`sidebar ${isOpen ? "open" : ""}`}>
       <div className="sidebar-header">
-        <IconButton onClick={toggleSidebar} className="menu-button">
+        <div className="sidebar-brand">
+          <div className="sidebar-logo">
+            <StorefrontIcon />
+          </div>
+          {isOpen && <span className="sidebar-brand-text">Nexus Desk</span>}
+        </div>
+        <IconButton
+          onClick={toggleSidebar}
+          className="menu-button"
+          size="small"
+        >
           <MenuIcon sx={{ color: "white" }} />
         </IconButton>
       </div>
-      <hr className="sidebar-divider" />
 
-      <ul className="sidebar-menu">
-        {visibleNav.map((item) => (
-          <NavItem key={item.path ?? item.label} item={item} isOpen={isOpen} />
+      <div className="sidebar-scroll">
+        {sections.map((group) => (
+          <div className="sidebar-section" key={group.name || "ungrouped"}>
+            {isOpen && group.name && (
+              <div className="sidebar-section-label">{group.name}</div>
+            )}
+            <ul className="sidebar-menu">
+              {group.items.map((item) => (
+                <NavItem
+                  key={item.path ?? item.label}
+                  item={item}
+                  isOpen={isOpen}
+                />
+              ))}
+            </ul>
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }
