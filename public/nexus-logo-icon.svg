@@ -1,0 +1,13 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Nexus Desk">
+  <title>Nexus Desk</title>
+  <g transform="translate(32,32)">
+    <polygon points="0,-22 19,-11 19,11 0,22 -19,11 -19,-11" fill="none" stroke="#90e0ef" stroke-width="2.5"/>
+    <line x1="0" y1="0" x2="0" y2="-22" stroke="#90e0ef" stroke-width="2"/>
+    <line x1="0" y1="0" x2="19" y2="11" stroke="#90e0ef" stroke-width="2"/>
+    <line x1="0" y1="0" x2="-19" y2="11" stroke="#90e0ef" stroke-width="2"/>
+    <circle cx="0" cy="-22" r="4" fill="#90e0ef"/>
+    <circle cx="19" cy="11" r="4" fill="#90e0ef"/>
+    <circle cx="-19" cy="11" r="4" fill="#90e0ef"/>
+    <circle cx="0" cy="0" r="7" fill="#ffffff"/>
+  </g>
+</svg>

@@ -36,6 +36,7 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
+import SearchIcon from "@mui/icons-material/Search";
 import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Cancel";
 import PersonIcon from "@mui/icons-material/Person";
@@ -745,12 +746,12 @@ export const OUTLET_DATA = [
     outlet: "LANDMARK - TRINOMA COMPLEX",
     accountSupervisor: "CASERES, JAYSON",
   },
-  {
-    id: 112,
-    region: "NCR",
-    outlet: "ULTRAMEGA - GAGALANGIN",
-    accountSupervisor: "VIGIL, BERNIE",
-  },
+  // {
+  //   id: 112,
+  //   region: "NCR",
+  //   outlet: "ULTRAMEGA - GAGALANGIN",
+  //   accountSupervisor: "VIGIL, BERNIE",
+  // },
   {
     id: 113,
     region: "NCR",
@@ -7632,32 +7633,6 @@ const TerminateReasonField = React.memo(function TerminateReasonField({
   );
 });
 
-function CustomToolbar() {
-  return (
-    <Box
-      sx={{
-        p: 2,
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        backgroundColor: "#f8f9fa",
-        borderBottom: "2px solid #e0e0e0",
-      }}
-    >
-      <GridToolbarQuickFilter
-        sx={{
-          "& .MuiOutlinedInput-root": {
-            backgroundColor: "white",
-            borderRadius: "8px",
-            "& fieldset": { borderColor: "#d0d0d0" },
-            "&:hover fieldset": { borderColor: "#2e6385ff" },
-          },
-        }}
-      />
-    </Box>
-  );
-}
-
 // ═════════════════════════════════════════════════════════════════════════════
 // 5. MAIN COMPONENT - OutletList
 // ═════════════════════════════════════════════════════════════════════════════
@@ -7674,6 +7649,7 @@ export default function OutletList() {
   const [filterStatus, setFilterStatus] = useState("ALL");
   const [filterType, setFilterType] = useState("ALL");
   const [filterSupervisor, setFilterSupervisor] = useState("ALL");
+  const [searchText, setSearchText] = React.useState("");
 
   // Modal states
   const [openEditModal, setOpenEditModal] = useState(false);
@@ -8762,27 +8738,50 @@ export default function OutletList() {
   ];
 
   // ── Rows Data ─────────────────────────────────────────────────────────────
-  const rows = filteredOutlets.map((outlet, index) => {
-    const a = outletAssignments[outlet.id];
-    const c = coordinatorAssignments[outlet.id];
-    return {
-      ...outlet,
-      count: index + 1,
-      _deployStatus: a?.deployStatus || "",
-      _deploymentType: a?.deploymentType || "Stationary",
-      _applicantStatus: a?.applicantStatus || "",
-      _employeeName: a?.employeeName || "",
-      _deployDate: a?.deployDate || null,
-      _undeployDate: a?.undeployDate || null,
-      _daysUndeployed: calcDaysUndeployed(a?.undeployDate, a?.deployStatus),
-      _isApplicant: a?.isApplicant || false,
-      _incomingApplicantId: a?.incomingApplicantId || null,
-      _incomingApplicantName: a?.incomingApplicantName || null,
-      _incomingApplicantStatus: a?.incomingApplicantStatus || "",
-      _coordName: c?.employeeName || "",
-      _coordStatus: c?.status || "",
-    };
-  });
+  const rows = filteredOutlets
+    .map((outlet, index) => {
+      const a = outletAssignments[outlet.id];
+      const c = coordinatorAssignments[outlet.id];
+      return {
+        ...outlet,
+        count: index + 1,
+        _deployStatus: a?.deployStatus || "",
+        _deploymentType: a?.deploymentType || "Stationary",
+        _applicantStatus: a?.applicantStatus || "",
+        _employeeName: a?.employeeName || "",
+        _deployDate: a?.deployDate || null,
+        _undeployDate: a?.undeployDate || null,
+        _daysUndeployed: calcDaysUndeployed(a?.undeployDate, a?.deployStatus),
+        _isApplicant: a?.isApplicant || false,
+        _incomingApplicantId: a?.incomingApplicantId || null,
+        _incomingApplicantName: a?.incomingApplicantName || null,
+        _incomingApplicantStatus: a?.incomingApplicantStatus || "",
+        _coordName: c?.employeeName || "",
+        _coordStatus: c?.status || "",
+      };
+    })
+    .filter((row) => {
+      const q = searchText.trim().toLowerCase();
+      if (!q) return true;
+      // Search across the fields that matter for an outlet row.
+      const haystack = [
+        row.outlet, // outlet name
+        row.region,
+        row.accountSupervisor,
+        row._employeeName, // assigned merchandiser
+        row._deployStatus,
+        row._deploymentType,
+        row._applicantStatus,
+        row._incomingApplicantName,
+        row._incomingApplicantStatus,
+        row._coordName,
+        row._coordStatus,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      return haystack.includes(q);
+    });
 
   // ═════════════════════════════════════════════════════════════════════════
   // 6. RENDER
@@ -9002,6 +9001,48 @@ export default function OutletList() {
               "& .MuiDataGrid-row:hover": { backgroundColor: "#f8f9fa" },
             }}
           >
+            {/* Search bar — OUTSIDE the grid so it renders and keeps focus */}
+            <Box
+              sx={{
+                p: 2,
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                backgroundColor: "#f8f9fa",
+                borderBottom: "2px solid #e0e0e0",
+              }}
+            >
+              <TextField
+                size="small"
+                placeholder="Search name, SSS, TIN, status…"
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                InputProps={{
+                  startAdornment: (
+                    <SearchIcon sx={{ color: "#888", mr: 1, fontSize: 20 }} />
+                  ),
+                  endAdornment: searchText ? (
+                    <IconButton
+                      size="small"
+                      onClick={() => setSearchText("")}
+                      sx={{ p: 0.3 }}
+                    >
+                      <CloseIcon sx={{ fontSize: 18, color: "#888" }} />
+                    </IconButton>
+                  ) : null,
+                }}
+                sx={{
+                  minWidth: 320,
+                  "& .MuiOutlinedInput-root": {
+                    backgroundColor: "white",
+                    borderRadius: "8px",
+                    "& fieldset": { borderColor: "#d0d0d0" },
+                    "&:hover fieldset": { borderColor: "#2e6385ff" },
+                  },
+                }}
+              />
+            </Box>
+
             <DataGrid
               rows={rows}
               columns={columns}
@@ -9009,7 +9050,6 @@ export default function OutletList() {
               initialState={{
                 pagination: { paginationModel: { page: 0, pageSize: 20 } },
               }}
-              slots={{ toolbar: CustomToolbar }}
               slotProps={{ toolbar: { showQuickFilter: true } }}
               pageSizeOptions={[10, 20, 50]}
               disableRowSelectionOnClick

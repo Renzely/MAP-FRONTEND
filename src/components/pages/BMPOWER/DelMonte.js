@@ -27,6 +27,7 @@ import {
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CloseIcon from "@mui/icons-material/Close";
+import SearchIcon from "@mui/icons-material/Search";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Cancel";
@@ -41,7 +42,7 @@ import ChecklistIcon from "@mui/icons-material/Checklist";
 import Topbar from "../../topbar/Topbar";
 import Sidebar from "../../sidebar/Sidebar";
 import dayjs from "dayjs";
-
+import bmplogo from "../../Images/Bmpower_Logo/BMP - LOGO.png";
 import Delmontelogo from "../../Images/Bmpower_Logo/BMP - DELMONTE.png";
 
 export default function BmpowerHO() {
@@ -52,6 +53,7 @@ export default function BmpowerHO() {
   const [isEditing, setIsEditing] = useState(false);
   const [selectedRemarks, setSelectedRemarks] = React.useState("");
   const [filteredAccounts, setFilteredAccounts] = React.useState([]);
+  const [searchText, setSearchText] = React.useState("");
   const [previewImage, setPreviewImage] = useState(null);
   const [viewAllModalOpen, setViewAllModalOpen] = useState(false);
   const [viewRequirements, setViewRequirements] = useState([]);
@@ -152,6 +154,7 @@ export default function BmpowerHO() {
       "2-Wheel Delivery Rider",
       "3-Wheel Delivery Rider",
       "4-Wheel Delivery Rider",
+      "MFM SDD",
       "Walker",
     ],
     "DEL MONTE": ["Push Girl", "Cook", "Helper", "Coordinator", "Team Leader"],
@@ -207,6 +210,38 @@ export default function BmpowerHO() {
     "METRO PACIFIC DAIRY FARM": ["Feeder"],
     "UNIVERSAL HARVESTER DAIRY FARM INC": ["Tactical Coordinator"],
     "COSMETIQUE ASIA": ["Brand Ambassador", "Account Coordinator"],
+  };
+
+  const CLIENTS_BY_COMPANY = {
+    "BMPOWER HUMAN RESOURCES CORPORATION": [
+      "BMPOWER HUMAN RESOURCES CORPORATION",
+      "ASIAN STREAK BROKERAGE CO",
+      "ECOSSENTIAL FOODS CORP",
+      "ECOSSENTIAL FOODS CORP-HEAD OFFICE",
+      "BROLLEE EXCLUSIVE",
+      "ENGKANTO",
+      "MAGIS DISTRIBUTION INC.",
+      "MCKENZIE DISTRIBUTION CO.",
+      "PLDT TELESCOOP",
+      "SPX EXPRESS",
+      "DEL MONTE",
+      "MANDOM",
+      "UNION GALVASTEEL CO.",
+    ],
+    "MARABOU EVERGREEN RESOURCES INC": [
+      "MARABOU EVERGREEN RESOURCES INC",
+      "CARMENS BEST",
+      "METRO PACIFIC DAIRY FARM",
+      "METRO PACIFIC FRESH FARM",
+      "UNIVERSAL HARVESTER DAIRY FARM INC",
+      "LONG TABLE GROUP INC.- MASAJIRO",
+      "J-GYU INC",
+      "COSMETIQUE ASIA",
+    ],
+  };
+
+  const CLIENT_LABELS = {
+    "LONG TABLE GROUP INC.- MASAJIRO": "LONG TABLE GROUP INC. - MASAJIRO",
   };
 
   const allowedRoles = [
@@ -691,6 +726,32 @@ export default function BmpowerHO() {
   ];
 
   const rows = [...filteredAccounts]
+    .filter((acc) => {
+      const q = searchText.trim().toLowerCase();
+      if (!q) return true;
+      // Search across the fields that matter — case-insensitive substring.
+      const haystack = [
+        acc.firstName,
+        acc.middleName,
+        acc.lastName,
+        `${acc.firstName || ""} ${acc.middleName || ""} ${acc.lastName || ""}`,
+        `${acc.firstName || ""} ${acc.lastName || ""}`,
+        acc.sss,
+        acc.philhealth,
+        acc.hdmf,
+        acc.tin,
+        acc.remarks,
+        acc.status,
+        acc.email,
+        acc.contact,
+        acc.position,
+        acc.employeeNo,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      return haystack.includes(q);
+    })
     .sort((a, b) => (a.lastName || "").localeCompare(b.lastName || ""))
     .map((acc, index) => ({
       id: acc._id || index,
@@ -860,6 +921,48 @@ export default function BmpowerHO() {
               },
             }}
           >
+            {/* Search bar — OUTSIDE the grid so it renders and keeps focus */}
+            <Box
+              sx={{
+                p: 2,
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                backgroundColor: "#f8f9fa",
+                borderBottom: "2px solid #e0e0e0",
+              }}
+            >
+              <TextField
+                size="small"
+                placeholder="Search name, SSS, TIN, status…"
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                InputProps={{
+                  startAdornment: (
+                    <SearchIcon sx={{ color: "#888", mr: 1, fontSize: 20 }} />
+                  ),
+                  endAdornment: searchText ? (
+                    <IconButton
+                      size="small"
+                      onClick={() => setSearchText("")}
+                      sx={{ p: 0.3 }}
+                    >
+                      <CloseIcon sx={{ fontSize: 18, color: "#888" }} />
+                    </IconButton>
+                  ) : null,
+                }}
+                sx={{
+                  minWidth: 320,
+                  "& .MuiOutlinedInput-root": {
+                    backgroundColor: "white",
+                    borderRadius: "8px",
+                    "& fieldset": { borderColor: "#d0d0d0" },
+                    "&:hover fieldset": { borderColor: "#2e6385ff" },
+                  },
+                }}
+              />
+            </Box>
+
             <DataGrid
               rows={rows}
               columns={columns}
@@ -867,12 +970,6 @@ export default function BmpowerHO() {
               initialState={{
                 pagination: {
                   paginationModel: { page: 0, pageSize: 10 },
-                },
-              }}
-              slots={{ toolbar: CustomToolbar }}
-              slotProps={{
-                toolbar: {
-                  showQuickFilter: true,
                 },
               }}
               pageSizeOptions={[5, 10, 20, 50]}
@@ -1171,6 +1268,10 @@ export default function BmpowerHO() {
                                     setSelectedEmployee({
                                       ...selectedEmployee,
                                       company: e.target.value,
+                                      // company changed → clear client & position
+                                      // so a mismatched client can't carry over
+                                      clientAssigned: "",
+                                      position: "",
                                     })
                                   }
                                 >
@@ -1344,9 +1445,6 @@ export default function BmpowerHO() {
                                   disabled={!selectedEmployee.clientAssigned}
                                   displayEmpty
                                 >
-                                  <MenuItem value="" disabled>
-                                    <em>Select a position</em>
-                                  </MenuItem>
                                   {(
                                     POSITIONS_BY_CLIENT[
                                       selectedEmployee.clientAssigned
@@ -1379,6 +1477,7 @@ export default function BmpowerHO() {
                                 <Select
                                   value={selectedEmployee.clientAssigned || ""}
                                   label="Client Assigned"
+                                  disabled={!selectedEmployee.company}
                                   onChange={(e) =>
                                     setSelectedEmployee({
                                       ...selectedEmployee,
@@ -1387,66 +1486,15 @@ export default function BmpowerHO() {
                                     })
                                   }
                                 >
-                                  <MenuItem value="ASIAN STREAK BROKERAGE CO">
-                                    ASIAN STREAK BROKERAGE CO
-                                  </MenuItem>
-                                  <MenuItem value="BMPOWER HUMAN RESOURCES CORPORATION">
-                                    BMPOWER HUMAN RESOURCES CORPORATION
-                                  </MenuItem>
-                                  <MenuItem value="BROLLEE EXCLUSIVE">
-                                    BROLLEE EXCLUSIVE
-                                  </MenuItem>
-                                  <MenuItem value="CARMENS BEST">
-                                    CARMENS BEST
-                                  </MenuItem>
-                                  <MenuItem value="ECOSSENTIAL FOODS CORP">
-                                    ECOSSENTIAL FOODS CORP
-                                  </MenuItem>
-                                  <MenuItem value="ECOSSENTIAL FOODS CORP-HEAD OFFICE">
-                                    ECOSSENTIAL FOODS CORP-HEAD OFFICE
-                                  </MenuItem>
-                                  <MenuItem value="ENGKANTO">ENGKANTO</MenuItem>
-                                  <MenuItem value="J-GYU INC">
-                                    J-GYU INC
-                                  </MenuItem>
-                                  <MenuItem value="LONG TABLE GROUP INC.- MASAJIRO">
-                                    LONG TABLE GROUP INC. - MASAJIRO
-                                  </MenuItem>
-                                  <MenuItem value="MAGIS DISTRIBUTION INC.">
-                                    MAGIS DISTRIBUTION INC.
-                                  </MenuItem>
-                                  <MenuItem value="MARABOU EVERGREEN RESOURCES INC">
-                                    MARABOU EVERGREEN RESOURCES INC
-                                  </MenuItem>
-                                  <MenuItem value="MCKENZIE DISTRIBUTION CO.">
-                                    MCKENZIE DISTRIBUTION CO.
-                                  </MenuItem>
-                                  <MenuItem value="METRO PACIFIC DAIRY FARM">
-                                    METRO PACIFIC DAIRY FARM
-                                  </MenuItem>
-                                  <MenuItem value="METRO PACIFIC FRESH FARM">
-                                    METRO PACIFIC FRESH FARM
-                                  </MenuItem>
-                                  <MenuItem value="PLDT TELESCOOP">
-                                    PLDT TELESCOOP
-                                  </MenuItem>
-                                  <MenuItem value="RC">RC SALES AGENT</MenuItem>
-                                  <MenuItem value="MANDOM">MANDOM</MenuItem>
-                                  <MenuItem value="DEL MONTE">
-                                    DEL MONTE
-                                  </MenuItem>
-                                  <MenuItem value="SPX EXPRESS">
-                                    SPX EXPRESS
-                                  </MenuItem>
-                                  <MenuItem value="UNIVERSAL HARVESTER DAIRY FARM INC">
-                                    UNIVERSAL HARVESTER DAIRY FARM INC
-                                  </MenuItem>
-                                  <MenuItem value="UNION GALVASTEEL CO.">
-                                    UNION GALVASTEEL CO.
-                                  </MenuItem>
-                                  <MenuItem value="COSMETIQUE ASIA">
-                                    COSMETIQUE ASIA
-                                  </MenuItem>
+                                  {(
+                                    CLIENTS_BY_COMPANY[
+                                      selectedEmployee.company
+                                    ] || []
+                                  ).map((client) => (
+                                    <MenuItem key={client} value={client}>
+                                      {CLIENT_LABELS[client] || client}
+                                    </MenuItem>
+                                  ))}
                                 </Select>
                               </FormControl>
                             ) : (

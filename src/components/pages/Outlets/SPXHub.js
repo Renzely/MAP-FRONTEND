@@ -33,6 +33,7 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
+import SearchIcon from "@mui/icons-material/Search";
 import PersonIcon from "@mui/icons-material/Person";
 import BusinessIcon from "@mui/icons-material/Business";
 import BadgeIcon from "@mui/icons-material/Badge";
@@ -175,6 +176,50 @@ export const HUBS_BY_REGION = {
     "MB Crossing Hub",
     "RC Hub",
   ].sort((a, b) => a.localeCompare(b)),
+  "MIN 3 Davao": [
+    "Bangkal hub",
+    "Boulevard Hub",
+    "Davao Buhangin Hub",
+    "Davao Calinan Hub",
+    "Davao Carmen Hub",
+    "Davao Hub",
+    "Davao Ma-a Hub",
+    "Davao Marfori Hub",
+    "Davao Matina Aplaya Hub",
+    "Davao Obrero Hub",
+    "Davao RC/DC",
+    "Davao RC/DC - MIDMILE",
+    "Davao Tibungco Hub",
+    "Davao Toril Hub",
+    "Davao Tugbok Hub",
+    "Digos Hub",
+    "Digos Aurora Hub",
+    "Gov. Gen Hub",
+    "Laak Hub",
+    "Lupon Hub",
+    "Maragusan Hub",
+    "Mati Hub",
+    "MB Bansalan Hub",
+    "MB Digos Hub",
+    "MB Malabog",
+    "MB Malalag Hub",
+    "MB Mandug Hub",
+    "MB Mawab Hub",
+    "MB Padada Hub",
+    "MB Sta. Maria Hub",
+    "MB Tibungol Hub",
+    "MB Mabunao Hub",
+    "Montevista Hub",
+    "New Corella Hub",
+    "Panabo Hub",
+    "Pantukan Hub",
+    "Santo Tomas Davao Hub",
+    "Tagum Hub",
+    "Tagum Magugpo East Hub",
+    "PHM_SDD",
+    "Davao Dumoy Hub",
+  ].sort((a, b) => a.localeCompare(b)),
+  "MIN 5 ZamPen/MisOcc": ["Pagadian Hub"].sort((a, b) => a.localeCompare(b)),
 };
 
 export const HUB_COORDINATORS = {
@@ -246,8 +291,8 @@ export const HUB_COORDINATORS = {
   "Del Monte Ave Hub": "Jerome Demayo",
   "Reliance Hub": "Jerome Demayo",
   "MFM Pasig Hub": "Jerome Demayo",
-  "Mercedes Hub": "",
-  "Ugong Hub": "",
+  "Mercedes Hub": "Jerome Demayo",
+  "Ugong Hub": "Jerome Demayo",
   "North East Caloocan Hub": "Jerome Demayo",
   "Upper QC Hub": "Jerome Demayo",
   "West Grace Park Hub": "Arnel Curiba",
@@ -270,24 +315,65 @@ export const HUB_COORDINATORS = {
   "MLQ Hub": "Jerome Demayo",
   "Northwest Caloocan Hub": "Jerome Demayo",
   "Tala Hub": "Jerome Demayo",
-  "Surigao Downtown Hub": "",
+  "Surigao Downtown Hub": "Jay Boticario",
   "Surigao Del Norte Hub": "Jay Boticario",
   "Mainit Hub": "Jay Boticario",
   "Cantilan Hub": "Jay Boticario",
   "Butuan Hub": "Erll Dave Jose",
   "Ampayon Hub": "Erll Dave Jose",
-  "Ambago Hub": "",
+  "Ambago Hub": "Erll Dave Jose",
   "Buenavista Hub": "Jay Boticario",
   "Cabadbaran Hub": "Erll Dave Jose",
   "Bayugan Hub": "Erll Dave Jose",
   "San Francisco Hub": "Erll Dave Jose",
-  "Taganaan Mobile Hub": "",
-  "Placer Mobile Hub": "",
-  "Malimono Mobile Hub": "",
-  "Hinatuan Mobile Hub": "",
-  "Lingig Mobile Hub": "",
-  "MB Crossing Hub": "",
-  "RC Hub": "",
+  "Taganaan Mobile Hub": "Jay Boticario",
+  "Placer Mobile Hub": "Jay Boticario",
+  "Malimono Mobile Hub": "Jay Boticario",
+  "Hinatuan Mobile Hub": "Jay Boticario",
+  "Lingig Mobile Hub": "Jay Boticario",
+  "MB Crossing Hub": "Erll Dave Jose",
+  "RC Hub": "Jay Boticario",
+  "Bangkal hub": "Jonalyn Señoron",
+  "Boulevard Hub": "Jonalyn Señoron",
+  "Davao Buhangin Hub": "Jonalyn Señoron",
+  "Davao Calinan Hub": "Jonalyn Señoron",
+  "Davao Carmen Hub": "Jonalyn Señoron",
+  "Davao Hub": "Jonalyn Señoron",
+  "Davao Ma-a Hub": "Jonalyn Señoron",
+  "Davao Marfori Hub": "Jonalyn Señoron",
+  "Davao Matina Aplaya Hub": "Jonalyn Señoron",
+  "Davao Obrero Hub": "Jonalyn Señoron",
+  "Davao RC/DC": "Jonalyn Señoron",
+  "Davao RC/DC - MIDMILE": "Jonalyn Señoron",
+  "Davao Tibungco Hub": "Jonalyn Señoron",
+  "Davao Toril Hub": "Jonalyn Señoron",
+  "Davao Tugbok Hub": "Jonalyn Señoron",
+  "Digos Hub": "Jonalyn Señoron",
+  "Digos Aurora Hub": "Jonalyn Señoron",
+  "Gov. Gen Hub": "Jonalyn Señoron",
+  "Laak Hub": "Jonalyn Señoron",
+  "Lupon Hub": "Jonalyn Señoron",
+  "Maragusan Hub": "Jonalyn Señoron",
+  "Mati Hub": "Jonalyn Señoron",
+  "MB Bansalan Hub": "Jonalyn Señoron",
+  "MB Digos Hub": "Jonalyn Señoron",
+  "MB Malabog": "Jonalyn Señoron",
+  "MB Malalag Hub": "Jonalyn Señoron",
+  "MB Mandug Hub": "Jonalyn Señoron",
+  "MB Mawab Hub": "Jonalyn Señoron",
+  "MB Padada Hub": "Jonalyn Señoron",
+  "MB Sta. Maria Hub": "Jonalyn Señoron",
+  "MB Tibungol Hub": "Jonalyn Señoron",
+  "MB Mabunao Hub": "Jonalyn Señoron",
+  "Montevista Hub": "Jonalyn Señoron",
+  "New Corella Hub": "Jonalyn Señoron",
+  "Panabo Hub": "Jonalyn Señoron",
+  "Pantukan Hub": "Jonalyn Señoron",
+  "Santo Tomas Davao Hub": "Jonalyn Señoron",
+  "Tagum Hub": "Jonalyn Señoron",
+  "Tagum Magugpo East Hub": "Jonalyn Señoron",
+  "Davao Dumoy Hub": "Jonalyn Señoron",
+  "Pagadian Hub": "Vhenz Morata",
 };
 
 // ── Flat OUTLET_DATA ──────────────────────────────────────────────────────────
@@ -310,6 +396,8 @@ const REGION_COLORS = {
   "NCR 3 Central": { bg: "#f3e5f5", color: "#6a1b9a" },
   "NCR 4 North": { bg: "#e8f5e9", color: "#2e7d32" },
   "MIN 2 Caraga": { bg: "#fce4ec", color: "#880e4f" },
+  "MIN 3 Davao": { bg: "#fce4ec", color: "#ff1635" },
+  "MIN 5 ZamPen/MisOcc": { bg: "#e4f5fc", color: "#005a70" },
 };
 const SPX_BLUE = "#2e6385ff";
 const SPX_DARK = "#0c2e3fff";
@@ -443,6 +531,7 @@ export default function SPXHubs() {
   const [filterStatus, setFilterStatus] = useState("ALL");
   const [filterRegion, setFilterRegion] = useState("ALL");
   const [filterCoordinator, setFilterCoordinator] = useState("ALL");
+  const [searchText, setSearchText] = React.useState("");
 
   // Hub modal
   const [openHubModal, setOpenHubModal] = useState(false);
@@ -822,33 +911,6 @@ export default function SPXHubs() {
     "Shadowing training": "#1976d2",
   };
 
-  // ── Toolbar ───────────────────────────────────────────────────────────────
-  function CustomToolbar() {
-    return (
-      <Box
-        sx={{
-          p: 2,
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          backgroundColor: "#f8f9fa",
-          borderBottom: "2px solid #e0e0e0",
-        }}
-      >
-        <GridToolbarQuickFilter
-          sx={{
-            "& .MuiOutlinedInput-root": {
-              backgroundColor: "white",
-              borderRadius: "8px",
-              "& fieldset": { borderColor: "#d0d0d0" },
-              "&:hover fieldset": { borderColor: SPX_BLUE },
-            },
-          }}
-        />
-      </Box>
-    );
-  }
-
   // ── Columns ───────────────────────────────────────────────────────────────
   const columns = [
     {
@@ -1081,27 +1143,50 @@ export default function SPXHubs() {
     },
   ];
 
-  const rows = filteredOutlets.map((outlet, index) => {
-    const hData = hubAssignments[outlet.id] || { riders: [] };
-    const coord = spxCoordinators.find((c) =>
-      Array.isArray(c.outlet)
-        ? c.outlet.some(
-            (o) =>
-              o.trim().toLowerCase() === outlet.outlet.trim().toLowerCase(),
-          )
-        : c.outlet?.trim().toLowerCase() === outlet.outlet.trim().toLowerCase(),
-    );
-    return {
-      ...outlet,
-      count: index + 1,
-      _riderCount: hData.riders.length,
-      _deployedCount: hData.riders.filter((r) => r.deployStatus === "Deployed")
-        .length,
-      _riders: hData.riders,
-      _coordName: outlet.coordinator || "",
-      _coordStatus: outlet.coordinator ? "Active" : "",
-    };
-  });
+  const rows = filteredOutlets
+    .map((outlet, index) => {
+      const hData = hubAssignments[outlet.id] || { riders: [] };
+      const coord = spxCoordinators.find((c) =>
+        Array.isArray(c.outlet)
+          ? c.outlet.some(
+              (o) =>
+                o.trim().toLowerCase() === outlet.outlet.trim().toLowerCase(),
+            )
+          : c.outlet?.trim().toLowerCase() ===
+            outlet.outlet.trim().toLowerCase(),
+      );
+      return {
+        ...outlet,
+        count: index + 1,
+        _riderCount: hData.riders.length,
+        _deployedCount: hData.riders.filter(
+          (r) => r.deployStatus === "Deployed",
+        ).length,
+        _riders: hData.riders,
+        _coordName: outlet.coordinator || "",
+        _coordStatus: outlet.coordinator ? "Active" : "",
+      };
+    })
+    .filter((row) => {
+      const q = searchText.trim().toLowerCase();
+      if (!q) return true;
+      // Build a searchable string: hub, region, coordinator, and every
+      // rider's name + status inside this hub.
+      const riderText = (row._riders || [])
+        .map((r) => `${r.employeeName || ""} ${r.deployStatus || ""}`)
+        .join(" ");
+      const haystack = [
+        row.outlet, // hub name
+        row.region,
+        row._coordName, // coordinator
+        riderText, // all rider names + statuses in this hub
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      return haystack.includes(q);
+    });
+
   const handleExportHubs = () => {
     const headers = [
       "#",
@@ -1113,19 +1198,9 @@ export default function SPXHubs() {
       "Coordinator",
     ];
 
-    const exportRows = filteredOutlets.map((outlet, index) => {
+    const exportRows = OUTLET_DATA.map((outlet, index) => {
       const hData = hubAssignments[outlet.id] || { riders: [] };
-      const coord = spxCoordinators.find((c) =>
-        Array.isArray(c.outlet)
-          ? c.outlet.some(
-              (o) =>
-                o.trim().toLowerCase() === outlet.outlet.trim().toLowerCase(),
-            )
-          : c.outlet?.trim().toLowerCase() ===
-            outlet.outlet.trim().toLowerCase(),
-      );
 
-      // ── Each rider on its own line ──────────────────────────────────────
       const riderLines = hData.riders.length
         ? hData.riders
             .map((r) => `${r.employeeName} (${r.deployStatus || "Undeployed"})`)
@@ -1483,6 +1558,48 @@ export default function SPXHubs() {
               "& .MuiDataGrid-row:hover": { backgroundColor: "#f8f9fa" },
             }}
           >
+            {/* Search bar — OUTSIDE the grid so it renders and keeps focus */}
+            <Box
+              sx={{
+                p: 2,
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                backgroundColor: "#f8f9fa",
+                borderBottom: "2px solid #e0e0e0",
+              }}
+            >
+              <TextField
+                size="small"
+                placeholder="Search name, SSS, TIN, status…"
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                InputProps={{
+                  startAdornment: (
+                    <SearchIcon sx={{ color: "#888", mr: 1, fontSize: 20 }} />
+                  ),
+                  endAdornment: searchText ? (
+                    <IconButton
+                      size="small"
+                      onClick={() => setSearchText("")}
+                      sx={{ p: 0.3 }}
+                    >
+                      <CloseIcon sx={{ fontSize: 18, color: "#888" }} />
+                    </IconButton>
+                  ) : null,
+                }}
+                sx={{
+                  minWidth: 320,
+                  "& .MuiOutlinedInput-root": {
+                    backgroundColor: "white",
+                    borderRadius: "8px",
+                    "& fieldset": { borderColor: "#d0d0d0" },
+                    "&:hover fieldset": { borderColor: "#2e6385ff" },
+                  },
+                }}
+              />
+            </Box>
+
             <DataGrid
               rows={rows}
               columns={columns}
@@ -1491,7 +1608,6 @@ export default function SPXHubs() {
               initialState={{
                 pagination: { paginationModel: { page: 0, pageSize: 20 } },
               }}
-              slots={{ toolbar: CustomToolbar }}
               slotProps={{ toolbar: { showQuickFilter: true } }}
               pageSizeOptions={[10, 20, 50, 100]}
               disableRowSelectionOnClick

@@ -142,60 +142,142 @@ export default function Topbar() {
           justifyContent: "space-between",
         }}
       >
-        {/* Left Section - Logo */}
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          <Typography
-            variant="h5"
-            component="div"
-            sx={{
-              fontWeight: 700,
-              color: "white",
-              fontSize: { xs: "18px", sm: "22px", md: "26px" },
-              letterSpacing: "0.5px",
-              fontFamily: "'Inter', sans-serif",
-            }}
-          >
-            NEXUS DESK
-          </Typography>
-        </Box>
-
-        {/* Right Section - User Info */}
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          {/* User Name (Hidden on mobile) */}
+        {/* Left Section - Brand */}
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+          <Box className="sidebar-logo">
+            <img
+              src="/nexus-logo-icon-navy.svg"
+              alt="Nexus Desk"
+              style={{ width: 22, height: 22 }}
+            />
+          </Box>
           <Box
-            sx={{
-              display: { xs: "none", md: "flex" },
-              flexDirection: "column",
-              alignItems: "flex-end",
-            }}
+            sx={{ display: "flex", flexDirection: "column", lineHeight: 1.1 }}
           >
             <Typography
-              variant="body1"
+              component="div"
               sx={{
+                fontWeight: 700,
                 color: "white",
-                fontWeight: 600,
-                fontSize: "14px",
-                lineHeight: 1.2,
+                fontSize: { xs: "16px", sm: "19px", md: "20px" },
+                letterSpacing: "0.5px",
+                fontFamily: "'Inter', sans-serif",
               }}
             >
-              {fullName || "Admin User"}
+              NEXUS DESK
             </Typography>
             <Typography
-              variant="body2"
+              component="div"
               sx={{
-                color: "rgba(255, 255, 255, 0.7)",
-                fontSize: "12px",
+                color: "rgba(144, 224, 239, 0.75)",
+                fontSize: "10px",
+                letterSpacing: "1.5px",
+                display: { xs: "none", sm: "block" },
               }}
             >
-              {roleAccount || "Administrator"}
+              HRIS
             </Typography>
           </Box>
+        </Box>
 
-          <IconButton onClick={openBell} sx={{ color: "white" }}>
-            <Badge badgeContent={unread} color="error">
+        {/* Right Section - Alerts + Account */}
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <IconButton
+            onClick={openBell}
+            sx={{
+              color: "white",
+              width: 40,
+              height: 40,
+              borderRadius: "10px",
+              backgroundColor: "rgba(255,255,255,0.06)",
+              "&:hover": { backgroundColor: "rgba(255,255,255,0.14)" },
+            }}
+          >
+            <Badge
+              badgeContent={unread}
+              color="error"
+              sx={{
+                "& .MuiBadge-badge": {
+                  border: "2px solid #0f2a44",
+                  fontWeight: 700,
+                  fontSize: "9px",
+                },
+              }}
+            >
               <NotificationsIcon />
             </Badge>
           </IconButton>
+
+          <Box
+            sx={{
+              width: "1px",
+              height: 30,
+              backgroundColor: "rgba(255,255,255,0.12)",
+              mx: 0.5,
+            }}
+          />
+
+          {/* Account pill (name + avatar) — opens the dropdown */}
+          <Box
+            onClick={handleMenuOpen}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1.25,
+              pl: { xs: 0.5, md: 1.5 },
+              pr: 0.5,
+              py: 0.5,
+              borderRadius: "12px",
+              cursor: "pointer",
+              transition: "background 0.2s ease",
+              backgroundColor: "rgba(255,255,255,0.05)",
+              "&:hover": { backgroundColor: "rgba(255,255,255,0.12)" },
+            }}
+          >
+            <Box
+              sx={{
+                display: { xs: "none", md: "flex" },
+                flexDirection: "column",
+                alignItems: "flex-end",
+                lineHeight: 1.25,
+              }}
+            >
+              <Typography
+                variant="body1"
+                sx={{
+                  color: "white",
+                  fontWeight: 600,
+                  fontSize: "13.5px",
+                  lineHeight: 1.2,
+                }}
+              >
+                {fullName || "Admin User"}
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: "rgba(255, 255, 255, 0.6)",
+                  fontSize: "11px",
+                }}
+              >
+                {roleAccount || "Administrator"}
+              </Typography>
+            </Box>
+
+            <Avatar
+              sx={{
+                width: 38,
+                height: 38,
+                borderRadius: "10px",
+                backgroundColor: "#90e0ef",
+                color: "#0f2a44",
+                fontWeight: 700,
+                fontSize: "15px",
+              }}
+            >
+              {fullName ? fullName.charAt(0).toUpperCase() : "A"}
+            </Avatar>
+          </Box>
 
           <Menu
             anchorEl={bellAnchor}
@@ -205,6 +287,13 @@ export default function Topbar() {
             transformOrigin={{ horizontal: "right", vertical: "top" }}
             anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
           >
+            {notifs.length === 0 && (
+              <ListItem sx={{ py: 2, justifyContent: "center" }}>
+                <Typography sx={{ fontSize: 13, color: "#999" }}>
+                  No notifications yet
+                </Typography>
+              </ListItem>
+            )}
             {notifs.map((n, i) => (
               <Box key={n._id || i}>
                 <ListItem sx={{ py: 1, display: "block" }}>
@@ -235,30 +324,6 @@ export default function Topbar() {
               </Box>
             ))}
           </Menu>
-
-          {/* User Avatar with Dropdown */}
-          <IconButton
-            onClick={handleMenuOpen}
-            sx={{
-              p: 0.5,
-              "&:hover": {
-                backgroundColor: "rgba(255, 255, 255, 0.1)",
-              },
-            }}
-          >
-            <Avatar
-              sx={{
-                width: 40,
-                height: 40,
-                backgroundColor: "#90e0ef",
-                color: "#0f2a44",
-                fontWeight: 600,
-                fontSize: "16px",
-              }}
-            >
-              {fullName ? fullName.charAt(0).toUpperCase() : "A"}
-            </Avatar>
-          </IconButton>
 
           {/* Dropdown Menu */}
           <Menu

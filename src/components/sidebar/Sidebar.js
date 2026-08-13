@@ -128,7 +128,11 @@ export default function Sidebar() {
       <div className="sidebar-header">
         <div className="sidebar-brand">
           <div className="sidebar-logo">
-            <StorefrontIcon />
+            <img
+              src="/nexus-logo-icon-navy.svg"
+              alt="Nexus Desk"
+              style={{ width: 22, height: 22 }}
+            />
           </div>
           {isOpen && <span className="sidebar-brand-text">Nexus Desk</span>}
         </div>

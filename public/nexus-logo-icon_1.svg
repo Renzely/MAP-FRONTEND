@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none" role="img" aria-label="Nexus Desk">
+  <title>Nexus Desk</title>
+  <style>
+    .stroke { stroke: #0f2a44; }
+    .fill   { fill:   #0f2a44; }
+    .center { fill:   #0f2a44; }
+    @media (prefers-color-scheme: dark) {
+      .stroke { stroke: #90e0ef; }
+      .fill   { fill:   #90e0ef; }
+      .center { fill:   #ffffff; }
+    }
+  </style>
+  <g transform="translate(32,32)">
+    <polygon class="stroke" points="0,-22 19,-11 19,11 0,22 -19,11 -19,-11" fill="none" stroke-width="2.5"/>
+    <line class="stroke" x1="0" y1="0" x2="0" y2="-22" stroke-width="2"/>
+    <line class="stroke" x1="0" y1="0" x2="19" y2="11" stroke-width="2"/>
+    <line class="stroke" x1="0" y1="0" x2="-19" y2="11" stroke-width="2"/>
+    <circle class="fill" cx="0" cy="-22" r="4"/>
+    <circle class="fill" cx="19" cy="11" r="4"/>
+    <circle class="fill" cx="-19" cy="11" r="4"/>
+    <circle class="center" cx="0" cy="0" r="7"/>
+  </g>
+</svg>
