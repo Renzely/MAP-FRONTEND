@@ -5375,7 +5375,7 @@ export const OUTLET_DATA = [
   {
     id: 883,
     region: "REGION 4A",
-    outlet: "PUREGOLD PRICE CLUB - TANAUAN",
+    outlet: "PUREGOLD PRICE CLUB - TANAUAN 1",
     accountSupervisor: "ZABALLA, FERCEY",
   },
   {
@@ -6035,7 +6035,7 @@ export const OUTLET_DATA = [
   {
     id: 993,
     region: "REGION 6",
-    outlet: "PUREGOLD PRICE CLUB - CABATUAN",
+    outlet: "PUREGOLD PRICE CLUB - CABATUAN 2",
     accountSupervisor: "DOBLE, RYAN",
   },
   {
@@ -6785,7 +6785,7 @@ export const OUTLET_DATA = [
   {
     id: 1118,
     region: "REGION 8",
-    outlet: "PUREGOLD PRICE CLUB - TANAUAN",
+    outlet: "PUREGOLD PRICE CLUB - TANAUAN 2",
     accountSupervisor: "DOBLE, RYAN",
   },
   {
