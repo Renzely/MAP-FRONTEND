@@ -145,6 +145,7 @@ export default function Admin() {
       "2-Wheel Delivery Rider",
       "3-Wheel Delivery Rider",
       "4-Wheel Delivery Rider",
+      "MFM SDD",
       "Walker",
     ],
     "DEL MONTE": ["Push Girl", "Cook", "Helper", "Coordinator", "Team Leader"],
@@ -200,6 +201,38 @@ export default function Admin() {
     "METRO PACIFIC DAIRY FARM": ["Feeder"],
     "UNIVERSAL HARVESTER DAIRY FARM INC": ["Tactical Coordinator"],
     "COSMETIQUE ASIA": ["Brand Ambassador", "Account Coordinator"],
+  };
+
+  const CLIENTS_BY_COMPANY = {
+    "BMPOWER HUMAN RESOURCES CORPORATION": [
+      "BMPOWER HUMAN RESOURCES CORPORATION",
+      "ASIAN STREAK BROKERAGE CO",
+      "ECOSSENTIAL FOODS CORP",
+      "ECOSSENTIAL FOODS CORP-HEAD OFFICE",
+      "BROLLEE EXCLUSIVE",
+      "ENGKANTO",
+      "MAGIS DISTRIBUTION INC.",
+      "MCKENZIE DISTRIBUTION CO.",
+      "PLDT TELESCOOP",
+      "SPX EXPRESS",
+      "DEL MONTE",
+      "MANDOM",
+      "UNION GALVASTEEL CO.",
+    ],
+    "MARABOU EVERGREEN RESOURCES INC": [
+      "MARABOU EVERGREEN RESOURCES INC",
+      "CARMENS BEST",
+      "METRO PACIFIC DAIRY FARM",
+      "METRO PACIFIC FRESH FARM",
+      "UNIVERSAL HARVESTER DAIRY FARM INC",
+      "LONG TABLE GROUP INC.- MASAJIRO",
+      "J-GYU INC",
+      "COSMETIQUE ASIA",
+    ],
+  };
+
+  const CLIENT_LABELS = {
+    "LONG TABLE GROUP INC.- MASAJIRO": "LONG TABLE GROUP INC. - MASAJIRO",
   };
 
   const allowedRoles = [

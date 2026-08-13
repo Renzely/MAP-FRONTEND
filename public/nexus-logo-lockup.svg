@@ -1,0 +1,15 @@
+<svg width="320" height="72" viewBox="0 0 320 72" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Nexus Desk HRIS">
+  <title>Nexus Desk HRIS</title>
+  <g transform="translate(36,36)">
+    <polygon points="0,-24 21,-12 21,12 0,24 -21,12 -21,-12" fill="none" stroke="#90e0ef" stroke-width="2.6"/>
+    <line x1="0" y1="0" x2="0" y2="-24" stroke="#90e0ef" stroke-width="2.1"/>
+    <line x1="0" y1="0" x2="21" y2="12" stroke="#90e0ef" stroke-width="2.1"/>
+    <line x1="0" y1="0" x2="-21" y2="12" stroke="#90e0ef" stroke-width="2.1"/>
+    <circle cx="0" cy="-24" r="4.2" fill="#90e0ef"/>
+    <circle cx="21" cy="12" r="4.2" fill="#90e0ef"/>
+    <circle cx="-21" cy="12" r="4.2" fill="#90e0ef"/>
+    <circle cx="0" cy="0" r="7.5" fill="#ffffff"/>
+  </g>
+  <text x="78" y="38" fill="#ffffff" font-family="'Inter','Segoe UI',sans-serif" font-size="26" font-weight="700" letter-spacing="0.5">NEXUS DESK</text>
+  <text x="80" y="56" fill="#90e0ef" font-family="'Inter','Segoe UI',sans-serif" font-size="10" letter-spacing="4.5">HRIS</text>
+</svg>
