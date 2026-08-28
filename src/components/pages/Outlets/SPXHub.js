@@ -1470,7 +1470,7 @@ export default function SPXHubs() {
                 accent: "#e57373",
               },
               {
-                label: "Inactive",
+                label: "Undeployed",
                 value: undeployedCount,
                 color: "#6a1b9a",
                 accent: "#ba68c8",
