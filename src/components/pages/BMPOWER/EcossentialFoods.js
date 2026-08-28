@@ -24,6 +24,15 @@ import {
   Fade,
   Backdrop,
   FormHelperText,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CloseIcon from "@mui/icons-material/Close";
@@ -33,6 +42,7 @@ import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Cancel";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
+import FileUploadIcon from "@mui/icons-material/FileUpload";
 import PersonIcon from "@mui/icons-material/Person";
 import BusinessIcon from "@mui/icons-material/Business";
 import BadgeIcon from "@mui/icons-material/Badge";
@@ -52,6 +62,10 @@ export default function BmpowerHO() {
   const [isEditing, setIsEditing] = useState(false);
   const [selectedRemarks, setSelectedRemarks] = React.useState("");
   const [filteredAccounts, setFilteredAccounts] = React.useState([]);
+  // ── Import (Mode of Disbursement + Account Number by EmployeeNo) ──
+  const [importPreview, setImportPreview] = React.useState(null); // {toUpdate:[], notFound:[], noChange:[]}
+  const [importing, setImporting] = React.useState(false);
+  const importInputRef = React.useRef(null);
   const [searchText, setSearchText] = React.useState("");
   const [previewImage, setPreviewImage] = useState(null);
   const [viewAllModalOpen, setViewAllModalOpen] = useState(false);
@@ -251,6 +265,8 @@ export default function BmpowerHO() {
     "MIS",
   ];
   const canEdit = allowedRoles.includes(role);
+  // Import is restricted to MIS only
+  const isMIS = role === "MIS";
 
   useEffect(() => {
     const checkSidebarState = () => {
@@ -517,6 +533,137 @@ export default function BmpowerHO() {
     }
   };
 
+  // ══════════════════════════════════════════════════════════════════════════
+  // IMPORT — update Mode of Disbursement + Account Number, matched by EmployeeNo
+  // Reads an .xlsx in the SAME format as the export. Builds a preview first;
+  // nothing is written until the user confirms in the dialog.
+  // ══════════════════════════════════════════════════════════════════════════
+  const norm = (v) => (v == null ? "" : String(v).trim());
+
+  const handleImportFile = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    // reset the input so re-selecting the same file still fires onChange
+    e.target.value = "";
+
+    try {
+      const data = await file.arrayBuffer();
+      const wb = XLSX.read(data, { type: "array" });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const jsonRows = XLSX.utils.sheet_to_json(ws, { defval: "" });
+
+      if (!jsonRows.length) {
+        alert("The file appears to be empty.");
+        return;
+      }
+
+      // Accept a few header spellings so it works with the export as-is.
+      const pick = (row, keys) => {
+        for (const k of keys) {
+          if (row[k] !== undefined && norm(row[k]) !== "") return norm(row[k]);
+        }
+        return "";
+      };
+
+      const toUpdate = [];
+      const notFound = [];
+      const noChange = [];
+      const missingKey = [];
+
+      jsonRows.forEach((row, idx) => {
+        const empNo = pick(row, ["EmployeeNo", "Employee No", "employeeNo"]);
+        const mode = pick(row, [
+          "ModeOfDisbursement",
+          "Mode of Disbursement",
+          "modeOfDisbursement",
+        ]);
+        const acct = pick(row, [
+          "AccountNumber",
+          "Account Number",
+          "accountNumber",
+        ]);
+        const nameForDisplay = pick(row, ["Fullname", "FullName", "Name"]);
+
+        if (!empNo) {
+          missingKey.push({ rowNum: idx + 2, name: nameForDisplay });
+          return;
+        }
+
+        // Match on EmployeeNo (unique).
+        const emp = filteredAccounts.find(
+          (a) => norm(a.employeeNo) === empNo && norm(a.employeeNo) !== "",
+        );
+
+        if (!emp) {
+          notFound.push({ employeeNo: empNo, name: nameForDisplay });
+          return;
+        }
+
+        // Only update if something actually changes; only these two fields.
+        const newMode = mode !== "" ? mode : norm(emp.modeOfDisbursement);
+        const newAcct = acct !== "" ? acct : norm(emp.accountNumber);
+        const changed =
+          newMode !== norm(emp.modeOfDisbursement) ||
+          newAcct !== norm(emp.accountNumber);
+
+        if (!changed) {
+          noChange.push({
+            employeeNo: empNo,
+            name: `${emp.firstName} ${emp.lastName}`,
+          });
+          return;
+        }
+
+        toUpdate.push({
+          _id: emp._id,
+          employeeNo: empNo,
+          name: `${emp.firstName} ${emp.lastName}`,
+          oldMode: norm(emp.modeOfDisbursement),
+          newMode,
+          oldAcct: norm(emp.accountNumber),
+          newAcct,
+        });
+      });
+
+      setImportPreview({ toUpdate, notFound, noChange, missingKey });
+    } catch (err) {
+      console.error("Import read error:", err);
+      alert("Could not read the file. Make sure it's a valid .xlsx export.");
+    }
+  };
+
+  const applyImport = async () => {
+    if (!importPreview?.toUpdate?.length) return;
+    setImporting(true);
+    const adminFullName = localStorage.getItem("adminFullName");
+    let ok = 0;
+    const failed = [];
+
+    for (const u of importPreview.toUpdate) {
+      try {
+        await axios.put(`https://api-map.bmphrc.com/update-employee/${u._id}`, {
+          modeOfDisbursement: u.newMode,
+          accountNumber: u.newAcct,
+          updatedBy: adminFullName || "Unknown",
+        });
+        ok++;
+      } catch (err) {
+        console.error("Import update failed for", u.employeeNo, err);
+        failed.push(u.name);
+      }
+    }
+
+    setImporting(false);
+    setImportPreview(null);
+    alert(
+      `Import complete.\nUpdated: ${ok}` +
+        (failed.length
+          ? `\nFailed: ${failed.length} (${failed.join(", ")})`
+          : ""),
+    );
+    window.location.reload();
+  };
+
   const getStatusColor = (s) =>
     s?.toLowerCase() === "active"
       ? "success"
@@ -772,6 +919,38 @@ export default function BmpowerHO() {
               >
                 Export to Excel
               </Button>
+              {isMIS && (
+                <>
+                  <input
+                    ref={importInputRef}
+                    type="file"
+                    accept=".xlsx,.xls"
+                    style={{ display: "none" }}
+                    onChange={handleImportFile}
+                  />
+                  <Button
+                    onClick={() => importInputRef.current?.click()}
+                    variant="outlined"
+                    startIcon={<FileUploadIcon />}
+                    sx={{
+                      borderColor: "#2e6385ff",
+                      color: "#2e6385ff",
+                      height: "56px",
+                      px: 4,
+                      borderRadius: "8px",
+                      textTransform: "none",
+                      fontSize: "16px",
+                      fontWeight: 600,
+                      "&:hover": {
+                        borderColor: "#0c2e3fff",
+                        backgroundColor: "rgba(46,99,133,0.06)",
+                      },
+                    }}
+                  >
+                    Import Excel
+                  </Button>
+                </>
+              )}
               <Box sx={{ flexGrow: 1 }} />
               <Chip
                 icon={<PersonIcon />}
@@ -2473,6 +2652,153 @@ export default function BmpowerHO() {
               </Box>
             </Fade>
           </Modal>
+
+          {/* ── Import confirmation dialog ── */}
+          <Dialog
+            open={Boolean(importPreview)}
+            onClose={() => !importing && setImportPreview(null)}
+            maxWidth="md"
+            fullWidth
+          >
+            <DialogTitle sx={{ fontWeight: 700, color: "#0f2a44" }}>
+              Review Import
+            </DialogTitle>
+            <DialogContent dividers>
+              {importPreview && (
+                <>
+                  <Box
+                    sx={{ display: "flex", gap: 2, mb: 2, flexWrap: "wrap" }}
+                  >
+                    <Chip
+                      color="success"
+                      label={`Will update: ${importPreview.toUpdate.length}`}
+                    />
+                    <Chip
+                      color="default"
+                      label={`No change: ${importPreview.noChange.length}`}
+                    />
+                    <Chip
+                      color="warning"
+                      label={`Not found: ${importPreview.notFound.length}`}
+                    />
+                    {importPreview.missingKey.length > 0 && (
+                      <Chip
+                        color="error"
+                        label={`Missing EmployeeNo: ${importPreview.missingKey.length}`}
+                      />
+                    )}
+                  </Box>
+
+                  {importPreview.toUpdate.length > 0 && (
+                    <>
+                      <Typography
+                        sx={{ fontWeight: 600, mt: 1, mb: 0.5, fontSize: 14 }}
+                      >
+                        These employees will be updated:
+                      </Typography>
+                      <Box
+                        sx={{
+                          maxHeight: 260,
+                          overflowY: "auto",
+                          border: "1px solid #eee",
+                          borderRadius: 1,
+                        }}
+                      >
+                        <Table size="small" stickyHeader>
+                          <TableHead>
+                            <TableRow>
+                              <TableCell>EmployeeNo</TableCell>
+                              <TableCell>Name</TableCell>
+                              <TableCell>Mode of Disbursement</TableCell>
+                              <TableCell>Account Number</TableCell>
+                            </TableRow>
+                          </TableHead>
+                          <TableBody>
+                            {importPreview.toUpdate.map((u) => (
+                              <TableRow key={u._id}>
+                                <TableCell>{u.employeeNo}</TableCell>
+                                <TableCell>{u.name}</TableCell>
+                                <TableCell>
+                                  {u.oldMode !== u.newMode ? (
+                                    <span>
+                                      <span style={{ color: "#999" }}>
+                                        {u.oldMode || "—"}
+                                      </span>{" "}
+                                      →{" "}
+                                      <b style={{ color: "#2e7d32" }}>
+                                        {u.newMode || "—"}
+                                      </b>
+                                    </span>
+                                  ) : (
+                                    u.newMode || "—"
+                                  )}
+                                </TableCell>
+                                <TableCell>
+                                  {u.oldAcct !== u.newAcct ? (
+                                    <span>
+                                      <span style={{ color: "#999" }}>
+                                        {u.oldAcct || "—"}
+                                      </span>{" "}
+                                      →{" "}
+                                      <b style={{ color: "#2e7d32" }}>
+                                        {u.newAcct || "—"}
+                                      </b>
+                                    </span>
+                                  ) : (
+                                    u.newAcct || "—"
+                                  )}
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </Box>
+                    </>
+                  )}
+
+                  {importPreview.notFound.length > 0 && (
+                    <Typography sx={{ mt: 2, fontSize: 13, color: "#b26a00" }}>
+                      Not found (EmployeeNo not in this list):{" "}
+                      {importPreview.notFound
+                        .map((n) => n.employeeNo)
+                        .join(", ")}
+                    </Typography>
+                  )}
+                  {importPreview.missingKey.length > 0 && (
+                    <Typography sx={{ mt: 1, fontSize: 13, color: "#c62828" }}>
+                      Rows skipped for missing EmployeeNo:{" "}
+                      {importPreview.missingKey
+                        .map((n) => n.name || `row ${n.rowNum}`)
+                        .join(", ")}
+                    </Typography>
+                  )}
+                </>
+              )}
+            </DialogContent>
+            <DialogActions>
+              <Button
+                onClick={() => setImportPreview(null)}
+                disabled={importing}
+                sx={{ textTransform: "none" }}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={applyImport}
+                variant="contained"
+                disabled={importing || !importPreview?.toUpdate?.length}
+                sx={{
+                  textTransform: "none",
+                  backgroundColor: "#2e6385ff",
+                  "&:hover": { backgroundColor: "#0c2e3fff" },
+                }}
+              >
+                {importing
+                  ? "Applying…"
+                  : `Apply ${importPreview?.toUpdate?.length || 0} update(s)`}
+              </Button>
+            </DialogActions>
+          </Dialog>
         </Box>
       </Box>
     </>
