@@ -2031,7 +2031,7 @@ export default function BmpowerHO() {
                                 );
                                 const maxLengths = {
                                   GCASH: 11,
-                                  CEBUANA: 11,
+                                  CEBUANA: 12,
                                   PNB: 12,
                                   RCBC: 10,
                                   EASTWEST: 12,
@@ -2067,7 +2067,7 @@ export default function BmpowerHO() {
                                   ? `Must be ${
                                       {
                                         GCASH: 11,
-                                        CEBUANA: 11,
+                                        CEBUANA: 12,
                                         PNB: 12,
                                         RCBC: 10,
                                         EASTWEST: 12,
