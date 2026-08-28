@@ -869,9 +869,7 @@ export default function BmpowerHO() {
 
   const showClearance = (emp) =>
     emp &&
-    ["Resigned", "Terminate", "End of Contract", "Terminated", "AWOL"].includes(
-      emp?.remarks,
-    ) &&
+    ["Resigned", "Terminate", "Back Out", "AWOL"].includes(emp?.remarks) &&
     emp?.dateResigned &&
     emp?.reasonForLeaving;
 
@@ -970,8 +968,8 @@ export default function BmpowerHO() {
                   <MenuItem value="UNFILTERED">All Records</MenuItem>
                   <MenuItem value="Employed">Employed</MenuItem>
                   <MenuItem value="Resigned">Resigned</MenuItem>
-                  <MenuItem value="End of Contract">End of Contract</MenuItem>
                   <MenuItem value="Terminated">Terminated</MenuItem>
+                  <MenuItem value="Back Out">Back Out</MenuItem>
                   <MenuItem value="AWOL">AWOL</MenuItem>
                 </Select>
               </FormControl>
@@ -1505,10 +1503,9 @@ export default function BmpowerHO() {
                                     const newRemarks = e.target.value;
                                     const leavingRemarks = [
                                       "Resigned",
-                                      "End of Contract",
-                                      "Retrenchment",
                                       "Terminated",
                                       "AWOL",
+                                      "Back Out",
                                     ];
                                     const autoReason = leavingRemarks.includes(
                                       newRemarks,
@@ -1537,15 +1534,6 @@ export default function BmpowerHO() {
                                     <MenuItem key="resigned" value="Resigned">
                                       Resigned
                                     </MenuItem>,
-                                    <MenuItem key="eoc" value="End of Contract">
-                                      End of Contract
-                                    </MenuItem>,
-                                    <MenuItem
-                                      key="retrench"
-                                      value="Retrenchment"
-                                    >
-                                      Retrenchment
-                                    </MenuItem>,
                                     <MenuItem
                                       key="terminated"
                                       value="Terminated"
@@ -1554,6 +1542,9 @@ export default function BmpowerHO() {
                                     </MenuItem>,
                                     <MenuItem key="awol" value="AWOL">
                                       AWOL
+                                    </MenuItem>,
+                                    <MenuItem key="backout" value="Back Out">
+                                      Back Out
                                     </MenuItem>,
                                   ]}
                                 </Select>
@@ -1611,6 +1602,42 @@ export default function BmpowerHO() {
                           <Grid item xs={12} sm={6}>
                             {isEditing ? (
                               <FormControl fullWidth>
+                                <InputLabel>Employment Status</InputLabel>
+                                <Select
+                                  value={selectedEmployee.riderstatus || ""}
+                                  label="Employment Status"
+                                  onChange={(e) =>
+                                    setSelectedEmployee({
+                                      ...selectedEmployee,
+                                      riderstatus: e.target.value,
+                                    })
+                                  }
+                                >
+                                  <MenuItem value="Account Created">
+                                    Account Created
+                                  </MenuItem>
+                                  <MenuItem value="Account Modification">
+                                    Account Modify
+                                  </MenuItem>
+                                </Select>
+                              </FormControl>
+                            ) : (
+                              <TextField
+                                label="Employment Status"
+                                fullWidth
+                                value={
+                                  selectedEmployee.riderstatus ===
+                                  "Account Modification"
+                                    ? "Account Modify"
+                                    : selectedEmployee.riderstatus || ""
+                                }
+                                InputProps={{ readOnly: true }}
+                              />
+                            )}
+                          </Grid>
+                          <Grid item xs={12} sm={6}>
+                            {isEditing ? (
+                              <FormControl fullWidth>
                                 <InputLabel>Client Assigned</InputLabel>
                                 <Select
                                   value={selectedEmployee.clientAssigned || ""}
@@ -1644,7 +1671,7 @@ export default function BmpowerHO() {
                               />
                             )}
                           </Grid>
-                          <Grid item xs={12} sm={4}>
+                          <Grid item xs={12} sm={6}>
                             <TextField
                               label="Rider ID"
                               fullWidth
@@ -1776,7 +1803,7 @@ export default function BmpowerHO() {
                                 [
                                   "Resigned",
                                   "Terminate",
-                                  "End of Contract",
+                                  "Back Out",
                                   "Terminated",
                                   "AWOL",
                                 ].includes(selectedEmployee.remarks)
@@ -1791,7 +1818,7 @@ export default function BmpowerHO() {
                                       [
                                         "Resigned",
                                         "Terminate",
-                                        "End of Contract",
+                                        "Back Out",
                                         "Terminated",
                                         "AWOL",
                                       ].includes(selectedEmployee.remarks)

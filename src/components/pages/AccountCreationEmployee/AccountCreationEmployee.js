@@ -393,6 +393,7 @@ export default function AccountCreationEnhanced() {
     remarks: "",
     employeeNo: "",
     riderid: "",
+    riderstatus: "",
     firstName: "",
     suffix: "",
     middleName: "",
@@ -496,6 +497,7 @@ export default function AccountCreationEnhanced() {
       if (field === "clientAssigned") {
         // Always reset outlet/hub when client changes
         updated.riderid = "";
+        updated.riderstatus = "";
         updated.outlet = "";
         updated.account = "";
         updated.region = "";
@@ -606,6 +608,10 @@ export default function AccountCreationEnhanced() {
     //   if (!formData.outlet) errors.outlet = "Please select a hub";
     // }
 
+    if (isHubClient && !formData.riderstatus) {
+      errors.riderstatus = "Employment status is required";
+    }
+
     // ---------------- Other Validations ----------------
     if (!errors.contact && formData.contact.length !== 11) {
       errors.contact = "Contact number must be exactly 11 digits";
@@ -665,7 +671,7 @@ export default function AccountCreationEnhanced() {
     // ---------------- Duplicate Checks ----------------
     try {
       const duplicateCheck = await axios.post(
-        "https://api-map.bmphrc.com/check-duplicate-ids",
+        "http://192.168.68.50:3001/check-duplicate-ids",
         {
           sss: formData.sss,
           philhealth: formData.philhealth,
@@ -703,6 +709,7 @@ export default function AccountCreationEnhanced() {
       createdByRole: localStorage.getItem("roleAccount"),
       employeeNo: isApplicant ? null : formData.employeeNo,
       riderid: isApplicant ? null : formData.riderid,
+      riderstatus: isApplicant ? null : formData.riderstatus,
       accountNumber:
         isApplicant || formData.modeOfDisbursement === "TBA"
           ? null
@@ -732,7 +739,7 @@ export default function AccountCreationEnhanced() {
     // ---------------- Submit to Backend ----------------
     try {
       const response = await axios.post(
-        "https://api-map.bmphrc.com/create-merch-account",
+        "http://192.168.68.50:3001/create-merch-account",
         formattedData,
       );
 
@@ -747,6 +754,7 @@ export default function AccountCreationEnhanced() {
           status: "",
           remarks: "",
           riderid: "",
+          riderstatus: "",
           employeeNo: "",
           firstName: "",
           suffix: "",
@@ -819,7 +827,7 @@ export default function AccountCreationEnhanced() {
       const uniqueFileName = `${timestamp}_${file.name}`;
 
       const response = await axios.post(
-        "https://api-map.bmphrc.com/save-requirements-images",
+        "http://192.168.68.50:3001/save-requirements-images",
         {
           fileName: uniqueFileName,
           fileType: file.type,
@@ -1145,6 +1153,39 @@ export default function AccountCreationEnhanced() {
                           error={!!formErrors.riderid}
                           helperText={formErrors.riderid}
                         />
+                      </Grid>
+                    )}
+                    {isHubClient && (
+                      <Grid item xs={12} md={2}>
+                        <FormControl
+                          fullWidth
+                          size="small"
+                          error={!!formErrors.riderstatus}
+                        >
+                          <InputLabel>Employment status</InputLabel>
+
+                          <Select
+                            value={formData.riderstatus || ""}
+                            label="Employment status"
+                            onChange={(e) =>
+                              handleChange("riderstatus", e.target.value)
+                            }
+                          >
+                            <MenuItem value="Account Created">
+                              Account Created
+                            </MenuItem>
+
+                            <MenuItem value="Account Modification">
+                              Account Modification
+                            </MenuItem>
+                          </Select>
+
+                          {formErrors.riderstatus && (
+                            <FormHelperText>
+                              {formErrors.riderstatus}
+                            </FormHelperText>
+                          )}
+                        </FormControl>
                       </Grid>
                     )}
                   </Grid>

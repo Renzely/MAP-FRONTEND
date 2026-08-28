@@ -404,7 +404,13 @@ const SPX_DARK = "#0c2e3fff";
 
 // ── Status category sets ──────────────────────────────────────────────────────
 // These drive which date fields are enabled/disabled
-const UNDEPLOY_STATUSES = ["Undeployed", "AWOL", "Resigned"];
+const UNDEPLOY_STATUSES = [
+  "Inactive",
+  "AWOL",
+  "Resigned",
+  "Terminated",
+  "Back Out",
+];
 const DEPLOY_STATUSES = ["Deployed", "Shadowing training"];
 
 // ── Resolve employee-level fields from deployStatus ───────────────────────────
@@ -415,12 +421,16 @@ function resolveEmployeeFields(deployStatus) {
     case "Deployed":
     case "Shadowing training":
       return { status: "Active", remarks: "Employed" };
-    case "Undeployed":
-      return { status: "Inactive", remarks: "Undeployed" };
+    case "Inactive":
+      return { status: "Inactive", remarks: "Inactive" };
     case "AWOL":
       return { status: "Inactive", remarks: "AWOL" };
     case "Resigned":
       return { status: "Inactive", remarks: "Resigned" };
+    case "Terminated":
+      return { status: "Inactive", remarks: "Terminated" };
+    case "Back Out":
+      return { status: "Inactive", remarks: "Back Out" };
     default:
       return { status: "Active", remarks: "Employed" };
   }
@@ -469,7 +479,7 @@ function buildAssignmentMaps(allData) {
       employeeId: emp._id,
       employeeName: `${emp.firstName} ${emp.lastName}`,
       position: emp.position,
-      deployStatus: emp.deployStatus || "Undeployed",
+      deployStatus: emp.deployStatus || "Inactive",
       deployDate: emp.deployDate || null,
       undeployDate: emp.undeployDate || null,
     });
@@ -760,7 +770,7 @@ export default function SPXHubs() {
         return "Inactive";
       case "AWOL":
         return "Inacitve";
-      case "Undeployed":
+      case "Inactive":
         return "Inactive"; // still employed, just not deployed
       default:
         return "Active";
@@ -903,9 +913,53 @@ export default function SPXHubs() {
     (h) => h.riders.length > 0,
   ).length;
 
+  // ── SPX Dashboard categories (computed from the full SPX population) ──────
+  // Helpers for case-insensitive matching.
+  const _norm = (v) => (v == null ? "" : String(v).trim().toLowerCase());
+  const _isActive = (e) => _norm(e.status) === "active";
+  const _isInactive = (e) => _norm(e.status) === "inactive";
+  // exclude coordinators from rider counts (same rule used elsewhere)
+  const _isRider = (e) =>
+    !["Tactical Coordinator", "Account Coordinator"].includes(e.position);
+
+  const spxRiders = allSpxData.filter(_isRider);
+
+  // Total Active Rider — riders whose status is Active
+  const totalActiveRiders = spxRiders.filter(_isActive).length;
+
+  // Account Created / Account Modify — Active riders by their riderstatus
+  const accountCreatedCount = spxRiders.filter(
+    (e) => _isActive(e) && _norm(e.riderstatus) === "account created",
+  ).length;
+  const accountModifyCount = spxRiders.filter(
+    (e) => _isActive(e) && _norm(e.riderstatus) === "account modification",
+  ).length;
+
+  // Deployed — Active riders currently deployed
+  const deployedCount = spxRiders.filter(
+    (e) => _isActive(e) && _norm(e.deployStatus) === "deployed",
+  ).length;
+
+  // In Process — riders not yet placed in a hub (was "Pending")
+  const inProcessCount = floatingRiders.length;
+
+  // Undeployed — Inactive with remarks = Backout
+  const undeployedCount = spxRiders.filter(
+    (e) => _isInactive(e) && _norm(e.remarks).includes("back out"),
+  ).length;
+
+  // Inactive — Inactive with remarks = Resigned / Terminated / AWOL
+  const inactiveCount = spxRiders.filter((e) => {
+    if (!_isInactive(e)) return false;
+    const r = _norm(e.remarks);
+    return (
+      r.includes("resigned") || r.includes("terminated") || r.includes("awol")
+    );
+  }).length;
+
   const statusColors = {
     Deployed: "#2e7d32",
-    Undeployed: "#d34005",
+    Inactive: "#d34005",
     AWOL: "#ed6c02",
     Resigned: "#d32f2f",
     "Shadowing training": "#1976d2",
@@ -1071,7 +1125,7 @@ export default function SPXHubs() {
                   {r.employeeName}
                 </Typography>
                 <Chip
-                  label={r.deployStatus || "Undeployed"}
+                  label={r.deployStatus || "Inactive"}
                   size="small"
                   sx={{
                     height: 13,
@@ -1203,7 +1257,7 @@ export default function SPXHubs() {
 
       const riderLines = hData.riders.length
         ? hData.riders
-            .map((r) => `${r.employeeName} (${r.deployStatus || "Undeployed"})`)
+            .map((r) => `${r.employeeName} (${r.deployStatus || "Inactive"})`)
             .join("\n")
         : "No riders assigned";
 
@@ -1349,42 +1403,135 @@ export default function SPXHubs() {
                   </Typography>
                 </Box>
               </Box>
-              <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-                {[
-                  { label: "Total Hubs", value: OUTLET_DATA.length },
-                  { label: "Hubs Active", value: hubsWithRiders },
-                  { label: "Total Riders", value: totalRiders },
-                  { label: "Deployed", value: deployedRiders },
-                  { label: "Pending", value: floatingRiders.length },
-                ].map((s) => (
-                  <Box
-                    key={s.label}
-                    sx={{
-                      textAlign: "center",
-                      backgroundColor: "rgba(255,255,255,0.15)",
-                      borderRadius: "10px",
-                      px: 2.5,
-                      py: 1,
-                      minWidth: 80,
-                    }}
-                  >
-                    <Typography
-                      variant="h5"
-                      sx={{ color: "white", fontWeight: 800 }}
-                    >
-                      {s.value}
-                    </Typography>
-                    <Typography
-                      variant="caption"
-                      sx={{ color: "rgba(255,255,255,0.8)", fontSize: "11px" }}
-                    >
-                      {s.label}
-                    </Typography>
-                  </Box>
-                ))}
-              </Box>
             </Box>
           </Paper>
+
+          {/* ── Dashboard Stat Cards (full-width responsive grid) ── */}
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: {
+                xs: "repeat(2, 1fr)",
+                sm: "repeat(3, 1fr)",
+                md: "repeat(3, 1fr)",
+                lg: "repeat(9, 1fr)",
+              },
+              gap: 1.5,
+              mb: 3,
+            }}
+          >
+            {[
+              {
+                label: "Total Hubs",
+                value: OUTLET_DATA.length,
+                color: "#0f2a44",
+                accent: "#90e0ef",
+              },
+              {
+                label: "Total Active Hubs",
+                value: hubsWithRiders,
+                color: "#0f2a44",
+                accent: "#90e0ef",
+              },
+              {
+                label: "Total Active Rider",
+                value: totalActiveRiders,
+                color: "#1565c0",
+                accent: "#64b5f6",
+              },
+              {
+                label: "Account Created",
+                value: accountCreatedCount,
+                color: "#2e7d32",
+                accent: "#81c784",
+              },
+              {
+                label: "Account Modify",
+                value: accountModifyCount,
+                color: "#00838f",
+                accent: "#4dd0e1",
+              },
+              {
+                label: "Deployed",
+                value: deployedCount,
+                color: "#2e7d32",
+                accent: "#81c784",
+              },
+              {
+                label: "In Process",
+                value: inProcessCount,
+                color: "#ef6c00",
+                accent: "#ffb74d",
+              },
+              {
+                label: "Inactive",
+                value: inactiveCount,
+                color: "#c62828",
+                accent: "#e57373",
+              },
+              {
+                label: "Inactive",
+                value: undeployedCount,
+                color: "#6a1b9a",
+                accent: "#ba68c8",
+              },
+            ].map((s) => (
+              <Paper
+                key={s.label}
+                elevation={0}
+                sx={{
+                  position: "relative",
+                  overflow: "hidden",
+                  borderRadius: "12px",
+                  border: "1px solid #e8e8e8",
+                  p: 2,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  minHeight: 96,
+                  transition: "transform 0.15s ease, box-shadow 0.15s ease",
+                  "&:hover": {
+                    transform: "translateY(-2px)",
+                    boxShadow: "0 6px 18px rgba(0,0,0,0.08)",
+                  },
+                  "&::before": {
+                    content: '""',
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: "4px",
+                    backgroundColor: s.accent,
+                  },
+                }}
+              >
+                <Typography
+                  sx={{
+                    color: s.color,
+                    fontWeight: 800,
+                    fontSize: "28px",
+                    lineHeight: 1.1,
+                  }}
+                >
+                  {s.value}
+                </Typography>
+                <Typography
+                  sx={{
+                    color: "#666",
+                    fontSize: "11px",
+                    fontWeight: 600,
+                    textAlign: "center",
+                    mt: 0.5,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.3px",
+                  }}
+                >
+                  {s.label}
+                </Typography>
+              </Paper>
+            ))}
+          </Box>
 
           {/* ── Filter Bar ── */}
           <Paper
@@ -1924,7 +2071,7 @@ export default function SPXHubs() {
                                     End Date
                                   </TableCell>
                                   {/* Remove (edit only) */}
-                                  {isEditing && (
+                                  {/* {isEditing && (
                                     <TableCell
                                       sx={{
                                         fontWeight: 700,
@@ -1936,7 +2083,7 @@ export default function SPXHubs() {
                                     >
                                       Remove
                                     </TableCell>
-                                  )}
+                                  )} */}
                                 </TableRow>
                               </TableHead>
 
@@ -2053,10 +2200,10 @@ export default function SPXHubs() {
                                               Shadow training
                                             </MenuItem>
                                             <MenuItem value="Deployed">
-                                              Start Date
+                                              Deployed
                                             </MenuItem>
-                                            <MenuItem value="Undeployed">
-                                              End Date
+                                            <MenuItem value="Inactive">
+                                              Inactive
                                             </MenuItem>
                                             <MenuItem value="AWOL">
                                               AWOL
@@ -2064,12 +2211,16 @@ export default function SPXHubs() {
                                             <MenuItem value="Resigned">
                                               Resigned
                                             </MenuItem>
+                                            <MenuItem value="Terminated">
+                                              Terminated
+                                            </MenuItem>
+                                            <MenuItem value="Back Out">
+                                              Back Out
+                                            </MenuItem>
                                           </TextField>
                                         ) : (
                                           <Chip
-                                            label={
-                                              r.deployStatus || "Undeployed"
-                                            }
+                                            label={r.deployStatus || "Inactive"}
                                             size="small"
                                             sx={{
                                               height: 13,
@@ -2199,14 +2350,14 @@ export default function SPXHubs() {
                                       </TableCell>
 
                                       {/* Remove button */}
-                                      {isEditing && (
+                                      {/* {isEditing && (
                                         <TableCell sx={{ textAlign: "center" }}>
                                           <Tooltip
                                             title={
                                               r._toRemove ? "Undo" : "Remove"
                                             }
-                                          >
-                                            <IconButton
+                                          > */}
+                                      {/* <IconButton
                                               size="small"
                                               onClick={() =>
                                                 handleMarkRemove(r.employeeId)
@@ -2223,10 +2374,10 @@ export default function SPXHubs() {
                                               }}
                                             >
                                               <RemoveCircleOutlineIcon fontSize="small" />
-                                            </IconButton>
-                                          </Tooltip>
+                                            </IconButton> */}
+                                      {/* </Tooltip>
                                         </TableCell>
-                                      )}
+                                      )} */}
                                     </TableRow>
                                   );
                                 })}
@@ -2313,8 +2464,7 @@ export default function SPXHubs() {
                                   renderInput={(params) => (
                                     <TextField
                                       {...params}
-                                      label="Assigned Riders"
-                                      placeholder="With hub…"
+                                      label="Riders With hub"
                                     />
                                   )}
                                 />
@@ -2614,7 +2764,7 @@ export default function SPXHubs() {
                     icon={
                       <WarningAmberIcon sx={{ fontSize: "15px !important" }} />
                     }
-                    label={`Undeployed: ${floatingRiders.length}`}
+                    label={`In Process: ${floatingRiders.length}`}
                     color="warning"
                     size="small"
                     sx={{ fontWeight: 600 }}
@@ -2784,7 +2934,7 @@ export default function SPXHubs() {
                         variant="subtitle1"
                         sx={{ fontWeight: 700, color: "#e65100" }}
                       >
-                        Undeployed Riders
+                        In Process Riders
                         <Typography
                           component="span"
                           variant="body2"
