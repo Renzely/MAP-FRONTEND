@@ -10198,7 +10198,7 @@ function buildAssignmentMaps(allData) {
           deployStatus: emp.deployStatus || "Undeployed",
           deploymentType: emp.deploymentType || "Stationary",
           employmentStatus: emp.employmentStatus || "Regular",
-          employmentStatus: emp.employmentStatus || "Regular",
+          rateCardId: emp.rateCardId ?? "",
           deployDate: emp.deployDate || null,
           undeployDate: emp.undeployDate || null,
           applicantStatus: emp.applicantStatus || "",
@@ -10247,7 +10247,7 @@ function buildAssignmentMaps(allData) {
           deployStatus: emp.deployStatus || "Undeployed",
           deploymentType: emp.deploymentType || "Stationary",
           employmentStatus: emp.employmentStatus || "Regular",
-          employmentStatus: emp.employmentStatus || "Regular",
+          rateCardId: emp.rateCardId ?? "",
           deployDate: emp.deployDate || null,
           undeployDate: emp.undeployDate || null,
           applicantStatus: emp.applicantStatus || "",
@@ -10659,6 +10659,7 @@ export default function OutletList() {
       deployStatus: emp.deployStatus || "Undeployed",
       deploymentType: emp.deploymentType || "Stationary",
       employmentStatus: emp.employmentStatus || "Regular",
+      rateCardId: emp.rateCardId ?? "",
     };
   };
 
@@ -10990,6 +10991,15 @@ export default function OutletList() {
         Coordinator: c?.employeeName || "",
         "Assigned Merchandiser": merch,
         "Type of Deployment": a?.deploymentType || "Stationary",
+        "Employment Status": a?.employmentStatus || "Regular",
+        "Rate Card": (() => {
+          const rid = a?.rateCardId;
+          if (!rid) return "";
+          const rc = rateCards.find((r) => String(r.id) === String(rid));
+          return rc
+            ? `${rc.region} — ₱${rc.new_rate_per_day}/day`
+            : `Rate ID: ${rid}`;
+        })(),
         "Mode of Disbursement": a?.modeOfDisbursement || "",
         "Account Number": a?.accountNumber || "",
       };
@@ -11005,6 +11015,8 @@ export default function OutletList() {
       "Coordinator",
       "Assigned Merchandiser",
       "Type of Deployment",
+      "Employment Status",
+      "Rate Card",
       "Mode of Disbursement",
       "Account Number",
     ];
@@ -11065,6 +11077,7 @@ export default function OutletList() {
       deployStatus: a?.deployStatus || "Undeployed",
       deploymentType: a?.deploymentType || "Stationary",
       employmentStatus: a?.employmentStatus || "Regular",
+      rateCardId: a?.rateCardId ?? "",
       deployDate: a?.deployDate
         ? new Date(a.deployDate).toISOString().split("T")[0]
         : "",
@@ -11168,6 +11181,7 @@ export default function OutletList() {
           deployStatus: "Deployed",
           deploymentType: data.deploymentType || "Stationary",
           employmentStatus: data.employmentStatus || "Regular",
+          rateCardId: data.rateCardId ?? null,
           deployDate: today,
           undeployDate: null,
           applicantStatus: "",
@@ -11260,6 +11274,7 @@ export default function OutletList() {
           deployStatus: "Deployed",
           deploymentType: data.deploymentType || "Stationary", // <-- Use the selected value
           employmentStatus: data.employmentStatus || "Regular",
+          rateCardId: data.rateCardId ?? null,
           deployDate: data.incomingDeployDate || today,
           undeployDate: null,
           applicantStatus: "",
@@ -11312,7 +11327,7 @@ export default function OutletList() {
             deployStatus: data.deployStatus,
             deploymentType: data.deploymentType || "Stationary",
             employmentStatus: data.employmentStatus || "Regular",
-            employmentStatus: data.employmentStatus || "Regular",
+            rateCardId: data.rateCardId ?? null,
             deployDate: data.deployDate || null,
             undeployDate: data.undeployDate || null,
             applicantStatus: finalStatus,
