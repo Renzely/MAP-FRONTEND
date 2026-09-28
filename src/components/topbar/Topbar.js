@@ -12,6 +12,8 @@ import {
 import MenuIcon from "@mui/icons-material/Menu";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import LogoutIcon from "@mui/icons-material/Logout";
+import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
+import DownloadIcon from "@mui/icons-material/Download";
 import "./topbar.css";
 import { useRef } from "react";
 import axios from "axios";
@@ -38,6 +40,7 @@ export default function Topbar() {
   const [notifs, setNotifs] = useState([]);
   const [unread, setUnread] = useState(0);
   const [bellAnchor, setBellAnchor] = useState(null);
+  const [faqAnchor, setFaqAnchor] = useState(null);
   const socketRef = useRef(null);
 
   const canEdit = allowedRoles.includes(role);
@@ -208,6 +211,22 @@ export default function Topbar() {
             </Badge>
           </IconButton>
 
+          {/* FAQ / Help - User Manual */}
+          <IconButton
+            onClick={(e) => setFaqAnchor(e.currentTarget)}
+            title="Help & User Manual"
+            sx={{
+              color: "white",
+              width: 40,
+              height: 40,
+              borderRadius: "10px",
+              backgroundColor: "rgba(255,255,255,0.06)",
+              "&:hover": { backgroundColor: "rgba(255,255,255,0.14)" },
+            }}
+          >
+            <HelpOutlineIcon />
+          </IconButton>
+
           <Box
             sx={{
               width: "1px",
@@ -323,6 +342,41 @@ export default function Topbar() {
                 {i < notifs.length - 1 && <Divider />}
               </Box>
             ))}
+          </Menu>
+
+          {/* FAQ / User Manual Menu */}
+          <Menu
+            anchorEl={faqAnchor}
+            open={Boolean(faqAnchor)}
+            onClose={() => setFaqAnchor(null)}
+            PaperProps={{ sx: { mt: 1.5, minWidth: 240, borderRadius: "8px" } }}
+            transformOrigin={{ horizontal: "right", vertical: "top" }}
+            anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+          >
+            <Box sx={{ px: 2, py: 1.5, borderBottom: "1px solid #e0e0e0" }}>
+              <Typography
+                sx={{ fontWeight: 700, fontSize: 14, color: "#0f2a44" }}
+              >
+                Help & Support
+              </Typography>
+              <Typography sx={{ fontSize: 12, color: "#666" }}>
+                Nexus Desk User Manual
+              </Typography>
+            </Box>
+            <MenuItem
+              component="a"
+              href="/Nexus-Desk-User-Manual.pdf"
+              download
+              onClick={() => setFaqAnchor(null)}
+              sx={{
+                py: 1.5,
+                color: "#0f2a44",
+                "&:hover": { backgroundColor: "rgba(15, 42, 68, 0.06)" },
+              }}
+            >
+              <DownloadIcon sx={{ mr: 1.5, fontSize: 20 }} />
+              <Typography variant="body2">Download User Manual</Typography>
+            </MenuItem>
           </Menu>
 
           {/* Dropdown Menu */}

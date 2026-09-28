@@ -1474,6 +1474,49 @@ export default function BmpowerHO() {
                           <Grid item xs={12} sm={6}>
                             {isEditing ? (
                               <FormControl fullWidth>
+                                <InputLabel>Department</InputLabel>
+                                <Select
+                                  value={selectedEmployee.department || ""}
+                                  label="Department"
+                                  onChange={(e) =>
+                                    setSelectedEmployee({
+                                      ...selectedEmployee,
+                                      department: e.target.value,
+                                    })
+                                  }
+                                >
+                                  <MenuItem value="Accounting Department">
+                                    Accounting Department
+                                  </MenuItem>
+                                  <MenuItem value="Human Resources Department">
+                                    Human Resources Department
+                                  </MenuItem>
+                                  <MenuItem value="MIS Department">
+                                    MIS Department
+                                  </MenuItem>
+                                  <MenuItem value="Operation Department">
+                                    Operation Department
+                                  </MenuItem>
+                                  <MenuItem value="SPX Department">
+                                    SPX Department
+                                  </MenuItem>
+                                  <MenuItem value="Treasury Department">
+                                    Treasury Department
+                                  </MenuItem>
+                                </Select>
+                              </FormControl>
+                            ) : (
+                              <TextField
+                                label="Department"
+                                fullWidth
+                                value={selectedEmployee.department || ""}
+                                InputProps={{ readOnly: true }}
+                              />
+                            )}
+                          </Grid>
+                          <Grid item xs={12} sm={6}>
+                            {isEditing ? (
+                              <FormControl fullWidth>
                                 <InputLabel>Client Assigned</InputLabel>
                                 <Select
                                   value={selectedEmployee.clientAssigned || ""}
@@ -1507,7 +1550,7 @@ export default function BmpowerHO() {
                               />
                             )}
                           </Grid>
-                          <Grid item xs={12} sm={4}>
+                          <Grid item xs={12} sm={6}>
                             <TextField
                               label="Date Hired"
                               fullWidth
@@ -1638,7 +1681,7 @@ export default function BmpowerHO() {
                               InputProps={{ readOnly: !isEditing }}
                             />
                           </Grid>
-                          <Grid item xs={12} sm={6}>
+                          <Grid item xs={12} sm={4}>
                             {/* Reason for Leaving — always read-only, auto-filled from Remarks */}
                             <TextField
                               label="Reason for Leaving"
