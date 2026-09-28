@@ -83,6 +83,10 @@ export default function AccountCreationEnhanced() {
 
   const OUTLET_CLIENT = "ECOSSENTIAL FOODS CORP";
   const HUB_CLIENT = "SPX EXPRESS";
+  const HO_CLIENT = [
+    "BMPOWER HUMAN RESOURCES CORPORATION",
+    "MARABOU EVERGREEN RESOURCES INC",
+  ];
 
   const ACCOUNT_TYPES = ["WALTERMART", "BALANCE"];
   const REGION_TYPES = [
@@ -394,6 +398,7 @@ export default function AccountCreationEnhanced() {
     employeeNo: "",
     riderid: "",
     riderstatus: "",
+    department: "",
     firstName: "",
     suffix: "",
     middleName: "",
@@ -422,11 +427,13 @@ export default function AccountCreationEnhanced() {
 
   // const isOutletClient = formData.clientAssigned === OUTLET_CLIENT;
   const isHubClient = formData.clientAssigned === HUB_CLIENT;
+  const isHOClient = HO_CLIENT.includes(formData.clientAssigned);
 
   const outletHubOptions =
     //  isOutletClient
     //   ? OUTLETS_BY_ACCOUNT[formData.account] || []
     //   :
+
     isHubClient ? HUBS_BY_REGION[formData.region] || [] : [];
 
   const accountMaxLengths = {
@@ -498,6 +505,7 @@ export default function AccountCreationEnhanced() {
         // Always reset outlet/hub when client changes
         updated.riderid = "";
         updated.riderstatus = "";
+        updated.department = "";
         updated.outlet = "";
         updated.account = "";
         updated.region = "";
@@ -612,6 +620,10 @@ export default function AccountCreationEnhanced() {
       errors.riderstatus = "Employment status is required";
     }
 
+    if (isHOClient && !formData.department) {
+      errors.department = "Department is required";
+    }
+
     // ---------------- Other Validations ----------------
     if (!errors.contact && formData.contact.length !== 11) {
       errors.contact = "Contact number must be exactly 11 digits";
@@ -710,6 +722,7 @@ export default function AccountCreationEnhanced() {
       employeeNo: isApplicant ? null : formData.employeeNo,
       riderid: isApplicant ? null : formData.riderid,
       riderstatus: isApplicant ? null : formData.riderstatus,
+      department: isApplicant ? null : formData.department,
       accountNumber:
         isApplicant || formData.modeOfDisbursement === "TBA"
           ? null
@@ -755,6 +768,7 @@ export default function AccountCreationEnhanced() {
           remarks: "",
           riderid: "",
           riderstatus: "",
+          department: "",
           employeeNo: "",
           firstName: "",
           suffix: "",
@@ -1183,6 +1197,50 @@ export default function AccountCreationEnhanced() {
                           {formErrors.riderstatus && (
                             <FormHelperText>
                               {formErrors.riderstatus}
+                            </FormHelperText>
+                          )}
+                        </FormControl>
+                      </Grid>
+                    )}
+                    {isHOClient && (
+                      <Grid item xs={12} md={3}>
+                        <FormControl
+                          fullWidth
+                          size="small"
+                          error={!!formErrors.department}
+                        >
+                          <InputLabel>Department</InputLabel>
+
+                          <Select
+                            value={formData.department || ""}
+                            label="Department"
+                            onChange={(e) =>
+                              handleChange("department", e.target.value)
+                            }
+                          >
+                            <MenuItem value="Accounting Department">
+                              Accounting Department
+                            </MenuItem>
+                            <MenuItem value="Human Resources Department">
+                              Human Resources Department
+                            </MenuItem>
+                            <MenuItem value="MIS Department">
+                              MIS Department
+                            </MenuItem>
+                            <MenuItem value="Operation Department">
+                              Operation Department
+                            </MenuItem>
+                            <MenuItem value="SPX Department">
+                              SPX Department
+                            </MenuItem>
+                            <MenuItem value="Treasury Department">
+                              Treasury Department
+                            </MenuItem>
+                          </Select>
+
+                          {formErrors.department && (
+                            <FormHelperText>
+                              {formErrors.department}
                             </FormHelperText>
                           )}
                         </FormControl>
