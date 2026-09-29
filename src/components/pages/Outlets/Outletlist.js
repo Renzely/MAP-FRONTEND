@@ -10198,6 +10198,7 @@ function buildAssignmentMaps(allData) {
           deployStatus: emp.deployStatus || "Undeployed",
           deploymentType: emp.deploymentType || "Stationary",
           employmentStatus: emp.employmentStatus || "Regular",
+          rateCardId: emp.rateCardId || null,
           rateCardId: emp.rateCardId ?? "",
           deployDate: emp.deployDate || null,
           undeployDate: emp.undeployDate || null,
@@ -10247,6 +10248,7 @@ function buildAssignmentMaps(allData) {
           deployStatus: emp.deployStatus || "Undeployed",
           deploymentType: emp.deploymentType || "Stationary",
           employmentStatus: emp.employmentStatus || "Regular",
+          rateCardId: emp.rateCardId || null,
           rateCardId: emp.rateCardId ?? "",
           deployDate: emp.deployDate || null,
           undeployDate: emp.undeployDate || null,
@@ -11470,7 +11472,7 @@ export default function OutletList() {
     {
       field: "assignedEmployee",
       headerName: "Assigned Merchandiser",
-      width: 200,
+      width: 300,
       renderCell: (p) => (
         <Box
           sx={{
@@ -11518,6 +11520,23 @@ export default function OutletList() {
               No assignment
             </Typography>
           )}
+          {p.row._employeeName &&
+            p.row._rateCardId &&
+            (() => {
+              const rc = rateCards.find(
+                (r) => String(r.id) === String(p.row._rateCardId),
+              );
+              return (
+                <Typography
+                  variant="caption"
+                  sx={{ color: "#2e6385", fontSize: "10px", fontWeight: 500 }}
+                >
+                  {rc
+                    ? `₱${rc.new_rate_per_day}/day — ${rc.region}`
+                    : `Rate ID: ${p.row._rateCardId}`}
+                </Typography>
+              );
+            })()}
           {p.row._incomingApplicantName && (
             <Box
               sx={{
@@ -11557,6 +11576,33 @@ export default function OutletList() {
           )}
         </Box>
       ),
+    },
+    {
+      field: "_employmentStatus",
+      headerName: "Employment Status",
+      width: 160,
+      renderCell: (p) => {
+        const val = p.row._employmentStatus;
+        if (!p.row._employeeName || !val) return "—";
+        const cfg = {
+          Regular: { bg: "#e8f5e9", color: "#2e7d32" },
+          "New Diser": { bg: "#e3f2fd", color: "#1565c0" },
+          Probationary: { bg: "#fff8e1", color: "#f57f17" },
+          Reliever: { bg: "#f3e5f5", color: "#7b1fa2" },
+        }[val] || { bg: "#eceff1", color: "#455a64" };
+        return (
+          <Chip
+            label={val}
+            size="small"
+            sx={{
+              backgroundColor: cfg.bg,
+              color: cfg.color,
+              fontWeight: 600,
+              fontSize: "11px",
+            }}
+          />
+        );
+      },
     },
     {
       field: "deploymentType",
@@ -11803,6 +11849,8 @@ export default function OutletList() {
         _undeployDate: a?.undeployDate || null,
         _daysUndeployed: calcDaysUndeployed(a?.undeployDate, a?.deployStatus),
         _isApplicant: a?.isApplicant || false,
+        _rateCardId: a?.rateCardId || null,
+        _employmentStatus: a?.employmentStatus || "",
         _incomingApplicantId: a?.incomingApplicantId || null,
         _incomingApplicantName: a?.incomingApplicantName || null,
         _incomingApplicantStatus: a?.incomingApplicantStatus || "",

@@ -1548,16 +1548,19 @@ export default function AccountCreationEnhanced() {
                           handleChange("sss", value);
                         }}
                         error={
-                          !!formData.sss &&
-                          formData.sss.length > 0 &&
-                          formData.sss.length < 10
+                          !!formErrors.sss ||
+                          (!!formData.sss &&
+                            formData.sss.length > 0 &&
+                            formData.sss.length < 10)
                         }
                         helperText={
-                          formData.sss &&
-                          formData.sss.length > 0 &&
-                          formData.sss.length < 10
-                            ? "SSS number must be 10 digits"
-                            : ""
+                          formErrors.sss
+                            ? formErrors.sss
+                            : formData.sss &&
+                                formData.sss.length > 0 &&
+                                formData.sss.length < 10
+                              ? "SSS number must be 10 digits"
+                              : ""
                         }
                       />
                     </Grid>
@@ -1580,16 +1583,19 @@ export default function AccountCreationEnhanced() {
                           handleChange("philhealth", value);
                         }}
                         error={
-                          !!formData.philhealth &&
-                          formData.philhealth.length > 0 &&
-                          formData.philhealth.length < 12
+                          !!formErrors.philhealth ||
+                          (!!formData.philhealth &&
+                            formData.philhealth.length > 0 &&
+                            formData.philhealth.length < 12)
                         }
                         helperText={
-                          formData.philhealth &&
-                          formData.philhealth.length > 0 &&
-                          formData.philhealth.length < 12
-                            ? "PhilHealth number must be 12 digits"
-                            : ""
+                          formErrors.philhealth
+                            ? formErrors.philhealth
+                            : formData.philhealth &&
+                                formData.philhealth.length > 0 &&
+                                formData.philhealth.length < 12
+                              ? "PhilHealth number must be 12 digits"
+                              : ""
                         }
                       />
                     </Grid>
@@ -1612,16 +1618,19 @@ export default function AccountCreationEnhanced() {
                           handleChange("hdmf", value);
                         }}
                         error={
-                          !!formData.hdmf &&
-                          formData.hdmf.length > 0 &&
-                          formData.hdmf.length < 12
+                          !!formErrors.hdmf ||
+                          (!!formData.hdmf &&
+                            formData.hdmf.length > 0 &&
+                            formData.hdmf.length < 12)
                         }
                         helperText={
-                          formData.hdmf &&
-                          formData.hdmf.length > 0 &&
-                          formData.hdmf.length < 12
-                            ? "HDMF number must be 12 digits"
-                            : ""
+                          formErrors.hdmf
+                            ? formErrors.hdmf
+                            : formData.hdmf &&
+                                formData.hdmf.length > 0 &&
+                                formData.hdmf.length < 12
+                              ? "HDMF number must be 12 digits"
+                              : ""
                         }
                       />
                     </Grid>
@@ -1644,16 +1653,19 @@ export default function AccountCreationEnhanced() {
                           handleChange("tin", value);
                         }}
                         error={
-                          !!formData.tin &&
-                          formData.tin.length > 0 &&
-                          formData.tin.length < 12
+                          !!formErrors.tin ||
+                          (!!formData.tin &&
+                            formData.tin.length > 0 &&
+                            formData.tin.length < 12)
                         }
                         helperText={
-                          formData.tin &&
-                          formData.tin.length > 0 &&
-                          formData.tin.length < 12
-                            ? "TIN number must be 12 digits"
-                            : ""
+                          formErrors.tin
+                            ? formErrors.tin
+                            : formData.tin &&
+                                formData.tin.length > 0 &&
+                                formData.tin.length < 12
+                              ? "TIN number must be 12 digits"
+                              : ""
                         }
                       />
                     </Grid>
