@@ -274,6 +274,7 @@ export default function BmpowerHO() {
   const allowedRoles = [
     "HR HEAD",
     "HR SPECIALIST",
+    "SPX HR SPECIALIST",
     "HR COMPENSATION AND BENEFITS",
     "HR COORDINATOR SPECIALIST",
     "MIS",

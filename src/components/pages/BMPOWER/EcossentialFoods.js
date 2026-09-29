@@ -73,6 +73,7 @@ export default function BmpowerHO() {
   const [newUploads, setNewUploads] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [dateResignedError, setDateResignedError] = useState(false);
+  const [rateCards, setRateCards] = useState([]); // co-worker payroll & billing rate list
 
   const role = localStorage.getItem("roleAccount");
 
@@ -462,6 +463,23 @@ export default function BmpowerHO() {
     fetchAccounts();
   }, []);
 
+  // ── Rate cards (co-worker payroll & billing system) ──
+  // We store rateCardId on each merchandiser; this list resolves it to a live rate.
+  useEffect(() => {
+    const fetchRateCards = async () => {
+      try {
+        const res = await axios.get(
+          "https://bmpower-system.site/view/rate-card-list/fetch-data",
+        );
+        setRateCards(res.data?.datadata || []);
+      } catch (error) {
+        console.error("Error fetching rate cards:", error);
+        setRateCards([]);
+      }
+    };
+    fetchRateCards();
+  }, []);
+
   const getExportData = async () => {
     try {
       const response = await axios.post(
@@ -488,12 +506,44 @@ export default function BmpowerHO() {
         "HomeAddress",
         "ModeOfDisbursement",
         "AccountNumber",
+        "Rate",
+        "EmploymentStatus",
         "SSS",
         "PhilHealth",
         "HDMF",
         "Tin",
       ];
-      const newData = response.data.data;
+
+      // Build EmployeeNo -> rateCardId map from the loaded accounts (export
+      // payload doesn't carry rateCardId, so we join back on EmployeeNo).
+      const rateIdByEmpNo = {};
+      accounts.forEach((acc) => {
+        if (acc?.employeeNo != null) {
+          rateIdByEmpNo[String(acc.employeeNo)] = acc.rateCardId;
+        }
+      });
+
+      const empStatusByEmpNo = {};
+      accounts.forEach((acc) => {
+        if (acc?.employeeNo != null) {
+          empStatusByEmpNo[String(acc.employeeNo)] = acc.employmentStatus || "";
+        }
+      });
+
+      const resolveRate = (empNo) => {
+        const rid = rateIdByEmpNo[String(empNo)];
+        if (!rid) return "";
+        const rc = rateCards.find((r) => String(r.id) === String(rid));
+        return rc
+          ? `${rc.region} — ₱${rc.new_rate_per_day}/day`
+          : `Rate ID: ${rid}`;
+      };
+
+      const newData = (response.data.data || []).map((row) => ({
+        ...row,
+        Rate: resolveRate(row.EmployeeNo),
+        EmploymentStatus: empStatusByEmpNo[String(row.EmployeeNo)] || "", // ← ADD THIS
+      }));
       const wb = XLSX.utils.book_new();
       const ws = XLSX.utils.json_to_sheet([]);
       XLSX.utils.sheet_add_aoa(ws, [headers], { origin: "A1" });
@@ -690,6 +740,48 @@ export default function BmpowerHO() {
     { field: "lastName", headerName: "Last Name", width: 150 },
     { field: "firstName", headerName: "First Name", width: 150 },
     { field: "middleName", headerName: "Middle Name", width: 150 },
+    {
+      field: "rate",
+      headerName: "Rate",
+      width: 300,
+      sortable: false,
+      renderCell: (params) => {
+        const rid = params.row?.rateCardId;
+        if (!rid) return "—";
+        const rc = rateCards.find((r) => String(r.id) === String(rid));
+        return rc
+          ? `${rc.region} — ₱${rc.new_rate_per_day}/day`
+          : `Rate ID: ${rid}`;
+      },
+    },
+    {
+      field: "employmentStatus",
+      headerName: "Employment Status",
+      width: 160,
+      renderCell: (params) => {
+        const val = params.row?.employmentStatus;
+        if (!val) return "—";
+        const cfg = {
+          Regular: { bg: "#e8f5e9", color: "#2e7d32" },
+          "New Diser": { bg: "#e3f2fd", color: "#1565c0" },
+          Probationary: { bg: "#fff8e1", color: "#f57f17" },
+          Reliever: { bg: "#f3e5f5", color: "#7b1fa2" },
+        }[val] || { bg: "#eceff1", color: "#455a64" };
+        return (
+          <Chip
+            label={val}
+            color={undefined}
+            size="small"
+            sx={{
+              backgroundColor: cfg.bg,
+              color: cfg.color,
+              fontWeight: 600,
+              fontSize: "11px",
+            }}
+          />
+        );
+      },
+    },
     {
       field: "birthday",
       headerName: "Birthday",
