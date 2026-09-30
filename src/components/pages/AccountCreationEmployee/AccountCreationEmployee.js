@@ -441,6 +441,8 @@ export default function AccountCreationEnhanced() {
     "BDO NETWORK": 12,
     "BDO UNIBANK": 12,
     BPI: 12,
+    "BPI Savings": 10,
+    "BPI Direct Banko": 12,
     CEBUANA: 12,
     CHINABANK: 12,
     EASTWEST: 12,
@@ -452,6 +454,8 @@ export default function AccountCreationEnhanced() {
     "SECURITY BANK": 13,
     UNIONBANK: 12,
     MARIBANK: 11,
+    "MAYA Savings": 12,
+    "GoTyme Bank": 12,
   };
 
   const handleChange = (field, value) => {
@@ -484,8 +488,8 @@ export default function AccountCreationEnhanced() {
           updated.dateHired = null;
           updated.contract = null;
           updated.silBalance = "";
-          updated.modeOfDisbursement = "";
-          updated.accountNumber = "";
+          // updated.modeOfDisbursement = "";
+          // updated.accountNumber = "";
         } else if (value === "Active") {
           // 🔥 ONLY Employed allowed
           updated.remarks = "Employed";
@@ -580,6 +584,8 @@ export default function AccountCreationEnhanced() {
           "birthday",
           "position",
           "homeAddress",
+          "modeOfDisbursement",
+          "accountNumber",
         ]
       : [
           "company",
@@ -645,6 +651,8 @@ export default function AccountCreationEnhanced() {
       "BDO NETWORK": 12,
       "BDO UNIBANK": 12,
       BPI: 12,
+      "BPI Savings": 10,
+      "BPI Direct Banko": 12,
       CEBUANA: 12,
       CHINABANK: 12,
       EASTWEST: 12,
@@ -656,13 +664,16 @@ export default function AccountCreationEnhanced() {
       "SECURITY BANK": 13,
       UNIONBANK: 12,
       MARIBANK: 11,
+      "MAYA Savings": 12,
+      "GoTyme Bank": 12,
     };
 
-    if (
-      !isApplicant &&
-      formData.modeOfDisbursement !== "TBA" &&
-      !errors.accountNumber
-    ) {
+    // if (
+    //   !isApplicant &&
+    //   formData.modeOfDisbursement !== "TBA" &&
+    //   !errors.accountNumber
+    // )
+    {
       const requiredLength =
         accountRequiredLengths[formData.modeOfDisbursement];
       if (requiredLength && formData.accountNumber.length !== requiredLength) {
@@ -724,9 +735,7 @@ export default function AccountCreationEnhanced() {
       riderstatus: isApplicant ? null : formData.riderstatus,
       department: isApplicant ? null : formData.department,
       accountNumber:
-        isApplicant || formData.modeOfDisbursement === "TBA"
-          ? null
-          : formData.accountNumber,
+        formData.modeOfDisbursement === "TBA" ? null : formData.accountNumber,
       contract: isApplicant ? null : formData.contract,
       dateHired: isApplicant ? null : formData.dateHired,
       silBalance: isApplicant ? null : formData.silBalance,
@@ -1858,7 +1867,7 @@ export default function AccountCreationEnhanced() {
                         <Select
                           value={formData.modeOfDisbursement}
                           label="Mode of Disbursement *"
-                          disabled={isApplicant}
+                          // disabled={isApplicant}
                           onChange={(e) => {
                             const value = e.target.value;
                             handleChange("modeOfDisbursement", value);
@@ -1886,6 +1895,12 @@ export default function AccountCreationEnhanced() {
                           </MenuItem>
                           <MenuItem value="UNIONBANK">UNIONBANK</MenuItem>
                           <MenuItem value="MARIBANK">MARIBANK</MenuItem>
+                          <MenuItem value="MAYA Savings">MAYA Savings</MenuItem>
+                          <MenuItem value="GoTyme Bank">GoTyme Bank</MenuItem>
+                          <MenuItem value="BPI Direct Banko">
+                            BPI Direct Banko
+                          </MenuItem>
+                          <MenuItem value="BPI Savings">BPI Savings</MenuItem>
                         </Select>
                       </FormControl>
                     </Grid>
@@ -1912,11 +1927,11 @@ export default function AccountCreationEnhanced() {
                             handleChange("accountNumber", value);
                           }
                         }}
-                        disabled={
-                          isApplicant ||
-                          !formData.modeOfDisbursement ||
-                          formData.modeOfDisbursement === "TBA"
-                        }
+                        // disabled={
+                        //   isApplicant ||
+                        //   !formData.modeOfDisbursement ||
+                        //   formData.modeOfDisbursement === "TBA"
+                        // }
                         inputProps={{
                           inputMode: "text",
                           pattern: "[A-Za-z0-9]*",
@@ -1924,18 +1939,18 @@ export default function AccountCreationEnhanced() {
                         error={Boolean(formErrors.accountNumber)}
                         helperText={
                           isApplicant
-                            ? "Account number is not required for applicants."
-                            : formErrors.accountNumber
-                              ? formErrors.accountNumber
-                              : formData.modeOfDisbursement === "TBA"
-                                ? "No account number required for TBA."
-                                : !formData.modeOfDisbursement
-                                  ? "Select Mode of Disbursement first"
-                                  : `Must be ${
-                                      accountMaxLengths[
-                                        formData.modeOfDisbursement
-                                      ]
-                                    } characters`
+                            ? // ? "Account number is not required for applicants."
+                              // : formErrors.accountNumber
+                              formErrors.accountNumber
+                            : formData.modeOfDisbursement === "TBA"
+                              ? "No account number required for TBA."
+                              : !formData.modeOfDisbursement
+                                ? "Select Mode of Disbursement first"
+                                : `Must be ${
+                                    accountMaxLengths[
+                                      formData.modeOfDisbursement
+                                    ]
+                                  } characters`
                         }
                       />
                     </Grid>

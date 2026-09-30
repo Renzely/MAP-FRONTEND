@@ -366,22 +366,6 @@ export const OUTLET_DATA = [
     payrollAccount: "BALANCE",
   },
   {
-    id: 36,
-    region: "NCR",
-    outlet: "EVERPLUS SUPERSTORE INC. - METRO PLAZA",
-    accountSupervisor: "CASERES, JAYSON",
-    adp: "ROBINSONS",
-    payrollAccount: "ROBINSONS",
-  },
-  {
-    id: 37,
-    region: "NCR",
-    outlet: "EVERPLUS SUPERSTORE INC. - MUZON",
-    accountSupervisor: "CASERES, JAYSON",
-    adp: "ROBINSONS",
-    payrollAccount: "ROBINSONS",
-  },
-  {
     id: 38,
     region: "NCR",
     outlet: "EVERPLUS SUPERSTORE INC. - NAVOTAS",
@@ -571,14 +555,6 @@ export const OUTLET_DATA = [
     outlet: "HI-TOP SUPERMARKET - Q.AVE.",
     accountSupervisor: "CASERES, JAYSON",
     adp: "GENTRADE",
-    payrollAccount: "GENTRADE",
-  },
-  {
-    id: 62,
-    region: "NCR",
-    outlet: "HI-TOP SUPERMARKET - Q.AVE.",
-    accountSupervisor: "CASERES, JAYSON",
-    adp: "MAGIS Q.C",
     payrollAccount: "GENTRADE",
   },
   {
@@ -1041,14 +1017,6 @@ export const OUTLET_DATA = [
     id: 120,
     region: "NCR",
     outlet: "PUREGOLD PRICE CLUB (JR.)- DE CASTRO",
-    accountSupervisor: "VIGIL, BERNIE",
-    adp: "PUREGOLD",
-    payrollAccount: "PUREGOLD",
-  },
-  {
-    id: 121,
-    region: "NCR",
-    outlet: "PUREGOLD PRICE CLUB (JR.)- DEL MONTE",
     accountSupervisor: "VIGIL, BERNIE",
     adp: "PUREGOLD",
     payrollAccount: "PUREGOLD",
@@ -2350,14 +2318,6 @@ export const OUTLET_DATA = [
     payrollAccount: "ROBINSONS",
   },
   {
-    id: 284,
-    region: "NCR",
-    outlet: "ROBINSONS - BIGNAY VALENZUELA",
-    accountSupervisor: "VIGIL, BERNIE",
-    adp: "ROBINSONS",
-    payrollAccount: "ROBINSONS",
-  },
-  {
     id: 285,
     region: "NCR",
     outlet: "ROBINSONS - BLUEWAVE MARIKINA",
@@ -2462,14 +2422,6 @@ export const OUTLET_DATA = [
     payrollAccount: "ROBINSONS",
   },
   {
-    id: 298,
-    region: "NCR",
-    outlet: "ROBINSONS - LUCKY GOLD PLAZA ORTIGAS",
-    accountSupervisor: "VIGIL, BERNIE",
-    adp: "ROBINSONS",
-    payrollAccount: "ROBINSONS",
-  },
-  {
     id: 299,
     region: "NCR",
     outlet: "ROBINSONS - MADISON GALERIES MUNTINLUPA",
@@ -2550,14 +2502,6 @@ export const OUTLET_DATA = [
     payrollAccount: "ROBINSONS",
   },
   {
-    id: 309,
-    region: "NCR",
-    outlet: "ROBINSONS - TANDANG SORA",
-    accountSupervisor: "VIGIL, BERNIE",
-    adp: "ROBINSONS",
-    payrollAccount: "ROBINSONS",
-  },
-  {
     id: 310,
     region: "NCR",
     outlet: "ROBINSONS - TIMOG",
@@ -2591,14 +2535,6 @@ export const OUTLET_DATA = [
   },
   {
     id: 314,
-    region: "NCR",
-    outlet: "ROBINSONS - VALENZUELA",
-    accountSupervisor: "VIGIL, BERNIE",
-    adp: "ROBINSONS",
-    payrollAccount: "ROBINSONS",
-  },
-  {
-    id: 315,
     region: "NCR",
     outlet: "ROBINSONS - VALENZUELA",
     accountSupervisor: "VIGIL, BERNIE",
@@ -2703,14 +2639,6 @@ export const OUTLET_DATA = [
   },
   {
     id: 328,
-    region: "NCR",
-    outlet: "ROBINSONS EASYMART - E. RODRIGUEZ SR. QC (PURITY)",
-    accountSupervisor: "VIGIL, BERNIE",
-    adp: "ROBINSONS",
-    payrollAccount: "ROBINSONS",
-  },
-  {
-    id: 329,
     region: "NCR",
     outlet: "ROBINSONS EASYMART - E. RODRIGUEZ SR. QC (PURITY)",
     accountSupervisor: "VIGIL, BERNIE",
@@ -2830,14 +2758,6 @@ export const OUTLET_DATA = [
     payrollAccount: "ROBINSONS",
   },
   {
-    id: 344,
-    region: "NCR",
-    outlet: "ROBINSONS EASYMART - MARIPOSA ARCADE KAPASIGAN",
-    accountSupervisor: "VIGIL, BERNIE",
-    adp: "ROBINSONS",
-    payrollAccount: "ROBINSONS",
-  },
-  {
     id: 345,
     region: "NCR",
     outlet: "ROBINSONS EASYMART - METRO PLAZA B.SILANG",
@@ -2950,14 +2870,6 @@ export const OUTLET_DATA = [
     payrollAccount: "ROBINSONS",
   },
   {
-    id: 359,
-    region: "NCR",
-    outlet: "ROBINSONS EASYMART - SAN MATEO",
-    accountSupervisor: "VIGIL, BERNIE",
-    adp: "ROBINSONS",
-    payrollAccount: "ROBINSONS",
-  },
-  {
     id: 360,
     region: "NCR",
     outlet: "ROBINSONS EASYMART - SANTOLAN",
@@ -2982,14 +2894,6 @@ export const OUTLET_DATA = [
     payrollAccount: "ROBINSONS",
   },
   {
-    id: 363,
-    region: "NCR",
-    outlet: "ROBINSONS EASYMART - STO TOMAS PASIG",
-    accountSupervisor: "VIGIL, BERNIE",
-    adp: "ROBINSONS",
-    payrollAccount: "ROBINSONS",
-  },
-  {
     id: 364,
     region: "NCR",
     outlet: "ROBINSONS EASYMART - THE EMERALD COURT PROJECT 6",
@@ -3001,14 +2905,6 @@ export const OUTLET_DATA = [
     id: 365,
     region: "NCR",
     outlet: "ROBINSONS EASYMART - THE LINK",
-    accountSupervisor: "VIGIL, BERNIE",
-    adp: "ROBINSONS",
-    payrollAccount: "ROBINSONS",
-  },
-  {
-    id: 366,
-    region: "NCR",
-    outlet: "ROBINSONS EASYMART - TOWN CENTER",
     accountSupervisor: "VIGIL, BERNIE",
     adp: "ROBINSONS",
     payrollAccount: "ROBINSONS",
@@ -3031,14 +2927,6 @@ export const OUTLET_DATA = [
   },
   {
     id: 369,
-    region: "NCR",
-    outlet: "ROBINSONS EASYMART -AMAIA",
-    accountSupervisor: "VIGIL, BERNIE",
-    adp: "ROBINSONS",
-    payrollAccount: "ROBINSONS",
-  },
-  {
-    id: 370,
     region: "NCR",
     outlet: "ROBINSONS EASYMART -AMAIA",
     accountSupervisor: "VIGIL, BERNIE",
@@ -3175,14 +3063,6 @@ export const OUTLET_DATA = [
   },
   {
     id: 387,
-    region: "NCR",
-    outlet: "ROBINSONS PLACE - MALABON",
-    accountSupervisor: "VIGIL, BERNIE",
-    adp: "ROBINSONS",
-    payrollAccount: "ROBINSONS",
-  },
-  {
-    id: 388,
     region: "NCR",
     outlet: "ROBINSONS PLACE - MALABON",
     accountSupervisor: "VIGIL, BERNIE",
@@ -3673,7 +3553,7 @@ export const OUTLET_DATA = [
     id: 449,
     region: "NCR",
     outlet: "SUPER 8 - SAN JOAQUIN",
-    accountSupervisor: "ZABALLA, FERCEY",
+    accountSupervisor: "VIGIL, BERNIE",
     adp: "SUPER 8",
     payrollAccount: "BALANCE",
   },
@@ -3814,14 +3694,6 @@ export const OUTLET_DATA = [
     payrollAccount: "ROBINSONS",
   },
   {
-    id: 467,
-    region: "NCR",
-    outlet: "THE MARKETPLACE - CAPITOL",
-    accountSupervisor: "VIGIL, BERNIE",
-    adp: "ROBINSONS",
-    payrollAccount: "ROBINSONS",
-  },
-  {
     id: 468,
     region: "NCR",
     outlet: "THE MARKETPLACE - CENTURY",
@@ -3862,14 +3734,6 @@ export const OUTLET_DATA = [
     payrollAccount: "ROBINSONS",
   },
   {
-    id: 473,
-    region: "NCR",
-    outlet: "THE MARKETPLACE - GROOVE",
-    accountSupervisor: "VIGIL, BERNIE",
-    adp: "ROBINSONS",
-    payrollAccount: "ROBINSONS",
-  },
-  {
     id: 474,
     region: "NCR",
     outlet: "THE MARKETPLACE - KATIPUNAN",
@@ -3887,14 +3751,6 @@ export const OUTLET_DATA = [
   },
   {
     id: 476,
-    region: "NCR",
-    outlet: "THE MARKETPLACE - P.GUEVARRA",
-    accountSupervisor: "VIGIL, BERNIE",
-    adp: "ROBINSONS",
-    payrollAccount: "ROBINSONS",
-  },
-  {
-    id: 477,
     region: "NCR",
     outlet: "THE MARKETPLACE - P.GUEVARRA",
     accountSupervisor: "VIGIL, BERNIE",
@@ -4174,14 +4030,6 @@ export const OUTLET_DATA = [
     payrollAccount: "ROBINSONS",
   },
   {
-    id: 512,
-    region: "REGION 1",
-    outlet: "GEN. TRADE - ERGO SUPERMARKET",
-    accountSupervisor: "CASERES, JAYSON",
-    adp: "GENTRADE",
-    payrollAccount: "ROBINSONS",
-  },
-  {
     id: 513,
     region: "REGION 1",
     outlet: "GEN. TRADE - JTC SUPERMARKET",
@@ -4190,23 +4038,7 @@ export const OUTLET_DATA = [
     payrollAccount: "ROBINSONS",
   },
   {
-    id: 514,
-    region: "REGION 1",
-    outlet: "GEN. TRADE - JTC SUPERMARKET",
-    accountSupervisor: "CASERES, JAYSON",
-    adp: "GENTRADE",
-    payrollAccount: "ROBINSONS",
-  },
-  {
     id: 515,
-    region: "REGION 1",
-    outlet: "GEN. TRADE - ROSE GROCERY",
-    accountSupervisor: "CASERES, JAYSON",
-    adp: "GENTRADE",
-    payrollAccount: "ROBINSONS",
-  },
-  {
-    id: 516,
     region: "REGION 1",
     outlet: "GEN. TRADE - ROSE GROCERY",
     accountSupervisor: "CASERES, JAYSON",
@@ -4406,14 +4238,6 @@ export const OUTLET_DATA = [
     payrollAccount: "ROBINSONS",
   },
   {
-    id: 541,
-    region: "REGION 2",
-    outlet: "GEN. TRADE - LAIDAS CEDRON GROCERY",
-    accountSupervisor: "CASERES, JAYSON",
-    adp: "GENTRADE",
-    payrollAccount: "ROBINSONS",
-  },
-  {
     id: 542,
     region: "REGION 2",
     outlet: "GEN. TRADE MELBA GROCERY",
@@ -4422,23 +4246,7 @@ export const OUTLET_DATA = [
     payrollAccount: "ROBINSONS",
   },
   {
-    id: 543,
-    region: "REGION 2",
-    outlet: "GEN. TRADE MELBA GROCERY",
-    accountSupervisor: "CASERES, JAYSON",
-    adp: "GENTRADE",
-    payrollAccount: "ROBINSONS",
-  },
-  {
     id: 544,
-    region: "REGION 2",
-    outlet: "GEN. TRADE UP TO DATE GROCERY",
-    accountSupervisor: "CASERES, JAYSON",
-    adp: "GENTRADE",
-    payrollAccount: "ROBINSONS",
-  },
-  {
-    id: 545,
     region: "REGION 2",
     outlet: "GEN. TRADE UP TO DATE GROCERY",
     accountSupervisor: "CASERES, JAYSON",
@@ -4636,22 +4444,6 @@ export const OUTLET_DATA = [
     accountSupervisor: "CASERES, JAYSON",
     adp: "GENTRADE",
     payrollAccount: "PUREGOLD",
-  },
-  {
-    id: 570,
-    region: "REGION 3",
-    outlet: "GEN. TRADE BAMBI SUPERMARKET",
-    accountSupervisor: "CASERES, JAYSON",
-    adp: "GENTRADE",
-    payrollAccount: "ROBINSONS",
-  },
-  {
-    id: 571,
-    region: "REGION 3",
-    outlet: "GEN. TRADE JELRA SUPERMARKET",
-    accountSupervisor: "CASERES, JAYSON",
-    adp: "GENTRADE",
-    payrollAccount: "ROBINSONS",
   },
   {
     id: 572,
@@ -5534,14 +5326,6 @@ export const OUTLET_DATA = [
     payrollAccount: "ROBINSONS",
   },
   {
-    id: 682,
-    region: "REGION 3",
-    outlet: "ROBINSONS - METROTOWN TARLAC",
-    accountSupervisor: "CASERES, JAYSON",
-    adp: "ROBINSONS",
-    payrollAccount: "ROBINSONS",
-  },
-  {
     id: 683,
     region: "REGION 3",
     outlet: "ROBINSONS - PULILAN",
@@ -5551,14 +5335,6 @@ export const OUTLET_DATA = [
   },
   {
     id: 684,
-    region: "REGION 3",
-    outlet: "ROBINSONS - TAÑEDO TARLAC",
-    accountSupervisor: "CASERES, JAYSON",
-    adp: "ROBINSONS",
-    payrollAccount: "ROBINSONS",
-  },
-  {
-    id: 685,
     region: "REGION 3",
     outlet: "ROBINSONS - TAÑEDO TARLAC",
     accountSupervisor: "CASERES, JAYSON",
@@ -5662,14 +5438,6 @@ export const OUTLET_DATA = [
     payrollAccount: "ROBINSONS",
   },
   {
-    id: 698,
-    region: "REGION 3",
-    outlet: "ROBINSONS EASYMART - FIL AM",
-    accountSupervisor: "CASERES, JAYSON",
-    adp: "ROBINSONS",
-    payrollAccount: "ROBINSONS",
-  },
-  {
     id: 699,
     region: "REGION 3",
     outlet: "ROBINSONS EASYMART - GUIMBA NUEVA ECIJA",
@@ -5726,14 +5494,6 @@ export const OUTLET_DATA = [
     payrollAccount: "ROBINSONS",
   },
   {
-    id: 706,
-    region: "REGION 3",
-    outlet: "ROBINSONS EASYMART - MUNOZ",
-    accountSupervisor: "CASERES, JAYSON",
-    adp: "ROBINSONS",
-    payrollAccount: "ROBINSONS",
-  },
-  {
     id: 707,
     region: "REGION 3",
     outlet: "ROBINSONS EASYMART - ORANI BATAAN",
@@ -5775,14 +5535,6 @@ export const OUTLET_DATA = [
   },
   {
     id: 712,
-    region: "REGION 3",
-    outlet: "ROBINSONS EASYMART - SAN MIGUEL",
-    accountSupervisor: "CASERES, JAYSON",
-    adp: "ROBINSONS",
-    payrollAccount: "ROBINSONS",
-  },
-  {
-    id: 713,
     region: "REGION 3",
     outlet: "ROBINSONS EASYMART - SAN MIGUEL",
     accountSupervisor: "CASERES, JAYSON",
@@ -5895,14 +5647,6 @@ export const OUTLET_DATA = [
   },
   {
     id: 727,
-    region: "REGION 3",
-    outlet: "ROBINSONS SUPERMARKET - SAN MIGUEL",
-    accountSupervisor: "CASERES, JAYSON",
-    adp: "ROBINSONS",
-    payrollAccount: "ROBINSONS",
-  },
-  {
-    id: 728,
     region: "REGION 3",
     outlet: "ROBINSONS SUPERMARKET - SAN MIGUEL",
     accountSupervisor: "CASERES, JAYSON",
@@ -6185,54 +5929,6 @@ export const OUTLET_DATA = [
     id: 763,
     region: "REGION 4",
     outlet: "ROBINSONS - CENTRO MALL CABUYAO",
-    accountSupervisor: "ZABALLA, FERCEY",
-    adp: "ROBINSONS",
-    payrollAccount: "ROBINSONS",
-  },
-  {
-    id: 764,
-    region: "REGION 4",
-    outlet: "ROBINSONS - TARGETMALL STA. ROSA",
-    accountSupervisor: "ZABALLA, FERCEY",
-    adp: "ROBINSONS",
-    payrollAccount: "ROBINSONS",
-  },
-  {
-    id: 765,
-    region: "REGION 4",
-    outlet: "ROBINSONS - TOWNVILLE NUVALI STA ROSA-1",
-    accountSupervisor: "ZABALLA, FERCEY",
-    adp: "ROBINSONS",
-    payrollAccount: "ROBINSONS",
-  },
-  {
-    id: 766,
-    region: "REGION 4",
-    outlet: "ROBINSONS EASYMART -SILANG",
-    accountSupervisor: "ZABALLA, FERCEY",
-    adp: "ROBINSONS",
-    payrollAccount: "ROBINSONS",
-  },
-  {
-    id: 767,
-    region: "REGION 4",
-    outlet: "ROBINSONS PLACE - GENERAL TRIAS",
-    accountSupervisor: "ZABALLA, FERCEY",
-    adp: "ROBINSONS",
-    payrollAccount: "ROBINSONS",
-  },
-  {
-    id: 768,
-    region: "REGION 4",
-    outlet: "SHOPWISE - IMUS",
-    accountSupervisor: "ZABALLA, FERCEY",
-    adp: "ROBINSONS",
-    payrollAccount: "ROBINSONS",
-  },
-  {
-    id: 769,
-    region: "REGION 4",
-    outlet: "TMP SAN ANTONIO",
     accountSupervisor: "ZABALLA, FERCEY",
     adp: "ROBINSONS",
     payrollAccount: "ROBINSONS",
@@ -7388,14 +7084,6 @@ export const OUTLET_DATA = [
     accountSupervisor: "ZABALLA, FERCEY",
     adp: "ROBINSONS",
     payrollAccount: "BALANCE",
-  },
-  {
-    id: 914,
-    region: "REGION 4A",
-    outlet: "ROBINSONS EASYMART - SAN FRANCISCO SAN PABLO",
-    accountSupervisor: "ZABALLA, FERCEY",
-    adp: "ROBINSONS",
-    payrollAccount: "ROBINSONS",
   },
   {
     id: 915,
@@ -10029,6 +9717,46 @@ export const OUTLET_DATA = [
     adp: "ROBINSONS",
     payrollAccount: "ROBINSONS",
   },
+  {
+    id: 1244,
+    region: "REGION 3",
+    outlet: "WALTERMART SUPERMARKET, INC- PORAC",
+    accountSupervisor: "CASERES, JAYSON",
+    adp: "WALTERMART",
+    payrollAccount: "",
+  },
+  {
+    id: 1245,
+    region: "REGION 7A",
+    outlet: "RS BELLEMAR PANGLAO BOHOL",
+    accountSupervisor: "DOBLE, RYAN",
+    adp: "ROBINSONS",
+    payrollAccount: "",
+  },
+  {
+    id: 1246,
+    region: "REGION 4A",
+    outlet: "PUREGOLD PRICE CLUB - STA ROSA GATEWAY",
+    accountSupervisor: "ZABALLA, FERCY",
+    adp: "ROBINSONS",
+    payrollAccount: "",
+  },
+  {
+    id: 1247,
+    region: "REGION 4A",
+    outlet: "PUREGOLD PRICE CLUB - DIVIMART SAN PABLO",
+    accountSupervisor: "ZABALLA, FERCY",
+    adp: "ROBINSONS",
+    payrollAccount: "",
+  },
+  {
+    id: 1248,
+    region: "REGION 4A",
+    outlet: "SOUTH - CALAMBA",
+    accountSupervisor: "ZABALLA, FERCY",
+    adp: "SOUTH",
+    payrollAccount: "",
+  },
 ];
 
 // Base outlets stay fixed above. Slots ("- 2"/"- 3") added by Account Supervisors
@@ -10854,6 +10582,14 @@ export default function OutletList() {
               .filter((x) => x && String(x).trim() !== "")
               .join(", ")
           : "",
+        "Rate Card": (() => {
+          const rid = a?.rateCardId;
+          if (!rid) return "";
+          const rc = rateCards.find((r) => String(r.id) === String(rid));
+          return rc
+            ? `${rc.region} — ₱${rc.new_rate_per_day}/day`
+            : `Rate ID: ${rid}`;
+        })(),
         "Mode of Disbursement": a?.modeOfDisbursement || "",
         "Account Number": a?.accountNumber || "",
         "Deploy Status": a?.deployStatus || "Undeployed",
@@ -10893,6 +10629,7 @@ export default function OutletList() {
       "ADP",
       "Payroll Account",
       "Merchandiser",
+      "Rate Card",
       "Mode of Disbursement",
       "Account Number",
       "Deploy Status",
@@ -10994,14 +10731,7 @@ export default function OutletList() {
         "Assigned Merchandiser": merch,
         "Type of Deployment": a?.deploymentType || "Stationary",
         "Employment Status": a?.employmentStatus || "Regular",
-        "Rate Card": (() => {
-          const rid = a?.rateCardId;
-          if (!rid) return "";
-          const rc = rateCards.find((r) => String(r.id) === String(rid));
-          return rc
-            ? `${rc.region} — ₱${rc.new_rate_per_day}/day`
-            : `Rate ID: ${rid}`;
-        })(),
+        "Rate Card": a?.rateCardId ? String(a.rateCardId) : "",
         "Mode of Disbursement": a?.modeOfDisbursement || "",
         "Account Number": a?.accountNumber || "",
       };
