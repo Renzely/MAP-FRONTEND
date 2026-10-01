@@ -2005,6 +2005,18 @@ export default function BmpowerHO() {
                                     UNIONBANK
                                   </MenuItem>
                                   <MenuItem value="MARIBANK">MARIBANK</MenuItem>
+                                  <MenuItem value="MAYA Savings">
+                                    MAYA Savings
+                                  </MenuItem>
+                                  <MenuItem value="GoTyme Bank">
+                                    GoTyme Bank
+                                  </MenuItem>
+                                  <MenuItem value="BPI Direct BanKo">
+                                    BPI Direct BanKo
+                                  </MenuItem>
+                                  <MenuItem value="BPI Savings">
+                                    BPI Savings
+                                  </MenuItem>
                                 </Select>
                               </FormControl>
                             ) : (
@@ -2044,6 +2056,10 @@ export default function BmpowerHO() {
                                   "SECURITY BANK": 13,
                                   METROBANK: 13,
                                   CHINABANK: 12,
+                                  "MAYA Savings": 12,
+                                  "GoTyme Bank": 12,
+                                  "BPI Direct BanKo": 12,
+                                  "BPI Savings": 10,
                                 };
                                 const maxLength =
                                   maxLengths[
@@ -2080,6 +2096,10 @@ export default function BmpowerHO() {
                                         "SECURITY BANK": 13,
                                         METROBANK: 13,
                                         CHINABANK: 12,
+                                        "MAYA Savings": 12,
+                                        "GoTyme Bank": 12,
+                                        "BPI Direct BanKo": 12,
+                                        "BPI Savings": 10,
                                       }[selectedEmployee.modeOfDisbursement] ||
                                       "up to 20"
                                     } digits`

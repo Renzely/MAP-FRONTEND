@@ -442,7 +442,7 @@ export default function AccountCreationEnhanced() {
     "BDO UNIBANK": 12,
     BPI: 12,
     "BPI Savings": 10,
-    "BPI Direct Banko": 12,
+    "BPI Direct BanKo": 12,
     CEBUANA: 12,
     CHINABANK: 12,
     EASTWEST: 12,
@@ -652,7 +652,7 @@ export default function AccountCreationEnhanced() {
       "BDO UNIBANK": 12,
       BPI: 12,
       "BPI Savings": 10,
-      "BPI Direct Banko": 12,
+      "BPI Direct BanKo": 12,
       CEBUANA: 12,
       CHINABANK: 12,
       EASTWEST: 12,
@@ -1897,8 +1897,8 @@ export default function AccountCreationEnhanced() {
                           <MenuItem value="MARIBANK">MARIBANK</MenuItem>
                           <MenuItem value="MAYA Savings">MAYA Savings</MenuItem>
                           <MenuItem value="GoTyme Bank">GoTyme Bank</MenuItem>
-                          <MenuItem value="BPI Direct Banko">
-                            BPI Direct Banko
+                          <MenuItem value="BPI Direct BanKo">
+                            BPI Direct BanKo
                           </MenuItem>
                           <MenuItem value="BPI Savings">BPI Savings</MenuItem>
                         </Select>

@@ -2135,6 +2135,11 @@ export default function BmpowerHO() {
                                     "RCBC",
                                     "SECURITY BANK",
                                     "UNIONBANK",
+                                    "MARIBANK",
+                                    "MAYA Savings",
+                                    "GoTyme Bank",
+                                    "BPI Savings",
+                                    "BPI Direct BanKo",
                                   ].map((b) => (
                                     <MenuItem key={b} value={b}>
                                       {b}
@@ -2179,6 +2184,10 @@ export default function BmpowerHO() {
                                   "SECURITY BANK": 13,
                                   METROBANK: 13,
                                   CHINABANK: 12,
+                                  "MAYA Savings": 12,
+                                  "GoTyme Bank": 12,
+                                  "BPI Direct BanKo": 12,
+                                  "BPI Savings": 10,
                                 };
                                 const maxLength =
                                   maxLengths[
@@ -2214,6 +2223,10 @@ export default function BmpowerHO() {
                                         "SECURITY BANK": 13,
                                         METROBANK: 13,
                                         CHINABANK: 12,
+                                        "MAYA Savings": 12,
+                                        "GoTyme Bank": 12,
+                                        "BPI Direct BanKo": 12,
+                                        "BPI Savings": 10,
                                       }[selectedEmployee.modeOfDisbursement] ||
                                       "up to 20"
                                     } digits`
