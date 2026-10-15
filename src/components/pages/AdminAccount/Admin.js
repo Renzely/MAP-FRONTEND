@@ -1007,6 +1007,9 @@ export default function Admin() {
                       <MenuItem value="OPERATION DIRECTOR">
                         OPERATION DIRECTOR
                       </MenuItem>
+                      <MenuItem value="OPERATION ENCODER">
+                        OPERATION ENCODER
+                      </MenuItem>
                       <MenuItem value="ACCOUNT SUPERVISOR">
                         ACCOUNT SUPERVISOR
                       </MenuItem>
@@ -1234,6 +1237,9 @@ export default function Admin() {
                       </MenuItem>
                       <MenuItem value="OPERATION DIRECTOR">
                         OPERATION DIRECTOR
+                      </MenuItem>
+                      <MenuItem value="OPERATION ENCODER">
+                        OPERATION ENCODER
                       </MenuItem>
                       <MenuItem value="ACCOUNT SUPERVISOR">
                         ACCOUNT SUPERVISOR

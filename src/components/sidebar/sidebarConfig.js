@@ -33,7 +33,12 @@ const CLIENT_ACCESS = [
   "OPERATION DIRECTOR",
   "ACCOUNT SUPERVISOR",
 ];
-const ACCOUNT_SUPERVISORS = ["MIS", "OPERATION DIRECTOR", "ACCOUNT SUPERVISOR"];
+const ACCOUNT_SUPERVISORS = [
+  "MIS",
+  "OPERATION DIRECTOR",
+  "ACCOUNT SUPERVISOR",
+  "OPERATION ENCODER",
+];
 
 export const NAV_CONFIG = [
   {
@@ -100,6 +105,7 @@ export const NAV_CONFIG = [
       "ACCOUNT SUPERVISOR",
       "EXECUTIVE DIRECTOR",
       "OPERATION DIRECTOR",
+      "OPERATION ENCODER",
     ],
   },
   {
@@ -139,6 +145,7 @@ export const NAV_CONFIG = [
     allowedRoles: [
       ...HR_MANAGEMENT,
       "ACCOUNT SUPERVISOR",
+      "OPERATION ENCODER",
       "SPX COORDINATOR",
       "SPX OPERATION HEAD & LOGISTICS",
       "SPX ACCOUNT SUPERVISOR",
@@ -153,6 +160,7 @@ export const NAV_CONFIG = [
         allowedRoles: [
           ...HR_MANAGEMENT,
           "ACCOUNT SUPERVISOR",
+          "OPERATION ENCODER",
           "SPX COORDINATOR",
           "SPX OPERATION HEAD & LOGISTICS",
           "SPX ACCOUNT SUPERVISOR",
@@ -181,6 +189,7 @@ export const NAV_CONFIG = [
               ...HR_MANAGEMENT,
               "ACCOUNT SUPERVISOR",
               "COORDINATOR",
+              "OPERATION ENCODER",
             ],
           },
           {

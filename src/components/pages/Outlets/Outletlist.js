@@ -1270,14 +1270,6 @@ export const OUTLET_DATA = [
     payrollAccount: "PUREGOLD",
   },
   {
-    id: 153,
-    region: "NCR",
-    outlet: "PUREGOLD PRICE CLUB (MINIMART.)- LIBIS",
-    accountSupervisor: "VIGIL, BERNIE",
-    adp: "PUREGOLD",
-    payrollAccount: "PUREGOLD",
-  },
-  {
     id: 154,
     region: "NCR",
     outlet: "PUREGOLD PRICE CLUB - 999",
@@ -2270,14 +2262,6 @@ export const OUTLET_DATA = [
     payrollAccount: "ROBINSONS",
   },
   {
-    id: 278,
-    region: "NCR",
-    outlet: "ROBINSONS -  TIMOG",
-    accountSupervisor: "VIGIL, BERNIE",
-    adp: "ROBINSONS",
-    payrollAccount: "ROBINSONS",
-  },
-  {
     id: 279,
     region: "NCR",
     outlet: "ROBINSONS - 8 FORBES TOWN ROAD TAGUIG.",
@@ -3081,14 +3065,6 @@ export const OUTLET_DATA = [
     id: 390,
     region: "NCR",
     outlet: "ROBINSONS- GATEWAY",
-    accountSupervisor: "VIGIL, BERNIE",
-    adp: "ROBINSONS",
-    payrollAccount: "ROBINSONS",
-  },
-  {
-    id: 391,
-    region: "NCR",
-    outlet: "ROBINSONS-CULIAT",
     accountSupervisor: "VIGIL, BERNIE",
     adp: "ROBINSONS",
     payrollAccount: "ROBINSONS",
@@ -4040,7 +4016,7 @@ export const OUTLET_DATA = [
   {
     id: 515,
     region: "REGION 1",
-    outlet: "GEN. TRADE - ROSE GROCERY",
+    outlet: "GEN. TRADE - ROSE GROCERY (MY KENT)",
     accountSupervisor: "CASERES, JAYSON",
     adp: "GENTRADE",
     payrollAccount: "ROBINSONS",
@@ -9737,7 +9713,7 @@ export const OUTLET_DATA = [
     id: 1246,
     region: "REGION 4A",
     outlet: "PUREGOLD PRICE CLUB - STA ROSA GATEWAY",
-    accountSupervisor: "ZABALLA, FERCY",
+    accountSupervisor: "ZABALLA, FERCEY",
     adp: "ROBINSONS",
     payrollAccount: "",
   },
@@ -9745,7 +9721,7 @@ export const OUTLET_DATA = [
     id: 1247,
     region: "REGION 4A",
     outlet: "PUREGOLD PRICE CLUB - DIVIMART SAN PABLO",
-    accountSupervisor: "ZABALLA, FERCY",
+    accountSupervisor: "ZABALLA, FERCEY",
     adp: "ROBINSONS",
     payrollAccount: "",
   },
@@ -9753,9 +9729,17 @@ export const OUTLET_DATA = [
     id: 1248,
     region: "REGION 4A",
     outlet: "SOUTH - CALAMBA",
-    accountSupervisor: "ZABALLA, FERCY",
+    accountSupervisor: "ZABALLA, FERCEY",
     adp: "SOUTH",
     payrollAccount: "",
+  },
+  {
+    id: 1249,
+    region: "REGION 6",
+    outlet: "ROBINSONS - KABANKALAN",
+    accountSupervisor: "DOBLE, RYAN",
+    adp: "ROBINSONS",
+    payrollAccount: "ROBINSONS",
   },
 ];
 
@@ -9835,7 +9819,8 @@ export const APPLICANT_STATUS_OPTIONS = [
 ];
 
 function isDeployUnlocked(applicantStatus, role) {
-  if (["ACCOUNT SUPERVISOR", "MIS"].includes(role)) return true;
+  if (["ACCOUNT SUPERVISOR", "MIS", "OPERATION ENCODER"].includes(role))
+    return true;
   if (!applicantStatus || applicantStatus === "") return true;
   return applicantStatus === "Onboarded";
 }
@@ -10175,7 +10160,9 @@ export default function OutletList() {
 
   // ── Permissions ──────────────────────────────────────────────────────────
   const role = localStorage.getItem("roleAccount");
-  const canEdit = ["ACCOUNT SUPERVISOR", "MIS"].includes(role);
+  const canEdit = ["ACCOUNT SUPERVISOR", "MIS", "OPERATION ENCODER"].includes(
+    role,
+  );
   const canSetApplicantStatus = [
     "MIS",
     "HR HEAD",
@@ -10183,7 +10170,11 @@ export default function OutletList() {
     "HR SPECIALIST",
     "HR COORDINATOR SPECIALIST",
   ].includes(role);
-  const canSetOnboarded = ["ACCOUNT SUPERVISOR", "MIS"].includes(role);
+  const canSetOnboarded = [
+    "ACCOUNT SUPERVISOR",
+    "MIS",
+    "OPERATION ENCODER",
+  ].includes(role);
   const canAccessEdit = canEdit || canSetApplicantStatus || canSetOnboarded;
   const canEditDeploymentType = canEdit || canSetApplicantStatus;
   const canAddIncoming = [
