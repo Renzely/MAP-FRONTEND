@@ -3382,14 +3382,6 @@ export const OUTLET_DATA = [
     payrollAccount: "BALANCE",
   },
   {
-    id: 431,
-    region: "NCR",
-    outlet: "SUPER 8 - LAS PINAS",
-    accountSupervisor: "ZABALLA, FERCEY",
-    adp: "SUPER 8",
-    payrollAccount: "BALANCE",
-  },
-  {
     id: 432,
     region: "NCR",
     outlet: "SUPER 8 - LIBERTAD",
