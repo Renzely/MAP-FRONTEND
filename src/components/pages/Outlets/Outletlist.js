@@ -9741,6 +9741,14 @@ export const OUTLET_DATA = [
     adp: "ROBINSONS",
     payrollAccount: "ROBINSONS",
   },
+  {
+    id: 1250,
+    region: "REGION 1",
+    outlet: "ROBINSONS - URDANETA PANGASINAN",
+    accountSupervisor: "CASERES, JAYSON",
+    adp: "ROBINSONS",
+    payrollAccount: "ROBINSONS",
+  },
 ];
 
 // Base outlets stay fixed above. Slots ("- 2"/"- 3") added by Account Supervisors
