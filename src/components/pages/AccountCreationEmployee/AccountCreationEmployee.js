@@ -1299,7 +1299,7 @@ export default function AccountCreationEnhanced() {
                         value={formData.lastName}
                         onChange={(e) => {
                           const value = e.target.value.replace(
-                            /[^A-Za-z\s-]/g,
+                            /[^A-Za-zÑñ\s-]/g,
                             "",
                           );
                           handleChange("lastName", value);
@@ -1316,7 +1316,7 @@ export default function AccountCreationEnhanced() {
                         value={formData.firstName}
                         onChange={(e) => {
                           const value = e.target.value.replace(
-                            /[^A-Za-z\s-]/g,
+                            /[^A-Za-zÑñ\s-]/g,
                             "",
                           );
                           handleChange("firstName", value);
@@ -1377,7 +1377,7 @@ export default function AccountCreationEnhanced() {
                         value={formData.middleName}
                         onChange={(e) => {
                           const value = e.target.value.replace(
-                            /[^A-Za-z\s-]/g,
+                            /[^A-Za-zÑñ\s-]/g,
                             "",
                           );
                           handleChange("middleName", value);
