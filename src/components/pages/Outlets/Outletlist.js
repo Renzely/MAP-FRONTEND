@@ -9684,6 +9684,7 @@ function buildAssignmentMaps(allData) {
       if (m) {
         assignments[m.id] = {
           employeeId: emp._id,
+          employeeNo: emp.employeeNo || "",
           employeeName: `${emp.lastName} ${emp.firstName}`,
           firstName: emp.firstName || "",
           lastName: emp.lastName || "",
@@ -10329,6 +10330,22 @@ export default function OutletList() {
     ),
   ).sort();
 
+  const logExportActivity = async (exportName, rowCount) => {
+    try {
+      const adminFullName = localStorage.getItem("adminFullName") || "Unknown";
+      const adminRole = localStorage.getItem("roleAccount") || "";
+      await axios.post("https://api-map.bmphrc.com/log-export", {
+        exportName,
+        rowCount,
+        clientAssigned: "ECOSSENTIAL FOODS CORP",
+        updatedBy: adminFullName,
+        updatedByRole: adminRole,
+      });
+    } catch (err) {
+      console.error("Failed to log export activity:", err);
+    }
+  };
+
   // ── Export current (filtered) rows to Excel — all columns ────────────────
   const handleExportExcel = () => {
     const XLSX = require("sheetjs-style");
@@ -10345,6 +10362,7 @@ export default function OutletList() {
       const c = coordinatorAssignments[outlet.id];
       return {
         "#": index + 1,
+        "Employee No": a?.employeeNo || "",
         Region: outlet.region || "",
         Outlet: outlet.outlet || "",
         "Account Supervisor": outlet.accountSupervisor || "",
@@ -10396,6 +10414,7 @@ export default function OutletList() {
 
     const headers = [
       "#",
+      "Employee No",
       "Region",
       "Outlet",
       "Account Supervisor",
@@ -10428,6 +10447,7 @@ export default function OutletList() {
     // column widths
     ws["!cols"] = [
       { wch: 5 },
+      { wch: 12 },
       { wch: 12 },
       { wch: 45 },
       { wch: 22 },
@@ -10478,6 +10498,7 @@ export default function OutletList() {
     link.href = URL.createObjectURL(blob);
     link.download = `EFC_Outlets${supTag}_${new Date().toISOString().split("T")[0]}.xlsx`;
     link.click();
+    logExportActivity("EFC Outlets Export", exportRows.length);
   };
 
   // ── Summary export — Region, Outlet, Account, ADP, Payroll, Coordinator,
@@ -10495,6 +10516,7 @@ export default function OutletList() {
         : "";
       return {
         "#": index + 1,
+        "Employee No": a?.employeeNo || "",
         Region: outlet.region || "",
         Outlet: outlet.outlet || "",
         Account: outlet.accountSupervisor || "",
@@ -10512,6 +10534,7 @@ export default function OutletList() {
 
     const headers = [
       "#",
+      "Employee No",
       "Region",
       "Outlet",
       "Account",
@@ -10536,6 +10559,7 @@ export default function OutletList() {
 
     ws["!cols"] = [
       { wch: 5 },
+      { wch: 12 },
       { wch: 12 },
       { wch: 45 },
       { wch: 22 },
@@ -10568,6 +10592,7 @@ export default function OutletList() {
     link.href = URL.createObjectURL(blob);
     link.download = `EFC_Payroll-Data_${new Date().toISOString().split("T")[0]}.xlsx`;
     link.click();
+    logExportActivity("EFC Payroll Data Export", exportRows.length);
   };
 
   const handleEdit = (outletRow) => {
