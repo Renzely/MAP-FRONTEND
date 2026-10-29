@@ -46,6 +46,7 @@ import AccountCreationEmployee from "./components/pages/AccountCreationEmployee/
 import AccountCreationProfile from "./components/pages/AccountCreationProfileclient/AccountCreationProfileclient";
 import ViewClientProfile from "./components/pages/ViewClientProfile/ViewClientProfile";
 import OutletList from "./components/pages/Outlets/Outletlist";
+import OutletListRoving from "./components/pages/Outlets/OutletlistRoving";
 import SPXHub from "./components/pages/Outlets/SPXHub";
 import ProtectedRoute from "./components/landingPage/ProtectedRoute";
 
@@ -82,6 +83,7 @@ function App() {
           />
           <Route path="/view-clientProfile" element={<ViewClientProfile />} />
           <Route path="/view-Outletlist" element={<OutletList />} />
+          <Route path="/view-OutletlistRoving" element={<OutletListRoving />} />
           <Route path="/view-spxhubs" element={<SPXHub />} />
 
           {/* BMPOWER */}
