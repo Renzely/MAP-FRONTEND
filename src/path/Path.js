@@ -27,6 +27,7 @@ const Path = () => {
       case "/view-dashboard":
       case "/view-recent-activity":
       case "/view-Outletlist":
+      case "/view-OutletlistRoving":
       case "/view-applicants":
       case "/view-inactives":
       case "/view-spxhubs":

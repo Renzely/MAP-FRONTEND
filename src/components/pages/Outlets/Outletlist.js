@@ -9523,6 +9523,22 @@ export const OUTLET_DATA = [
     adp: "ROBINSONS",
     payrollAccount: "ROBINSONS",
   },
+  {
+    id: 1183,
+    region: "NCR",
+    outlet: "SUPER 8 - BAMBOO ORGAN",
+    accountSupervisor: "ZABALLA, FERCEY",
+    adp: "SUPER 8",
+    payrollAccount: "BALANCE",
+  },
+  {
+    id: 1184,
+    region: "REGION 4A",
+    outlet: "SOUTH - CALAMBA",
+    accountSupervisor: "ZABALLA, FERCEY",
+    adp: "SOUTH",
+    payrollAccount: "BALANCE",
+  },
 ];
 
 // Base outlets stay fixed above. Slots ("- 2"/"- 3") added by Account Supervisors

@@ -109,6 +109,19 @@ export const NAV_CONFIG = [
     ],
   },
   {
+    label: "EFC Outlets Roving",
+    path: "/view-OutletlistRoving",
+    icon: StoreIcon,
+    section: "OPERATIONS",
+    allowedRoles: [
+      ...ALL_HR,
+      "ACCOUNT SUPERVISOR",
+      "EXECUTIVE DIRECTOR",
+      "OPERATION DIRECTOR",
+      "OPERATION ENCODER",
+    ],
+  },
+  {
     label: "SPX Hubs",
     path: "/view-spxhubs",
     icon: LocalShippingIcon,
