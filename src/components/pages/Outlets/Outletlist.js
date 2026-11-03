@@ -9923,6 +9923,7 @@ export default function OutletList() {
   const [filterADP, setFilterADP] = useState("ALL");
   const [searchText, setSearchText] = React.useState("");
   const [rateCards, setRateCards] = useState([]);
+  const [rovingGroups, setRovingGroups] = useState([]);
   // Modal states
   const [openEditModal, setOpenEditModal] = useState(false);
   const [selectedOutlet, setSelectedOutlet] = useState(null);
@@ -10029,6 +10030,19 @@ export default function OutletList() {
       window.removeEventListener("storage", check);
       clearInterval(iv);
     };
+  }, []);
+
+  useEffect(() => {
+    const fetchRovingGroups = async () => {
+      try {
+        const res = await axios.get("https://api-map.bmphrc.com/roving-groups");
+        setRovingGroups(res.data?.data || []);
+      } catch (err) {
+        console.error("Failed to fetch roving groups:", err);
+        setRovingGroups([]);
+      }
+    };
+    fetchRovingGroups();
   }, []);
 
   useEffect(() => {
@@ -10372,7 +10386,18 @@ export default function OutletList() {
       return isNaN(dt) ? "" : dt.toLocaleDateString("en-PH");
     };
 
-    // Build one row per currently-visible outlet, every column included
+    // outlet name → Roving ID (an outlet may sit in more than one package)
+    const rovingIdByOutlet = {};
+    rovingGroups.forEach((g) => {
+      (g.outlets || []).forEach((name) => {
+        if (g.rovingId) {
+          rovingIdByOutlet[name] = rovingIdByOutlet[name]
+            ? `${rovingIdByOutlet[name]}, ${g.rovingId}`
+            : g.rovingId;
+        }
+      });
+    });
+
     const exportRows = filteredOutlets.map((outlet, index) => {
       const a = outletAssignments[outlet.id];
       const c = coordinatorAssignments[outlet.id];
@@ -10381,6 +10406,7 @@ export default function OutletList() {
         "Employee No": a?.employeeNo || "",
         Region: outlet.region || "",
         Outlet: outlet.outlet || "",
+        "Roving ID": rovingIdByOutlet[outlet.outlet] || "",
         "Account Supervisor": outlet.accountSupervisor || "",
         ADP: outlet.adp || "",
         "Payroll Account": outlet.payrollAccount || "",
@@ -10412,10 +10438,6 @@ export default function OutletList() {
       };
     });
 
-    // ── Sort so each merchandiser's outlets sit together, alphabetically ──
-    // Rows WITH a merchandiser come first, sorted by merchandiser name; within
-    // the same merchandiser, sorted by outlet. Rows with NO merchandiser go
-    // last. The "#" column is then renumbered to follow this sorted order.
     exportRows.sort((r1, r2) => {
       const n1 = (r1.Merchandiser || "").trim().toLowerCase();
       const n2 = (r2.Merchandiser || "").trim().toLowerCase();
@@ -10433,6 +10455,7 @@ export default function OutletList() {
       "Employee No",
       "Region",
       "Outlet",
+      "Roving ID",
       "Account Supervisor",
       "ADP",
       "Payroll Account",
@@ -10460,12 +10483,12 @@ export default function OutletList() {
       header: headers,
     });
 
-    // column widths
     ws["!cols"] = [
       { wch: 5 },
       { wch: 12 },
       { wch: 12 },
       { wch: 45 },
+      { wch: 12 }, // Roving ID
       { wch: 22 },
       { wch: 16 },
       { wch: 16 },
@@ -10484,7 +10507,6 @@ export default function OutletList() {
       { wch: 18 },
     ];
 
-    // bold header row
     headers.forEach((_, col) => {
       const cell = XLSX.utils.encode_cell({ r: 0, c: col });
       if (ws[cell])
@@ -10522,6 +10544,17 @@ export default function OutletList() {
   const handleExportSummary = () => {
     const XLSX = require("sheetjs-style");
 
+    const rovingIdByOutlet = {};
+    rovingGroups.forEach((g) => {
+      (g.outlets || []).forEach((name) => {
+        if (g.rovingId) {
+          rovingIdByOutlet[name] = rovingIdByOutlet[name]
+            ? `${rovingIdByOutlet[name]}, ${g.rovingId}`
+            : g.rovingId;
+        }
+      });
+    });
+
     const exportRows = filteredOutlets.map((outlet, index) => {
       const a = outletAssignments[outlet.id];
       const c = coordinatorAssignments[outlet.id];
@@ -10535,6 +10568,7 @@ export default function OutletList() {
         "Employee No": a?.employeeNo || "",
         Region: outlet.region || "",
         Outlet: outlet.outlet || "",
+        "Roving ID": rovingIdByOutlet[outlet.outlet] || "",
         Account: outlet.accountSupervisor || "",
         ADP: outlet.adp || "",
         "Payroll Account": outlet.payrollAccount || "",
@@ -10553,6 +10587,7 @@ export default function OutletList() {
       "Employee No",
       "Region",
       "Outlet",
+      "Roving ID",
       "Account",
       "ADP",
       "Payroll Account",
@@ -10578,11 +10613,14 @@ export default function OutletList() {
       { wch: 12 },
       { wch: 12 },
       { wch: 45 },
+      { wch: 12 }, // Roving ID
       { wch: 22 },
       { wch: 16 },
       { wch: 18 },
       { wch: 24 },
       { wch: 28 },
+      { wch: 18 },
+      { wch: 18 },
       { wch: 18 },
       { wch: 18 },
       { wch: 18 },
