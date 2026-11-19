@@ -7457,7 +7457,7 @@ export const OUTLET_DATA = [
     outlet: "SOUTH - CALAMBA",
     accountSupervisor: "ZABALLA, FERCEY",
     adp: "SOUTH",
-    payrollAccount: "",
+    payrollAccount: "BALANCE",
   },
   {
     id: 925,
@@ -9531,14 +9531,6 @@ export const OUTLET_DATA = [
     adp: "SUPER 8",
     payrollAccount: "BALANCE",
   },
-  {
-    id: 1184,
-    region: "REGION 4A",
-    outlet: "SOUTH - CALAMBA",
-    accountSupervisor: "ZABALLA, FERCEY",
-    adp: "SOUTH",
-    payrollAccount: "BALANCE",
-  },
 ];
 
 // Base outlets stay fixed above. Slots ("- 2"/"- 3") added by Account Supervisors
@@ -10635,6 +10627,12 @@ export default function OutletList() {
           alignment: { horizontal: "center", vertical: "center" },
         };
     });
+
+    ws["!protect"] = {
+      password: "bmphrc2026",
+      selectLockedCells: true,
+      selectUnlockedCells: true,
+    };
 
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "EFC Summary");
