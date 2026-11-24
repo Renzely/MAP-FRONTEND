@@ -37,6 +37,9 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  Popover,
+  Badge,
+  Stack,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";
@@ -57,6 +60,7 @@ import LockIcon from "@mui/icons-material/Lock";
 import WorkIcon from "@mui/icons-material/Work";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
+import FilterListIcon from "@mui/icons-material/FilterList";
 
 import Topbar from "../../topbar/Topbar";
 import Sidebar from "../../sidebar/Sidebar";
@@ -9913,6 +9917,8 @@ export default function OutletList() {
   const [filterType, setFilterType] = useState("ALL");
   const [filterSupervisor, setFilterSupervisor] = useState("ALL");
   const [filterADP, setFilterADP] = useState("ALL");
+  const [filterPayroll, setFilterPayroll] = useState("ALL");
+  const [filterAnchor, setFilterAnchor] = useState(null);
   const [searchText, setSearchText] = React.useState("");
   const [rateCards, setRateCards] = useState([]);
   const [rovingGroups, setRovingGroups] = useState([]);
@@ -10206,6 +10212,7 @@ export default function OutletList() {
     type = "ALL",
     supervisor = "ALL",
     adp = "ALL",
+    payroll = "ALL",
   ) => {
     let filtered = [...RUNTIME_OUTLETS];
 
@@ -10221,6 +10228,10 @@ export default function OutletList() {
 
     if (adp !== "ALL") {
       filtered = filtered.filter((o) => (o.adp || "") === adp);
+    }
+
+    if (payroll !== "ALL") {
+      filtered = filtered.filter((o) => (o.payrollAccount || "") === payroll);
     }
 
     if (type !== "ALL") {
@@ -10297,13 +10308,27 @@ export default function OutletList() {
   const handleRegionFilter = (e) => {
     const value = e.target.value;
     setFilterRegion(value);
-    applyFilters(value, filterStatus, filterType, filterSupervisor, filterADP);
+    applyFilters(
+      value,
+      filterStatus,
+      filterType,
+      filterSupervisor,
+      filterADP,
+      filterPayroll,
+    );
   };
 
   const handleStatusFilter = (e) => {
     const value = e.target.value;
     setFilterStatus(value);
-    applyFilters(filterRegion, value, filterType, filterSupervisor, filterADP);
+    applyFilters(
+      filterRegion,
+      value,
+      filterType,
+      filterSupervisor,
+      filterADP,
+      filterPayroll,
+    );
   };
 
   const handleTypeFilter = (e) => {
@@ -10315,13 +10340,21 @@ export default function OutletList() {
       value,
       filterSupervisor,
       filterADP,
+      filterPayroll,
     );
   };
 
   const handleSupervisorFilter = (e) => {
     const value = e.target.value;
     setFilterSupervisor(value);
-    applyFilters(filterRegion, filterStatus, filterType, value, filterADP);
+    applyFilters(
+      filterRegion,
+      filterStatus,
+      filterType,
+      value,
+      filterADP,
+      filterPayroll,
+    );
   };
 
   const handleADPFilter = (e) => {
@@ -10333,7 +10366,42 @@ export default function OutletList() {
       filterType,
       filterSupervisor,
       value,
+      filterPayroll,
     );
+  };
+
+  const handlePayrollFilter = (e) => {
+    const value = e.target.value;
+    setFilterPayroll(value);
+    applyFilters(
+      filterRegion,
+      filterStatus,
+      filterType,
+      filterSupervisor,
+      filterADP,
+      value,
+    );
+  };
+
+  // Count of active (non-"ALL") filters, for the Filters button badge.
+  const activeFilterCount = [
+    filterRegion,
+    filterStatus,
+    filterType,
+    filterSupervisor,
+    filterADP,
+    filterPayroll,
+  ].filter((v) => v && v !== "ALL").length;
+
+  // Reset every filter back to "ALL".
+  const clearAllFilters = () => {
+    setFilterRegion("ALL");
+    setFilterStatus("ALL");
+    setFilterType("ALL");
+    setFilterSupervisor("ALL");
+    setFilterADP("ALL");
+    setFilterPayroll("ALL");
+    applyFilters("ALL", "ALL", "ALL", "ALL", "ALL", "ALL");
   };
 
   // Unique, sorted list of Account Supervisors for the dropdown
@@ -10349,6 +10417,15 @@ export default function OutletList() {
   const adpOptions = Array.from(
     new Set(
       RUNTIME_OUTLETS.map((o) => o.adp).filter((s) => s && s.trim() !== ""),
+    ),
+  ).sort();
+
+  // Unique, sorted list of Payroll Account values for the dropdown
+  const payrollOptions = Array.from(
+    new Set(
+      RUNTIME_OUTLETS.map((o) => o.payrollAccount).filter(
+        (s) => s && s.trim() !== "",
+      ),
     ),
   ).sort();
 
@@ -11537,93 +11614,236 @@ export default function OutletList() {
                 gap: 2,
               }}
             >
-              <FormControl sx={{ minWidth: 130 }}>
-                <InputLabel>Filter by Region</InputLabel>
-                <Select
-                  value={filterRegion}
-                  onChange={handleRegionFilter}
-                  label="Filter by Region"
-                  sx={{ backgroundColor: "white", borderRadius: "8px" }}
-                >
-                  <MenuItem value="ALL">All Regions</MenuItem>
-                  <MenuItem value="NCR">NCR</MenuItem>
-                  <MenuItem value="CAR">CAR</MenuItem>
-                  <MenuItem value="REGION 1">Region 1</MenuItem>
-                  <MenuItem value="REGION 2">Region 2</MenuItem>
-                  <MenuItem value="REGION 3">Region 3</MenuItem>
-                  <MenuItem value="REGION 4A">Region 4A</MenuItem>
-                  <MenuItem value="REGION 4B">Region 4B</MenuItem>
-                  <MenuItem value="REGION 5">Region 5</MenuItem>
-                  <MenuItem value="REGION 6">Region 6</MenuItem>
-                  <MenuItem value="REGION 7">Region 7</MenuItem>
-                  <MenuItem value="REGION 8">Region 8</MenuItem>
-                  <MenuItem value="REGION 9">Region 9</MenuItem>
-                  <MenuItem value="REGION 10">Region 10</MenuItem>
-                  <MenuItem value="REGION 11">Region 11</MenuItem>
-                  <MenuItem value="REGION 12">Region 12</MenuItem>
-                </Select>
-              </FormControl>
-              <FormControl sx={{ minWidth: 130 }}>
-                <InputLabel>Filter by Status</InputLabel>
-                <Select
-                  value={filterStatus}
-                  onChange={handleStatusFilter}
-                  label="Filter by Status"
-                  sx={{ backgroundColor: "white", borderRadius: "8px" }}
-                >
-                  <MenuItem value="ALL">All Records</MenuItem>
-                  <MenuItem value="Deployed">Deployed</MenuItem>
-                  <MenuItem value="Reliever Deployed">
-                    Reliever Deployed
-                  </MenuItem>
-                  <MenuItem value="Undeployed">Undeployed</MenuItem>
-                </Select>
-              </FormControl>
-              <FormControl sx={{ minWidth: 130 }}>
-                <InputLabel>Filter by Type of Deployment</InputLabel>
-                <Select
-                  value={filterType}
-                  onChange={handleTypeFilter}
-                  label="Filter by Type of Deployment"
-                  sx={{ backgroundColor: "white", borderRadius: "8px" }}
-                >
-                  <MenuItem value="ALL">All Types</MenuItem>
-                  <MenuItem value="Stationary">Stationary</MenuItem>
-                  <MenuItem value="Roving">Roving</MenuItem>
-                </Select>
-              </FormControl>
-              <FormControl sx={{ minWidth: 130 }}>
-                <InputLabel>Filter by Account Supervisor</InputLabel>
-                <Select
-                  value={filterSupervisor}
-                  onChange={handleSupervisorFilter}
-                  label="Filter by Account Supervisor"
-                  sx={{ backgroundColor: "white", borderRadius: "8px" }}
-                >
-                  <MenuItem value="ALL">All Supervisors</MenuItem>
-                  {supervisorOptions.map((sup) => (
-                    <MenuItem key={sup} value={sup}>
-                      {sup}
-                    </MenuItem>
+              {/* ── Single Filters entry point ── */}
+              <Button
+                variant="outlined"
+                startIcon={
+                  <Badge
+                    badgeContent={activeFilterCount}
+                    color="primary"
+                    overlap="circular"
+                  >
+                    <FilterListIcon />
+                  </Badge>
+                }
+                onClick={(e) => setFilterAnchor(e.currentTarget)}
+                sx={{
+                  minWidth: 120,
+                  color: "#2e6385",
+                  borderColor: "#2e6385",
+                  fontWeight: 600,
+                  textTransform: "none",
+                  borderRadius: "8px",
+                  backgroundColor: "white",
+                }}
+              >
+                Filters
+              </Button>
+
+              {/* Active filter chips (removable) */}
+              <Box
+                sx={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: 1,
+                  flexGrow: 1,
+                }}
+              >
+                {[
+                  {
+                    key: "Region",
+                    value: filterRegion,
+                    clear: () =>
+                      handleRegionFilter({ target: { value: "ALL" } }),
+                  },
+                  {
+                    key: "Status",
+                    value: filterStatus,
+                    clear: () =>
+                      handleStatusFilter({ target: { value: "ALL" } }),
+                  },
+                  {
+                    key: "Type",
+                    value: filterType,
+                    clear: () => handleTypeFilter({ target: { value: "ALL" } }),
+                  },
+                  {
+                    key: "Supervisor",
+                    value: filterSupervisor,
+                    clear: () =>
+                      handleSupervisorFilter({ target: { value: "ALL" } }),
+                  },
+                  {
+                    key: "ADP",
+                    value: filterADP,
+                    clear: () => handleADPFilter({ target: { value: "ALL" } }),
+                  },
+                  {
+                    key: "Payroll",
+                    value: filterPayroll,
+                    clear: () =>
+                      handlePayrollFilter({ target: { value: "ALL" } }),
+                  },
+                ]
+                  .filter((f) => f.value && f.value !== "ALL")
+                  .map((f) => (
+                    <Chip
+                      key={f.key}
+                      label={`${f.key}: ${f.value}`}
+                      onDelete={f.clear}
+                      size="small"
+                      sx={{
+                        backgroundColor: "#e8eef2",
+                        color: "#2e6385",
+                        fontWeight: 600,
+                      }}
+                    />
                   ))}
-                </Select>
-              </FormControl>
-              <FormControl sx={{ minWidth: 130 }}>
-                <InputLabel>Filter by ADP</InputLabel>
-                <Select
-                  value={filterADP}
-                  onChange={handleADPFilter}
-                  label="Filter by ADP"
-                  sx={{ backgroundColor: "white", borderRadius: "8px" }}
+                {activeFilterCount > 0 && (
+                  <Chip
+                    label="Clear all"
+                    onClick={clearAllFilters}
+                    size="small"
+                    variant="outlined"
+                    sx={{
+                      color: "#b00020",
+                      borderColor: "#b00020",
+                      fontWeight: 600,
+                    }}
+                  />
+                )}
+              </Box>
+
+              {/* Filters popover — pick any fields to filter by */}
+              <Popover
+                open={Boolean(filterAnchor)}
+                anchorEl={filterAnchor}
+                onClose={() => setFilterAnchor(null)}
+                anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+                transformOrigin={{ vertical: "top", horizontal: "left" }}
+                PaperProps={{
+                  sx: { p: 2.5, borderRadius: "12px", width: 300 },
+                }}
+              >
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    mb: 1.5,
+                  }}
                 >
-                  <MenuItem value="ALL">All ADP</MenuItem>
-                  {adpOptions.map((a) => (
-                    <MenuItem key={a} value={a}>
-                      {a}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+                  <Typography sx={{ fontWeight: 700, color: "#2e6385" }}>
+                    Filters
+                  </Typography>
+                  <Button
+                    size="small"
+                    onClick={clearAllFilters}
+                    sx={{ textTransform: "none", color: "#b00020" }}
+                  >
+                    Clear all
+                  </Button>
+                </Box>
+                <Stack spacing={2}>
+                  <FormControl fullWidth size="small">
+                    <InputLabel>Region</InputLabel>
+                    <Select
+                      value={filterRegion}
+                      onChange={handleRegionFilter}
+                      label="Region"
+                    >
+                      <MenuItem value="ALL">All Regions</MenuItem>
+                      <MenuItem value="NCR">NCR</MenuItem>
+                      <MenuItem value="CAR">CAR</MenuItem>
+                      <MenuItem value="REGION 1">Region 1</MenuItem>
+                      <MenuItem value="REGION 2">Region 2</MenuItem>
+                      <MenuItem value="REGION 3">Region 3</MenuItem>
+                      <MenuItem value="REGION 4A">Region 4A</MenuItem>
+                      <MenuItem value="REGION 4B">Region 4B</MenuItem>
+                      <MenuItem value="REGION 5">Region 5</MenuItem>
+                      <MenuItem value="REGION 6">Region 6</MenuItem>
+                      <MenuItem value="REGION 7">Region 7</MenuItem>
+                      <MenuItem value="REGION 8">Region 8</MenuItem>
+                      <MenuItem value="REGION 9">Region 9</MenuItem>
+                      <MenuItem value="REGION 10">Region 10</MenuItem>
+                      <MenuItem value="REGION 11">Region 11</MenuItem>
+                      <MenuItem value="REGION 12">Region 12</MenuItem>
+                    </Select>
+                  </FormControl>
+                  <FormControl fullWidth size="small">
+                    <InputLabel>Status</InputLabel>
+                    <Select
+                      value={filterStatus}
+                      onChange={handleStatusFilter}
+                      label="Status"
+                    >
+                      <MenuItem value="ALL">All Records</MenuItem>
+                      <MenuItem value="Deployed">Deployed</MenuItem>
+                      <MenuItem value="Reliever Deployed">
+                        Reliever Deployed
+                      </MenuItem>
+                      <MenuItem value="Undeployed">Undeployed</MenuItem>
+                    </Select>
+                  </FormControl>
+                  <FormControl fullWidth size="small">
+                    <InputLabel>Type of Deployment</InputLabel>
+                    <Select
+                      value={filterType}
+                      onChange={handleTypeFilter}
+                      label="Type of Deployment"
+                    >
+                      <MenuItem value="ALL">All Types</MenuItem>
+                      <MenuItem value="Stationary">Stationary</MenuItem>
+                      <MenuItem value="Roving">Roving</MenuItem>
+                    </Select>
+                  </FormControl>
+                  <FormControl fullWidth size="small">
+                    <InputLabel>Account Supervisor</InputLabel>
+                    <Select
+                      value={filterSupervisor}
+                      onChange={handleSupervisorFilter}
+                      label="Account Supervisor"
+                    >
+                      <MenuItem value="ALL">All Supervisors</MenuItem>
+                      {supervisorOptions.map((sup) => (
+                        <MenuItem key={sup} value={sup}>
+                          {sup}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  <FormControl fullWidth size="small">
+                    <InputLabel>ADP</InputLabel>
+                    <Select
+                      value={filterADP}
+                      onChange={handleADPFilter}
+                      label="ADP"
+                    >
+                      <MenuItem value="ALL">All ADP</MenuItem>
+                      {adpOptions.map((a) => (
+                        <MenuItem key={a} value={a}>
+                          {a}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  <FormControl fullWidth size="small">
+                    <InputLabel>Payroll Account</InputLabel>
+                    <Select
+                      value={filterPayroll}
+                      onChange={handlePayrollFilter}
+                      label="Payroll Account"
+                    >
+                      <MenuItem value="ALL">All Payroll Accounts</MenuItem>
+                      {payrollOptions.map((pa) => (
+                        <MenuItem key={pa} value={pa}>
+                          {pa}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Stack>
+              </Popover>
               <Button
                 variant="contained"
                 startIcon={<FileDownloadIcon />}
