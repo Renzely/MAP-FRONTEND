@@ -10160,21 +10160,21 @@ export default function OutletListRoving() {
     });
 
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Roving Packages");
+    XLSX.utils.book_append_sheet(wb, ws, "Roving Clustering");
     const buffer = XLSX.write(wb, { type: "array", bookType: "xlsx" });
     const blob = new Blob([buffer], {
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = `EFC_Roving-Packages_${new Date().toISOString().split("T")[0]}.xlsx`;
+    link.download = `EFC_Roving-Clustering_${new Date().toISOString().split("T")[0]}.xlsx`;
     link.click();
 
     // Log the export to Recent Activity + notifications (same route as before).
     (async () => {
       try {
         await axios.post(`${API}/log-export`, {
-          exportName: "EFC Roving Packages Export",
+          exportName: "EFC Roving Cluster Export",
           rowCount: rows.length,
           clientAssigned: "ECOSSENTIAL FOODS CORP",
           updatedBy: localStorage.getItem("adminFullName") || "Unknown",
@@ -10336,7 +10336,7 @@ export default function OutletListRoving() {
                 EFC Roving Outlets
               </Typography>
               <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                Group roving outlets into packages — each gets an auto Roving ID
+                Group roving outlets into cluster — each gets an auto Roving ID
               </Typography>
             </Box>
             {canEdit && (
@@ -10351,7 +10351,7 @@ export default function OutletListRoving() {
                   "&:hover": { backgroundColor: "#e2e8f0" },
                 }}
               >
-                Create Roving Package
+                Create Roving Clustering
               </Button>
             )}
           </Paper>
@@ -10368,7 +10368,7 @@ export default function OutletListRoving() {
                     variant="caption"
                     sx={{ color: "#64748b", fontWeight: 600 }}
                   >
-                    TOTAL ROVING PACKAGES
+                    TOTAL ROVING CLUSTER
                   </Typography>
                   <Typography
                     variant="h4"
@@ -10508,7 +10508,7 @@ export default function OutletListRoving() {
         fullWidth
       >
         <DialogTitle sx={{ fontWeight: 700, color: "#1e3a5f" }}>
-          {editingGroup ? "Edit Roving Package" : "Create Roving Package"}
+          {editingGroup ? "Edit Roving Cluster" : "Create Roving Cluster"}
           <IconButton
             onClick={closeGroupModal}
             sx={{ position: "absolute", right: 12, top: 12 }}
