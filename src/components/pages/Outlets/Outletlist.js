@@ -9535,6 +9535,72 @@ export const OUTLET_DATA = [
     adp: "SUPER 8",
     payrollAccount: "BALANCE",
   },
+
+  {
+    id: 1184,
+    region: "REGION 7",
+    outlet: "GAISANO METRO - ASTRA",
+    accountSupervisor: "DOBLE, RYAN",
+    adp: "BROLLEE",
+    payrollAccount: "GENTRADE",
+  },
+
+  {
+    id: 1185,
+    region: "REGION 7",
+    outlet: "METRO MAJI",
+    accountSupervisor: "DOBLE, RYAN",
+    adp: "BROLLEE",
+    payrollAccount: "GENTRADE",
+  },
+  {
+    id: 1186,
+    region: "REGION 7",
+    outlet: "GAISANO METRO - PATRIA",
+    accountSupervisor: "DOBLE, RYAN",
+    adp: "BROLLEE",
+    payrollAccount: "GENTRADE",
+  },
+  {
+    id: 1187,
+    region: "REGION 7",
+    outlet: "GAISANO METRO - MANDANI",
+    accountSupervisor: "DOBLE, RYAN",
+    adp: "BROLLEE",
+    payrollAccount: "GENTRADE",
+  },
+  {
+    id: 1188,
+    region: "REGION 7",
+    outlet: "GAISANO CAPITAL - MACTAN CIRCLE",
+    accountSupervisor: "DOBLE, RYAN",
+    adp: "BROLLEE",
+    payrollAccount: "GENTRADE",
+  },
+  {
+    id: 1189,
+    region: "REGION 7",
+    outlet: "SAVEMORE - NAGA",
+    accountSupervisor: "DOBLE, RYAN",
+    adp: "BROLLEE",
+    payrollAccount: "GENTRADE",
+  },
+  {
+    id: 1190,
+    region: "REGION 7",
+    outlet: "SAVEMORE - CARCAR",
+    accountSupervisor: "DOBLE, RYAN",
+    adp: "BROLLEE",
+    payrollAccount: "GENTRADE",
+  },
+  {
+    id: 1191,
+    region: "REGION 10",
+    outlet: "PUREGOLD PRICE CLUB - DAVAO LANANG",
+    accountSupervisor: "DOBLE, RYAN",
+    adp: "PUREGOLD",
+    payrollAccount: "GENTRADE",
+  },
 ];
 
 // Base outlets stay fixed above. Slots ("- 2"/"- 3") added by Account Supervisors
